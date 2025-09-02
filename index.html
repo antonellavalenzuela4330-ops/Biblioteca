@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Biblioteca</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Login Page -->
+        <div id="loginPage" class="auth-container">
+            <div class="auth-wrapper">
+                <div class="auth-left" aria-hidden="true"></div>
+                <div class="auth-right">
+                    <div class="brand">
+                        <img src="unnamed.png" alt="EVERTALES" class="brand-logo" />
+                        <div class="brand-sep"></div>
+                    </div>
+                    <div class="auth-form auth-form-hero">
+                        <h2 class="auth-heading">INICIAR SESIÓN</h2>
+                        <form id="loginForm">
+                            <div class="form-group">
+                                <label for="loginEmail" class="label-hero">EMAIL.</label>
+                                <input type="email" id="loginEmail" class="input-hero" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="loginPassword" class="label-hero">CONTRASEÑA</label>
+                                <input type="password" id="loginPassword" class="input-hero" required>
+                            </div>
+                            <button type="submit" class="btn btn-hero">INICIAR SESIÓN</button>
+                        </form>
+                        <div class="auth-links auth-links-hero">
+                            <button class="link-btn" onclick="showRegisterPage()">CREAR UNA CUENTA</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Page -->
+        <div id="registerPage" class="auth-container" style="display: none;">
+            <div class="auth-wrapper">
+                <div class="auth-left" aria-hidden="true"></div>
+                <div class="auth-right">
+                    <div class="brand">
+                        <img src="unnamed.png" alt="EVERTALES" class="brand-logo" />
+                        <div class="brand-sep"></div>
+                    </div>
+                    <div class="auth-form auth-form-hero">
+                        <h2 class="auth-heading">CREAR CUENTA</h2>
+                        <form id="registerForm">
+                            <div class="form-group">
+                                <label for="registerName" class="label-hero">NOMBRE</label>
+                                <input type="text" id="registerName" class="input-hero" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="registerEmail" class="label-hero">EMAIL.</label>
+                                <input type="email" id="registerEmail" class="input-hero" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="registerPassword" class="label-hero">CONTRASEÑA</label>
+                                <input type="password" id="registerPassword" class="input-hero" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="registerRole" class="label-hero">ROL</label>
+                                <select id="registerRole" class="input-hero select-hero" required>
+                                    <option value="usuario">Usuario</option>
+                                    <option value="bibliotecario">Bibliotecario</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-hero">REGISTRARME</button>
+                        </form>
+                        <div class="auth-links auth-links-hero">
+                            <button class="link-btn" onclick="showLoginPage()">¿YA TIENES UNA CUENTA? INICIA SESIÓN</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forgot Password Page -->
+        <div id="forgotPasswordPage" class="auth-container" style="display: none;">
+            <div class="auth-form">
+                <h2>Recuperar Contraseña</h2>
+                <p>Ingresa tu email para recibir instrucciones de recuperación:</p>
+                <form id="forgotPasswordForm">
+                    <div class="form-group">
+                        <label for="forgotEmail">Email:</label>
+                        <input type="email" id="forgotEmail" required>
+                    </div>
+                    <button type="submit" class="btn">Enviar Instrucciones</button>
+                </form>
+                <div class="auth-links">
+                    <button class="link-btn" onclick="showLoginPage()">Volver al inicio de sesión</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="dashboard">
+            <div class="dashboard-header">
+                <div class="user-info">
+                    <span id="userName">Usuario</span>
+                    <span id="userRole" class="user-role">Usuario</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+            </div>
+
+            <!-- Navigation -->
+            <div class="nav-tabs">
+                <div class="nav-tab active" onclick="showSection('catalog')">Catálogo</div>
+                <div class="nav-tab" onclick="showSection('search')">Buscar</div>
+                <div class="nav-tab admin-only" onclick="showSection('admin')">Administración</div>
+                <div class="nav-tab librarian-only" onclick="showSection('loans')">Préstamos</div>
+                <div class="nav-tab admin-only" onclick="showSection('users')">Usuarios</div>
+                <div class="nav-tab" onclick="showSection('stats')">Estadísticas</div>
+            </div>
+
+            <!-- Catalog Section -->
+            <div id="catalogSection" class="content-section active">
+                <h2>Catálogo de Libros</h2>
+                <div class="catalog-controls">
+                    <button class="btn" onclick="showAddBookModal()">➕ Agregar Libro</button>
+                </div>
+                <div id="booksGrid" class="books-grid"></div>
+            </div>
+
+            <!-- Search Section -->
+            <div id="searchSection" class="content-section">
+                <h2>Buscar Libros</h2>
+                <div class="search-container">
+                    <div class="search-filters">
+                        <input type="text" id="searchInput" class="search-input" placeholder="Buscar por título, autor, género, editorial o tutor...">
+                        <select id="genreFilter" class="filter-select">
+                            <option value="">Todos los géneros</option>
+                        </select>
+                        <select id="editorialFilter" class="filter-select">
+                            <option value="">Todas las editoriales</option>
+                        </select>
+                        <select id="tutorFilter" class="filter-select">
+                            <option value="">Todos los tutores</option>
+                        </select>
+                        <select id="statusFilter" class="filter-select">
+                            <option value="">Todos los estados</option>
+                            <option value="disponible">Disponible</option>
+                            <option value="agotado">Agotado</option>
+                        </select>
+                        <button class="btn" onclick="searchBooks()">Buscar</button>
+                        <button class="btn btn-secondary" onclick="clearSearch()">Limpiar</button>
+                    </div>
+                </div>
+                <div id="searchResults" class="books-grid"></div>
+            </div>
+
+            <!-- Admin Section -->
+            <div id="adminSection" class="content-section">
+                <h2>Panel de Administración</h2>
+                <div class="admin-panel">
+                    <h3>Gestión de Libros</h3>
+                    <form id="bookForm" class="admin-form">
+                        <input type="text" id="bookTitle" placeholder="Título del libro" required>
+                        <input type="text" id="bookAuthor" placeholder="Autor" required>
+                        <input type="text" id="bookGenre" placeholder="Género" required>
+                        <input type="text" id="bookEditorial" placeholder="Editorial" required>
+                        <input type="text" id="bookTutor" placeholder="Tutor/Académico" required>
+                        <input type="number" id="bookYear" placeholder="Año de publicación" required min="1000" max="2024">
+                        <input type="number" id="bookStock" placeholder="Stock disponible" required min="0">
+                        <input type="text" id="bookIsbn" placeholder="ISBN" required>
+                        <textarea id="bookDescription" placeholder="Descripción del libro" rows="3"></textarea>
+                        <button type="submit" class="btn">Guardar Libro</button>
+                    </form>
+                </div>
+                <div id="adminAlerts"></div>
+                <div id="inventoryTable"></div>
+            </div>
+
+            <!-- Loans Section -->
+            <div id="loansSection" class="content-section">
+                <h2>Gestión de Préstamos</h2>
+                <div class="admin-panel">
+                    <h3>Nuevo Préstamo</h3>
+                    <form id="loanForm" class="admin-form">
+                        <select id="loanBook" required>
+                            <option value="">Seleccionar libro</option>
+                        </select>
+                        <select id="loanUser" required>
+                            <option value="">Seleccionar usuario</option>
+                        </select>
+                        <input type="date" id="loanDate" required>
+                        <input type="date" id="returnDate" required>
+                        <button type="submit" class="btn">Crear Préstamo</button>
+                    </form>
+                </div>
+                <div id="loansList"></div>
+            </div>
+
+            <!-- Users Section -->
+            <div id="usersSection" class="content-section">
+                <h2>Gestión de Usuarios</h2>
+                <div class="admin-panel">
+                    <h3>Agregar/Editar Usuario</h3>
+                    <form id="userForm" class="admin-form">
+                        <input type="text" id="userName" placeholder="Nombre completo" required>
+                        <input type="email" id="userEmail" placeholder="Email" required>
+                        <input type="password" id="userPassword" placeholder="Contraseña" required>
+                        <select id="userRole" required>
+                            <option value="usuario">Usuario</option>
+                            <option value="bibliotecario">Bibliotecario</option>
+                        </select>
+                        <select id="userStatus" required>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                            <option value="suspendido">Suspendido</option>
+                        </select>
+                        <button type="submit" class="btn">Guardar Usuario</button>
+                    </form>
+                </div>
+                <div id="usersTable"></div>
+            </div>
+
+            <!-- Stats Section -->
+            <div id="statsSection" class="content-section">
+                <h2>Estadísticas de la Biblioteca</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Libros</h3>
+                        <div class="stat-number" id="totalBooks">0</div>
+                        <div class="stat-label">Total en catálogo</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Disponibles</h3>
+                        <div class="stat-number" id="availableBooks">0</div>
+                        <div class="stat-label">En stock</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Préstamos</h3>
+                        <div class="stat-number" id="totalLoans">0</div>
+                        <div class="stat-label">Total realizados</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Activos</h3>
+                        <div class="stat-number" id="activeLoans">0</div>
+                        <div class="stat-label">En curso</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Usuarios</h3>
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">Registrados</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Activos</h3>
+                        <div class="stat-number" id="activeUsers">0</div>
+                        <div class="stat-label">Usuarios activos</div>
+                    </div>
+                </div>
+                <div class="stats-charts">
+                    <div class="chart-container">
+                        <h3>Libros por Género</h3>
+                        <div id="genreChart"></div>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Préstamos por Mes</h3>
+                        <div id="loansChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para agregar/editar libros -->
+    <div id="bookModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeBookModal()">&times;</span>
+            <h2 id="modalTitle">Agregar Nuevo Libro</h2>
+            <form id="modalBookForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="modalBookTitle">Título:</label>
+                        <input type="text" id="modalBookTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modalBookAuthor">Autor:</label>
+                        <input type="text" id="modalBookAuthor" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="modalBookGenre">Género:</label>
+                        <input type="text" id="modalBookGenre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modalBookEditorial">Editorial:</label>
+                        <input type="text" id="modalBookEditorial" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="modalBookTutor">Tutor/Académico:</label>
+                        <input type="text" id="modalBookTutor" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modalBookYear">Año:</label>
+                        <input type="number" id="modalBookYear" required min="1000" max="2024">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="modalBookStock">Stock:</label>
+                        <input type="number" id="modalBookStock" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="modalBookIsbn">ISBN:</label>
+                        <input type="text" id="modalBookIsbn" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="modalBookDescription">Descripción:</label>
+                    <textarea id="modalBookDescription" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn">Guardar</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeBookModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

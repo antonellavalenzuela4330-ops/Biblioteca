@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Sistema de Biblioteca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .error { background: #ffe6e6; border-left: 4px solid #ff0000; }
+        .success { background: #e6ffe6; border-left: 4px solid #00ff00; }
+        .warning { background: #fff2e6; border-left: 4px solid #ff9900; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .result {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>🐛 Debug del Sistema de Biblioteca</h1>
+    
+    <div class="debug-section">
+        <h2>1. Verificar Carga de Archivos</h2>
+        <button onclick="checkFiles()">Verificar Archivos</button>
+        <div id="filesResult" class="result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>2. Verificar Base de Datos</h2>
+        <button onclick="checkDatabase()">Verificar Base de Datos</button>
+        <div id="dbResult" class="result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>3. Verificar Variables Globales</h2>
+        <button onclick="checkVariables()">Verificar Variables</button>
+        <div id="varsResult" class="result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>4. Probar Login Directo</h2>
+        <button onclick="testDirectLogin()">Probar Login</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>5. Limpiar y Reiniciar</h2>
+        <button onclick="resetAll()">Limpiar Todo</button>
+        <button onclick="reloadPage()">Recargar Página</button>
+        <div id="resetResult" class="result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>6. Ir al Sistema Principal</h2>
+        <a href="index.html"><button style="background: #28a745;">Abrir Sistema Principal</button></a>
+    </div>
+
+    <script>
+        // Función para verificar archivos
+        function checkFiles() {
+            const result = document.getElementById('filesResult');
+            let output = 'Verificando archivos...\n\n';
+            
+            try {
+                // Verificar si data.js está cargado
+                if (typeof db !== 'undefined') {
+                    output += '✅ data.js: CARGADO\n';
+                    output += `   - Instancia db: ${typeof db}\n`;
+                    output += `   - Métodos disponibles: ${Object.getOwnPropertyNames(Object.getPrototypeOf(db)).join(', ')}\n`;
+                } else {
+                    output += '❌ data.js: NO CARGADO\n';
+                }
+                
+                // Verificar si script.js está cargado
+                if (typeof handleLogin !== 'undefined') {
+                    output += '✅ script.js: CARGADO\n';
+                } else {
+                    output += '❌ script.js: NO CARGADO\n';
+                }
+                
+                result.innerHTML = output;
+                result.className = 'result success';
+            } catch (error) {
+                result.innerHTML = `❌ Error: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        // Función para verificar base de datos
+        function checkDatabase() {
+            const result = document.getElementById('dbResult');
+            let output = 'Verificando base de datos...\n\n';
+            
+            try {
+                if (typeof db !== 'undefined') {
+                    const users = db.getUsers();
+                    const books = db.getBooks();
+                    const loans = db.getLoans();
+                    
+                    output += `✅ Base de datos funcionando:\n`;
+                    output += `   - Usuarios: ${users.length}\n`;
+                    output += `   - Libros: ${books.length}\n`;
+                    output += `   - Préstamos: ${loans.length}\n\n`;
+                    
+                    if (users.length > 0) {
+                        output += `📋 Primer usuario:\n`;
+                        output += `   - Nombre: ${users[0].name}\n`;
+                        output += `   - Email: ${users[0].email}\n`;
+                        output += `   - Rol: ${users[0].role}\n`;
+                        output += `   - Estado: ${users[0].status}\n`;
+                    }
+                    
+                    result.className = 'result success';
+                } else {
+                    output += '❌ Base de datos no disponible';
+                    result.className = 'result error';
+                }
+                
+                result.innerHTML = output;
+            } catch (error) {
+                result.innerHTML = `❌ Error: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        // Función para verificar variables globales
+        function checkVariables() {
+            const result = document.getElementById('varsResult');
+            let output = 'Verificando variables globales...\n\n';
+            
+            try {
+                output += `📊 Variables globales:\n`;
+                output += `   - db: ${typeof db}\n`;
+                output += `   - users: ${typeof users} (${users ? users.length : 'undefined'})\n`;
+                output += `   - books: ${typeof books} (${books ? books.length : 'undefined'})\n`;
+                output += `   - loans: ${typeof loans} (${loans ? loans.length : 'undefined'})\n`;
+                output += `   - currentUser: ${typeof currentUser}\n`;
+                
+                if (typeof refreshGlobalData === 'function') {
+                    output += `   - refreshGlobalData: ✅ Función disponible\n`;
+                } else {
+                    output += `   - refreshGlobalData: ❌ No disponible\n`;
+                }
+                
+                result.innerHTML = output;
+                result.className = 'result success';
+            } catch (error) {
+                result.innerHTML = `❌ Error: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        // Función para probar login directo
+        function testDirectLogin() {
+            const result = document.getElementById('loginResult');
+            let output = 'Probando login directo...\n\n';
+            
+            try {
+                if (typeof db !== 'undefined') {
+                    const user = db.findUserByEmailAndPassword('admin@biblioteca.com', 'admin123');
+                    
+                    if (user) {
+                        output += `✅ Login exitoso:\n`;
+                        output += `   - Usuario: ${user.name}\n`;
+                        output += `   - Email: ${user.email}\n`;
+                        output += `   - Rol: ${user.role}\n`;
+                        output += `   - Estado: ${user.status}\n`;
+                        result.className = 'result success';
+                    } else {
+                        output += `❌ Login fallido: Usuario no encontrado`;
+                        result.className = 'result error';
+                    }
+                } else {
+                    output += `❌ Base de datos no disponible`;
+                    result.className = 'result error';
+                }
+                
+                result.innerHTML = output;
+            } catch (error) {
+                result.innerHTML = `❌ Error: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        // Función para limpiar todo
+        function resetAll() {
+            const result = document.getElementById('resetResult');
+            
+            try {
+                if (typeof db !== 'undefined') {
+                    db.clearDatabase();
+                    output = '✅ Base de datos limpiada y reinicializada\n';
+                    output += 'Recarga la página para ver los cambios.';
+                    result.className = 'result success';
+                } else {
+                    output = '❌ No se puede limpiar: Base de datos no disponible';
+                    result.className = 'result error';
+                }
+                
+                result.innerHTML = output;
+            } catch (error) {
+                result.innerHTML = `❌ Error: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        // Función para recargar página
+        function reloadPage() {
+            location.reload();
+        }
+
+        // Ejecutar verificación automática al cargar
+        window.onload = function() {
+            setTimeout(() => {
+                checkFiles();
+                checkDatabase();
+                checkVariables();
+            }, 500);
+        };
+    </script>
+
+    <!-- Cargar archivos del sistema -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
