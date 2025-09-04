@@ -109,53 +109,53 @@
 
             <!-- Navigation -->
             <div class="nav-tabs">
-                <div class="nav-tab active" onclick="showSection('catalog')">CATÁLOGO</div>
-                <div class="nav-tab" onclick="showSection('search')">BUSCAR</div>
-                <div class="nav-tab admin-only" onclick="showSection('admin')">ADMINISTRACIÓN</div>
-                <div class="nav-tab librarian-only" onclick="showSection('loans')">PRÉSTAMOS</div>
-                <div class="nav-tab admin-only" onclick="showSection('users')">USUARIOS</div>
-                <div class="nav-tab" onclick="showSection('stats')">ESTADÍSTICAS</div>
+                <div class="nav-tab active" onclick="showSection('catalog')">Catálogo</div>
+                <div class="nav-tab" onclick="showSection('search')">Buscar</div>
+                <div class="nav-tab admin-only" onclick="showSection('admin')">Administración</div>
+                <div class="nav-tab librarian-only" onclick="showSection('loans')">Préstamos</div>
+                <div class="nav-tab admin-only" onclick="showSection('users')">Usuarios</div>
+                <div class="nav-tab" onclick="showSection('stats')">Estadísticas</div>
             </div>
 
-            <!-- Catálogo -->
+            <!-- Catalog Section -->
             <div id="catalogSection" class="content-section active">
-                <h2>CATÁLOGO DE LIBROS</h2>
+                <h2>Catálogo de Libros</h2>
                 <div class="catalog-controls">
                     <button class="btn" onclick="showAddBookModal()">➕ Agregar Libro</button>
                 </div>
                 <div id="booksGrid" class="books-grid"></div>
             </div>
 
-            <!-- Buscar -->
+            <!-- Search Section -->
             <div id="searchSection" class="content-section">
-                <h2>BUSCAR LIBRO</h2>
+                <h2>Buscar Libros</h2>
                 <div class="search-container">
                     <div class="search-filters">
-                        <input type="text" id="searchInput" class="search-input" placeholder="nombre del libro">
+                        <input type="text" id="searchInput" class="search-input" placeholder="Buscar por título, autor, género, editorial o tutor...">
                         <select id="genreFilter" class="filter-select">
-                            <option value="">GÉNERO</option>
+                            <option value="">Todos los géneros</option>
                         </select>
                         <select id="editorialFilter" class="filter-select">
-                            <option value="">EDITORIAL</option>
+                            <option value="">Todas las editoriales</option>
                         </select>
                         <select id="tutorFilter" class="filter-select">
-                            <option value="">TUTOR</option>
+                            <option value="">Todos los tutores</option>
                         </select>
                         <select id="statusFilter" class="filter-select">
-                            <option value="">ESTADO</option>
+                            <option value="">Todos los estados</option>
                             <option value="disponible">Disponible</option>
                             <option value="agotado">Agotado</option>
                         </select>
-                        <button class="btn" onclick="searchBooks()">BUSCAR</button>
-                        <button class="btn btn-secondary" onclick="clearSearch()">LIMPIAR</button>
+                        <button class="btn" onclick="searchBooks()">Buscar</button>
+                        <button class="btn btn-secondary" onclick="clearSearch()">Limpiar</button>
                     </div>
                 </div>
                 <div id="searchResults" class="books-grid"></div>
             </div>
 
-            <!-- Administración -->
+            <!-- Admin Section -->
             <div id="adminSection" class="content-section">
-                <h2>PANEL DE ADMINISTRACIÓN</h2>
+                <h2>Panel de Administración</h2>
                 <div class="admin-panel">
                     <h3>Gestión de Libros</h3>
                     <form id="bookForm" class="admin-form">
@@ -175,30 +175,29 @@
                 <div id="inventoryTable"></div>
             </div>
 
-            <!-- Préstamos -->
+            <!-- Loans Section -->
             <div id="loansSection" class="content-section">
-                <h2>GESTIÓN DE PRÉSTAMOS</h2>
+                <h2>Gestión de Préstamos</h2>
                 <div class="admin-panel">
                     <h3>Nuevo Préstamo</h3>
                     <form id="loanForm" class="admin-form">
                         <select id="loanBook" required>
-                            <option value="">LIBRO</option>
+                            <option value="">Seleccionar libro</option>
                         </select>
                         <select id="loanUser" required>
-                            <option value="">USUARIO</option>
+                            <option value="">Seleccionar usuario</option>
                         </select>
-                        <input type="number" id="loanQuantity" placeholder="CANTIDAD" min="1" required>
-                        <input type="date" id="loanDate" placeholder="fecha" required>
-                        <input type="date" id="returnDate" placeholder="fecha dev" required>
-                        <button type="submit" class="btn">CREAR PRÉSTAMO</button>
+                        <input type="date" id="loanDate" required>
+                        <input type="date" id="returnDate" required>
+                        <button type="submit" class="btn">Crear Préstamo</button>
                     </form>
                 </div>
-                <div id="loansList" class="loansList"></div>
+                <div id="loansList"></div>
             </div>
 
-            <!-- Usuarios -->
+            <!-- Users Section -->
             <div id="usersSection" class="content-section">
-                <h2>GESTIÓN DE USUARIOS</h2>
+                <h2>Gestión de Usuarios</h2>
                 <div class="admin-panel">
                     <h3>Agregar/Editar Usuario</h3>
                     <form id="userForm" class="admin-form">
@@ -217,12 +216,12 @@
                         <button type="submit" class="btn">Guardar Usuario</button>
                     </form>
                 </div>
-                <div id="usersTable" class="usersTable"></div>
+                <div id="usersTable"></div>
             </div>
 
-            <!-- Estadísticas -->
+            <!-- Stats Section -->
             <div id="statsSection" class="content-section">
-                <h2>ESTADÍSTICAS DE LA BIBLIOTECA</h2>
+                <h2>Estadísticas de la Biblioteca</h2>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <h3>Libros</h3>
