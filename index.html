@@ -112,15 +112,15 @@
                 <div class="nav-tab active" onclick="showSection('catalog')">Catálogo</div>
                 <div class="nav-tab" onclick="showSection('search')">Buscar</div>
                 <div class="nav-tab admin-only" onclick="showSection('admin')">Administración</div>
-                <div class="nav-tab librarian-only" onclick="showSection('loans')">Préstamos</div>
+                <div class="nav-tab librarian-only user-loans-tab" onclick="showSection('loans')">Préstamos</div>
                 <div class="nav-tab admin-only" onclick="showSection('users')">Usuarios</div>
-                <div class="nav-tab" onclick="showSection('stats')">Estadísticas</div>
+                <div class="nav-tab admin-only librarian-only" onclick="showSection('stats')">Estadísticas</div>
             </div>
 
             <!-- Catalog Section -->
             <div id="catalogSection" class="content-section active">
                 <h2>Catálogo de Libros</h2>
-                <div class="catalog-controls">
+                <div class="catalog-controls admin-only librarian-only">
                     <button class="btn" onclick="showAddBookModal()">➕ Agregar Libro</button>
                 </div>
                 <div id="booksGrid" class="books-grid"></div>

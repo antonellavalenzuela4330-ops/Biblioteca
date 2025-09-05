@@ -166,6 +166,7 @@ function showDashboard() {
     // Mostrar/ocultar elementos según el rol
     const adminElements = document.querySelectorAll('.admin-only');
     const librarianElements = document.querySelectorAll('.librarian-only');
+    const userLoansElements = document.querySelectorAll('.user-loans-tab');
 
     adminElements.forEach(el => {
         el.style.display = currentUser.role === 'admin' ? 'block' : 'none';
@@ -173,6 +174,11 @@ function showDashboard() {
 
     librarianElements.forEach(el => {
         el.style.display = (currentUser.role === 'bibliotecario' || currentUser.role === 'admin') ? 'block' : 'none';
+    });
+
+    // Mostrar pestaña de préstamos para usuarios también
+    userLoansElements.forEach(el => {
+        el.style.display = (currentUser.role === 'bibliotecario' || currentUser.role === 'admin' || currentUser.role === 'usuario') ? 'block' : 'none';
     });
 
     loadBooks();
@@ -453,9 +459,16 @@ function deleteBook(bookId) {
 function handleLoanSubmit(e) {
     e.preventDefault();
     const bookId = parseInt(document.getElementById('loanBook').value);
-    const userId = parseInt(document.getElementById('loanUser').value);
     const loanDate = document.getElementById('loanDate').value;
     const returnDate = document.getElementById('returnDate').value;
+
+    // Determinar el userId según el rol del usuario
+    let userId;
+    if (currentUser.role === 'usuario') {
+        userId = currentUser.id;
+    } else {
+        userId = parseInt(document.getElementById('loanUser').value);
+    }
 
     const book = db.getBooks().find(b => b.id === bookId);
     const user = db.getUsers().find(u => u.id === userId);
@@ -470,14 +483,37 @@ function handleLoanSubmit(e) {
         return;
     }
 
+    // Verificar si el usuario ya tiene un préstamo activo de este libro
+    const existingLoan = db.getLoans().find(loan => 
+        loan.userId === userId && 
+        loan.bookId === bookId && 
+        loan.status === 'activo'
+    );
+
+    if (existingLoan) {
+        showAlert('Ya tienes un préstamo activo de este libro', 'warning');
+        return;
+    }
+
+    // Crear fecha y hora actual para el préstamo
+    const now = new Date();
+    const currentDateTime = now.toLocaleString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+
     const newLoan = {
         bookId: bookId,
         userId: userId,
         bookTitle: book.title,
         userName: user.name,
-        loanDate: loanDate,
+        loanDate: currentDateTime,
         returnDate: returnDate,
-        status: 'activo'
+        status: 'pendiente'
     };
 
     db.addLoan(newLoan);
@@ -485,47 +521,16 @@ function handleLoanSubmit(e) {
     loadBooks();
     loadLoans();
     document.getElementById('loanForm').reset();
-    showAlert('Préstamo creado exitosamente', 'success');
+    
+    if (currentUser.role === 'usuario') {
+        showAlert('Tu préstamo ha sido creado exitosamente', 'success');
+    } else {
+        showAlert('Préstamo creado exitosamente', 'success');
+    }
+    
     checkLowStock();
 }
 
-const prestamos = []; // O usa tu almacenamiento actual
-const usuarioLogueado = "usuario"; // O tu variable real
-
-document.getElementById('loanForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const libro = document.getElementById('loanBookSelect').value;
-    const fechaPrestamo = document.getElementById('loanStartDate').value;
-    const fechaDevolucion = document.getElementById('loanEndDate').value;
-    const ahora = new Date();
-    const hora = ahora.toTimeString().split(' ')[0];
-
-    prestamos.push({
-        libro,
-        usuario: usuarioLogueado,
-        fechaPrestamo: `${fechaPrestamo} ${hora}`,
-        fechaDevolucion,
-        estado: 'activo'
-    });
-    mostrarPrestamos();
-    this.reset();
-});
-
-function mostrarPrestamos() {
-    const loansList = document.getElementById('loansList');
-    loansList.innerHTML = '';
-    prestamos.forEach(prestamo => {
-        loansList.innerHTML += `
-            <div class="prestamo-card">
-                <b>Libro:</b> ${prestamo.libro}<br>
-                <b>Usuario:</b> ${prestamo.usuario}<br>
-                <b>Fecha de préstamo:</b> ${prestamo.fechaPrestamo}<br>
-                <b>Fecha de devolución:</b> ${prestamo.fechaDevolucion}<br>
-                <b>Estado:</b> ${prestamo.estado}
-            </div>
-        `;
-    });
-}
 
 function loadLoans() {
     const loansList = document.getElementById('loansList');
@@ -544,41 +549,103 @@ function loadLoans() {
         }
     });
 
-    // Cargar opciones de usuarios
-    loanUserSelect.innerHTML = '<option value="">Seleccionar usuario</option>';
-    users.forEach(user => {
-        if (user.role === 'usuario' && user.status === 'activo') {
-            loanUserSelect.innerHTML += `<option value="${user.id}">${user.name}</option>`;
-        }
-    });
-
-    // Mostrar lista de préstamos
-    loansList.innerHTML = `
-        <h3>Préstamos Activos</h3>
-        <div style="display: grid; gap: 1rem; margin-top: 1rem;">
-            ${loans.map(loan => `
-                <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0;">
-                    <div><strong>Libro:</strong> ${loan.bookTitle}</div>
-                    <div><strong>Usuario:</strong> ${loan.userName}</div>
-                    <div><strong>Fecha de préstamo:</strong> ${loan.loanDate}</div>
-                    <div><strong>Fecha de devolución:</strong> ${loan.returnDate}</div>
-                    <div><strong>Estado:</strong> ${loan.status}</div>
-                    ${loan.status === 'activo' ? 
-                        `<button class="btn" onclick="returnBook(${loan.id})" style="margin-top: 0.5rem;">Marcar como devuelto</button>` : 
-                        '<span style="color: #718096;">Préstamo finalizado</span>'
-                    }
+    // Adaptar formulario según el rol del usuario
+    if (currentUser.role === 'usuario') {
+        // Para usuarios, ocultar el selector de usuario y establecer el usuario actual
+        loanUserSelect.style.display = 'none';
+        loanUserSelect.innerHTML = `<option value="${currentUser.id}" selected>${currentUser.name}</option>`;
+        
+        // Mostrar solo los préstamos del usuario actual
+        const userLoans = loans.filter(loan => loan.userId === currentUser.id);
+        
+        if (userLoans.length === 0) {
+            loansList.innerHTML = '<p style="text-align: center; color: #718096; padding: 2rem;">No tienes préstamos activos</p>';
+        } else {
+            loansList.innerHTML = `
+                <h3>Mis Préstamos</h3>
+                <div style="display: grid; gap: 1rem; margin-top: 1rem;">
+                    ${userLoans.map(loan => `
+                        <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; font-family: 'Times New Roman', Times, serif; color: black;">
+                            <div style="color: black;"><strong>Libro:</strong> ${loan.bookTitle}</div>
+                            <div style="color: black;"><strong>Usuario:</strong> ${loan.userName}</div>
+                            <div style="color: black;"><strong>Fecha de préstamo:</strong> ${loan.loanDate}</div>
+                            <div style="color: black;"><strong>Fecha de devolución:</strong> ${loan.returnDate}</div>
+                            <div style="color: black;"><strong>Estado:</strong> ${loan.status}</div>
+                            ${loan.status === 'pendiente' ? 
+                                '<span style="color: #718096;">Préstamo pendiente de aprobación</span>' :
+                            loan.status === 'activo' ? 
+                                `<button class="btn" onclick="returnBook(${loan.id})" style="margin-top: 0.5rem;">Marcar como devuelto</button>` : 
+                                '<span style="color: #718096;">Préstamo finalizado</span>'
+                            }
+                        </div>
+                    `).join('')}
                 </div>
-            `).join('')}
-        </div>
-    `;
+            `;
+        }
+    } else {
+        // Para bibliotecarios y administradores, mostrar selector de usuario
+        loanUserSelect.style.display = 'block';
+        loanUserSelect.innerHTML = '<option value="">Seleccionar usuario</option>';
+        users.forEach(user => {
+            if (user.role === 'usuario' && user.status === 'activo') {
+                loanUserSelect.innerHTML += `<option value="${user.id}">${user.name}</option>`;
+            }
+        });
+
+        // Mostrar todos los préstamos
+        loansList.innerHTML = `
+            <h3>Préstamos Activos</h3>
+            <div style="display: grid; gap: 1rem; margin-top: 1rem;">
+                ${loans.map(loan => `
+                    <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; font-family: 'Times New Roman', Times, serif; color: black;">
+                        <div><strong>Libro:</strong> ${loan.bookTitle}</div>
+                        <div><strong>Usuario:</strong> ${loan.userName}</div>
+                        <div><strong>Fecha de préstamo:</strong> ${loan.loanDate}</div>
+                        <div><strong>Fecha de devolución:</strong> ${loan.returnDate}</div>
+                        <div><strong>Estado:</strong> ${loan.status}</div>
+                        ${loan.status === 'pendiente' && currentUser.role === 'admin' ? 
+                            `<button class="btn" onclick="acceptLoan(${loan.id})" style="margin-top: 0.5rem;">Aceptar préstamo</button>` :
+                        loan.status === 'activo' && currentUser.role === 'admin' ? 
+                            `<button class="btn" onclick="returnBook(${loan.id})" style="margin-top: 0.5rem;">Finalizar préstamo</button>` : 
+                            loan.status === 'devuelto' ? 
+                                '<span style="color: #718096;">Préstamo finalizado</span>' :
+                                '<span style="color: #718096;">Préstamo pendiente de aprobación</span>'
+                        }
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
 }
 
-function returnBook(loanId) {
-    db.updateLoan(loanId, { status: 'devuelto' });
+function acceptLoan(loanId) {
+    db.updateLoan(loanId, { status: 'activo' });
     refreshGlobalData();
     loadBooks();
     loadLoans();
-    showAlert('Libro marcado como devuelto', 'success');
+    showAlert('Préstamo aceptado exitosamente', 'success');
+}
+
+function returnBook(loanId) {
+    // Crear fecha y hora actual para la devolución
+    const now = new Date();
+    const currentDateTime = now.toLocaleString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+
+    db.updateLoan(loanId, { 
+        status: 'devuelto',
+        returnDate: currentDateTime
+    });
+    refreshGlobalData();
+    loadBooks();
+    loadLoans();
+    showAlert('Préstamo finalizado exitosamente', 'success');
 }
 
 function handleUserSubmit(e) {
@@ -789,27 +856,6 @@ function showAlert(message, type) {
     }, 3000);
 }
 
-// Supón que tienes un array de libros llamado "libros"
-const libros = [
-    { id: 1, titulo: "Don Quijote" },
-    { id: 2, titulo: "Cien años de soledad" },
-    // ...otros libros...
-];
-
-// Función para llenar el select de libros
-function llenarSelectLibros() {
-    const select = document.getElementById('loanBookSelect');
-    select.innerHTML = '<option value="">Seleccionar libro</option>';
-    libros.forEach(libro => {
-        const option = document.createElement('option');
-        option.value = libro.id;
-        option.textContent = libro.titulo;
-        select.appendChild(option);
-    });
-}
-
-// Llama a esta función cuando se muestre la sección de préstamos o al cargar la página
-llenarSelectLibros();
 
 // Utilidad para debounce
 function debounce(func, wait) {
