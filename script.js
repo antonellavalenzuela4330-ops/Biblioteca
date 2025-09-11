@@ -259,8 +259,6 @@ function createBookCard(book) {
         ${book.description ? `<div class="book-description">${book.description}</div>` : ''}
         <div class="book-stock">
             <span class="stock-badge ${stockClass}">${stockText}</span>
-            ${(currentUser.role === 'bibliotecario' || currentUser.role === 'admin') ? 
-                `<button class="btn" onclick="editBook(${book.id})">Editar</button>` : ''}
         </div>
     `;
 
