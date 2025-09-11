@@ -8,9 +8,8 @@ class Database {
     initializeDatabase() {
         if (!localStorage.getItem('biblioteca_users')) {
             const defaultUsers = [
-                { id: 1, name: "Admin", email: "admin@biblioteca.com", password: "admin123", role: "admin", status: "activo" },
-                { id: 2, name: "Bibliotecario", email: "biblio@biblioteca.com", password: "biblio123", role: "bibliotecario", status: "activo" },
-                { id: 3, name: "Usuario", email: "user@biblioteca.com", password: "user123", role: "usuario", status: "activo" }
+                { id: 1, name: "Bibliotecario", email: "bibliotecario@biblioteca.com", password: "biblio123", role: "bibliotecario", status: "activo" },
+                { id: 2, name: "Usuario", email: "user@biblioteca.com", password: "user123", role: "usuario", status: "activo" }
             ];
             localStorage.setItem('biblioteca_users', JSON.stringify(defaultUsers));
         }

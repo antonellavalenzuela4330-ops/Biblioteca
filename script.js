@@ -165,19 +165,19 @@ function showDashboard() {
     document.getElementById('userRole').textContent = currentUser.role;
 
     // Mostrar/ocultar elementos según el rol
-    const adminElements = document.querySelectorAll('.admin-only');
+    const bibliotecarioElements = document.querySelectorAll('.admin-only');
     const librarianElements = document.querySelectorAll('.librarian-only');
     const userLoansElements = document.querySelectorAll('.user-loans-tab');
 
-    adminElements.forEach(el => {
-        el.style.display = currentUser.role === 'admin' ? 'block' : 'none';
+    bibliotecarioElements.forEach(el => {
+        el.style.display = currentUser.role === 'bibliotecario' ? 'block' : 'none';
     });
 
     librarianElements.forEach(el => {
-        el.style.display = (currentUser.role === 'bibliotecario' || currentUser.role === 'admin') ? 'block' : 'none';
+        el.style.display = (currentUser.role === 'bibliotecario' || currentUser.role === 'bibliotecario') ? 'block' : 'none';
     });
 
-    // Mostrar pestaña de préstamos solo para usuarios (no admin)
+    // Mostrar pestaña de préstamos solo para usuarios (no bibliotecario)
     userLoansElements.forEach(el => {
         el.style.display = currentUser.role === 'usuario' ? 'block' : 'none';
     });
@@ -606,7 +606,7 @@ function loadLoans() {
             `;
         }
     } else {
-        // Para bibliotecarios y administradores, mostrar selector de usuario
+        // Para bibliotecarios, mostrar selector de usuario
         loanUserSelect.style.display = 'block';
         loanUserSelect.innerHTML = '<option value="">Seleccionar usuario</option>';
         users.forEach(user => {
@@ -627,12 +627,12 @@ function loadLoans() {
                         <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de préstamo:</strong> ${loan.loanDate}</div>
                         <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de devolución:</strong> ${loan.returnDate}</div>
                         <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Estado:</strong> ${loan.status}</div>
-                        ${loan.status === 'pendiente' && currentUser.role === 'admin' ? 
+                        ${loan.status === 'pendiente' && currentUser.role === 'bibliotecario' ? 
                             `<div class="loan-actions">
                                 <button class="btn" onclick="acceptLoan(${loan.id})" style="margin-right: 0.5rem;">Aprobar Préstamo</button>
                                 <button class="btn btn-secondary" onclick="rejectLoan(${loan.id})">Rechazar</button>
                             </div>` :
-                        loan.status === 'aprobado' && currentUser.role === 'admin' ? 
+                        loan.status === 'aprobado' && currentUser.role === 'bibliotecario' ? 
                             `<button class="btn" onclick="returnBook(${loan.id})" style="margin-top: 0.5rem;">Finalizar préstamo</button>` : 
                             loan.status === 'devuelto' ? 
                                 '<span style="color: #ffffff; opacity: 0.8; font-style: italic;">Préstamo finalizado</span>' :
@@ -1011,10 +1011,10 @@ function loadUserLoans() {
                 </div>
                 ${daysRemaining ? `<div class="loan-info-item"><strong>Recordatorio:</strong> ${daysRemaining}</div>` : ''}
                 <div class="loan-actions">
-                    ${loan.status === 'aprobado' ? 
-                        `<button class="btn btn-secondary" onclick="returnUserBook(${loan.id})">Marcar como devuelto</button>` : 
-                        loan.status === 'pendiente' ? 
-                            '<span style="color: #d4af37; font-style: italic;">Esperando aprobación del administrador</span>' : 
+                    ${loan.status === 'pendiente' ? 
+                        '<span style="color: #d4af37; font-style: italic;">Esperando aprobación del bibliotecario</span>' : 
+                        loan.status === 'aprobado' ?
+                            '<span style="color: #28a745; font-style: italic;">Préstamo activo - Contacta al bibliotecario para devolución</span>' :
                             ''
                     }
                 </div>
