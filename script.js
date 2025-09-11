@@ -25,6 +25,7 @@ function setupEventListeners() {
     document.getElementById('loanForm').addEventListener('submit', handleLoanSubmit);
     document.getElementById('userForm').addEventListener('submit', handleUserSubmit);
     document.getElementById('modalBookForm').addEventListener('submit', handleModalBookSubmit);
+    document.getElementById('userLoanRequestForm').addEventListener('submit', handleUserLoanRequest);
     
     // Búsqueda en tiempo real
     document.getElementById('searchInput').addEventListener('input', debounce(searchBooks, 300));
@@ -176,9 +177,9 @@ function showDashboard() {
         el.style.display = (currentUser.role === 'bibliotecario' || currentUser.role === 'admin') ? 'block' : 'none';
     });
 
-    // Mostrar pestaña de préstamos para usuarios también
+    // Mostrar pestaña de préstamos para usuarios
     userLoansElements.forEach(el => {
-        el.style.display = (currentUser.role === 'bibliotecario' || currentUser.role === 'admin' || currentUser.role === 'usuario') ? 'block' : 'none';
+        el.style.display = 'block';
     });
 
     loadBooks();
@@ -217,6 +218,9 @@ function showSection(sectionName) {
         loadUsers();
     } else if (sectionName === 'stats') {
         loadStats();
+    } else if (sectionName === 'userLoans') {
+        setupUserLoanForm();
+        loadUserLoans();
     }
 }
 
@@ -624,12 +628,17 @@ function loadLoans() {
                         <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de devolución:</strong> ${loan.returnDate}</div>
                         <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Estado:</strong> ${loan.status}</div>
                         ${loan.status === 'pendiente' && currentUser.role === 'admin' ? 
-                            `<button class="btn" onclick="acceptLoan(${loan.id})" style="margin-top: 0.5rem;">Aceptar préstamo</button>` :
-                        loan.status === 'activo' && currentUser.role === 'admin' ? 
+                            `<div class="loan-actions">
+                                <button class="btn" onclick="acceptLoan(${loan.id})" style="margin-right: 0.5rem;">Aprobar Préstamo</button>
+                                <button class="btn btn-secondary" onclick="rejectLoan(${loan.id})">Rechazar</button>
+                            </div>` :
+                        loan.status === 'aprobado' && currentUser.role === 'admin' ? 
                             `<button class="btn" onclick="returnBook(${loan.id})" style="margin-top: 0.5rem;">Finalizar préstamo</button>` : 
                             loan.status === 'devuelto' ? 
                                 '<span style="color: #ffffff; opacity: 0.8; font-style: italic;">Préstamo finalizado</span>' :
-                                '<span style="color: #d4af37; font-style: italic;">Préstamo pendiente de aprobación</span>'
+                                loan.status === 'rechazado' ?
+                                    '<span style="color: #dc3545; font-style: italic;">Préstamo rechazado</span>' :
+                                    '<span style="color: #d4af37; font-style: italic;">Préstamo pendiente de aprobación</span>'
                         }
                     </div>
                 `).join('')}
@@ -639,11 +648,29 @@ function loadLoans() {
 }
 
 function acceptLoan(loanId) {
-    db.updateLoan(loanId, { status: 'activo' });
+    const now = new Date().toLocaleString('es-ES');
+    db.updateLoan(loanId, { 
+        status: 'aprobado',
+        approvedAt: now
+    });
     refreshGlobalData();
     loadBooks();
     loadLoans();
-    showAlert('Préstamo aceptado exitosamente', 'success');
+    showAlert('Préstamo aprobado exitosamente', 'success');
+}
+
+function rejectLoan(loanId) {
+    if (confirm('¿Estás seguro de que quieres rechazar este préstamo?')) {
+        const now = new Date().toLocaleString('es-ES');
+        db.updateLoan(loanId, { 
+            status: 'rechazado',
+            rejectedAt: now
+        });
+        refreshGlobalData();
+        loadBooks();
+        loadLoans();
+        showAlert('Préstamo rechazado', 'warning');
+    }
 }
 
 function returnBook(loanId) {
@@ -877,15 +904,211 @@ function showAlert(message, type) {
 }
 
 
-// Utilidad para debounce
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
+// Funciones para préstamos de usuarios
+function setupUserLoanForm() {
+    const requestBookSelect = document.getElementById('requestBook');
+    const books = db.getBooks();
+    
+    requestBookSelect.innerHTML = '<option value="">Seleccionar libro</option>';
+    books.forEach(book => {
+        if (book.stock > 0) {
+            requestBookSelect.innerHTML += `<option value="${book.id}">${book.title} (${book.stock} disponibles)</option>`;
+        }
+    });
+    
+    // Establecer fecha mínima como hoy
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('requestStartDate').min = today;
+    document.getElementById('requestEndDate').min = today;
+    
+    // Actualizar fecha de fin cuando cambie la fecha de inicio
+    document.getElementById('requestStartDate').addEventListener('change', function() {
+        const startDate = this.value;
+        document.getElementById('requestEndDate').min = startDate;
+    });
+}
+
+function handleUserLoanRequest(e) {
+    e.preventDefault();
+    
+    const bookId = parseInt(document.getElementById('requestBook').value);
+    const quantity = parseInt(document.getElementById('requestQuantity').value);
+    const startDate = document.getElementById('requestStartDate').value;
+    const endDate = document.getElementById('requestEndDate').value;
+    
+    const book = db.getBooks().find(b => b.id === bookId);
+    
+    if (!book) {
+        showUserNotification('Libro no encontrado', 'error');
+        return;
+    }
+    
+    if (book.stock < quantity) {
+        showUserNotification('No hay suficiente stock disponible', 'error');
+        return;
+    }
+    
+    if (new Date(endDate) <= new Date(startDate)) {
+        showUserNotification('La fecha de devolución debe ser posterior a la fecha de inicio', 'error');
+        return;
+    }
+    
+    // Crear solicitud de préstamo
+    const loanRequest = {
+        id: Date.now(),
+        bookId: bookId,
+        userId: currentUser.id,
+        bookTitle: book.title,
+        userName: currentUser.name,
+        quantity: quantity,
+        startDate: startDate,
+        endDate: endDate,
+        status: 'pendiente',
+        createdAt: new Date().toISOString(),
+        requestedAt: new Date().toLocaleString('es-ES')
     };
+    
+    // Agregar a la base de datos
+    db.addLoan(loanRequest);
+    
+    // Limpiar formulario
+    document.getElementById('userLoanRequestForm').reset();
+    
+    // Mostrar notificación de éxito
+    showUserNotification('Solicitud de préstamo enviada correctamente. Espera la aprobación del administrador.', 'success');
+    
+    // Actualizar la lista de préstamos
+    loadUserLoans();
+    
+    // Actualizar filtros
+    setupUserLoanForm();
+}
+function loadUserLoans() {
+    const userLoansList = document.getElementById('userLoansList');
+    const loans = db.getLoans();
+    const userLoans = loans.filter(loan => loan.userId === currentUser.id);
+    
+    if (userLoans.length === 0) {
+        userLoansList.innerHTML = '<p style="text-align: center; color: #ffffff; opacity: 0.8; padding: 2rem; font-size: 1.1rem;">No tienes préstamos registrados</p>';
+        return;
+    }
+    
+    userLoansList.innerHTML = userLoans.map(loan => {
+        const statusClass = `status-${loan.status}`;
+        const statusText = getStatusText(loan.status);
+        const daysRemaining = calculateDaysRemaining(loan.endDate, loan.status);
+        
+        return `
+            <div class="user-loan-card">
+                <div class="loan-status ${statusClass}">${statusText}</div>
+                <div class="loan-info">
+                    <div class="loan-info-item"><strong>Libro:</strong> ${loan.bookTitle}</div>
+                    <div class="loan-info-item"><strong>Cantidad:</strong> ${loan.quantity}</div>
+                    <div class="loan-info-item"><strong>Fecha de inicio:</strong> ${formatDate(loan.startDate)}</div>
+                    <div class="loan-info-item"><strong>Fecha de devolución:</strong> ${formatDate(loan.endDate)}</div>
+                    <div class="loan-info-item"><strong>Solicitado:</strong> ${loan.requestedAt || 'N/A'}</div>
+                    ${loan.approvedAt ? `<div class="loan-info-item"><strong>Aprobado:</strong> ${loan.approvedAt}</div>` : ''}
+                </div>
+                ${daysRemaining ? `<div class="loan-info-item"><strong>Recordatorio:</strong> ${daysRemaining}</div>` : ''}
+                <div class="loan-actions">
+                    ${loan.status === 'aprobado' ? 
+                        `<button class="btn btn-secondary" onclick="returnUserBook(${loan.id})">Marcar como devuelto</button>` : 
+                        loan.status === 'pendiente' ? 
+                            '<span style="color: #d4af37; font-style: italic;">Esperando aprobación del administrador</span>' : 
+                            ''
+                    }
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    // Mostrar notificaciones
+    showUserNotifications(userLoans);
+}
+
+function getStatusText(status) {
+    const statusMap = {
+        'pendiente': 'En Observación',
+        'aprobado': 'Préstamo Aprobado',
+        'rechazado': 'Préstamo Rechazado',
+        'devuelto': 'Devuelto'
+    };
+    return statusMap[status] || status;
+}
+
+function calculateDaysRemaining(endDate, status) {
+    if (status !== 'aprobado') return null;
+    
+    const today = new Date();
+    const end = new Date(endDate);
+    const diffTime = end - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) {
+        return '¡Ya se pasó el día de devolución!';
+    } else if (diffDays === 0) {
+        return '¡Hoy es el último día para devolver!';
+    } else if (diffDays <= 3) {
+        return `¡Recordatorio: te quedan solo ${diffDays} días!`;
+    }
+    
+    return null;
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES');
+}
+
+function showUserNotifications(loans) {
+    const notificationsContainer = document.getElementById('userNotifications');
+    notificationsContainer.innerHTML = '';
+    
+    loans.forEach(loan => {
+        if (loan.status === 'aprobado') {
+            const daysRemaining = calculateDaysRemaining(loan.endDate, loan.status);
+            if (daysRemaining) {
+                const notificationClass = daysRemaining.includes('¡Ya se pasó') ? 'notification-danger' : 
+                                        daysRemaining.includes('último día') ? 'notification-warning' : 
+                                        'notification-info';
+                
+                const notification = document.createElement('div');
+                notification.className = `notification ${notificationClass}`;
+                notification.innerHTML = `
+                    <div class="notification-title">Recordatorio de Préstamo</div>
+                    <div class="notification-message">
+                        <strong>${loan.bookTitle}</strong><br>
+                        ${daysRemaining}
+                    </div>
+                `;
+                notificationsContainer.appendChild(notification);
+            }
+        }
+    });
+}
+
+function showUserNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'error' ? 'warning' : type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+function returnUserBook(loanId) {
+    if (confirm('¿Estás seguro de que quieres marcar este libro como devuelto?')) {
+        const now = new Date().toLocaleString('es-ES');
+        db.updateLoan(loanId, { 
+            status: 'devuelto',
+            returnedAt: now
+        });
+        
+        refreshGlobalData();
+        loadUserLoans();
+        showUserNotification('Libro marcado como devuelto exitosamente', 'success');
+    }
 }

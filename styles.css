@@ -1155,7 +1155,149 @@ tr:hover td {
     color: #000000;
 }
 
-/* Responsive */
+/* User Loans Section */
+.user-loans-list {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.user-loan-card {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.user-loan-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #d4af37 0%, #ffe082 50%, #d4af37 100%);
+}
+
+.user-loan-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.2);
+}
+
+.loan-status {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1rem;
+}
+
+.status-pendiente {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border: 1px solid #ffc107;
+}
+
+.status-aprobado {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border: 1px solid #28a745;
+}
+
+.status-rechazado {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}
+
+.status-devuelto {
+    background: rgba(108, 117, 125, 0.2);
+    color: #6c757d;
+    border: 1px solid #6c757d;
+}
+
+.loan-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.loan-info-item {
+    color: #ffffff;
+    opacity: 0.9;
+}
+
+.loan-info-item strong {
+    color: #d4af37;
+    font-weight: 700;
+}
+
+.loan-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Notifications */
+.notifications-container {
+    margin-top: 2rem;
+}
+
+.notification {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.notification::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #d4af37 0%, #ffe082 50%, #d4af37 100%);
+}
+
+.notification-warning {
+    border-left: 4px solid #ffc107;
+}
+
+.notification-danger {
+    border-left: 4px solid #dc3545;
+}
+
+.notification-success {
+    border-left: 4px solid #28a745;
+}
+
+.notification-info {
+    border-left: 4px solid #17a2b8;
+}
+
+.notification-title {
+    color: #d4af37;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.notification-message {
+    color: #ffffff;
+    opacity: 0.9;
+    line-height: 1.5;
+}
 @media (max-width: 768px) {
     .container {
         padding: 15px;
