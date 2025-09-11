@@ -329,7 +329,7 @@ body {
 /* Book Grid */
 .books-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 2rem;
     margin-bottom: 2rem;
     padding: 1rem 0;
@@ -338,12 +338,14 @@ body {
 .book-card {
     background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
     border-radius: 16px;
-    padding: 2rem;
+    padding: 0;
     border: 1px solid rgba(212, 175, 55, 0.35);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
     box-shadow: 0 4px 16px rgba(212, 175, 55, 0.1);
+    display: flex;
+    flex-direction: column;
 }
 
 .book-card::before {
@@ -366,6 +368,34 @@ body {
     transform: translateY(-6px) scale(1.02);
     border-color: #d4af37;
     box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
+}
+
+/* Book Cover */
+.book-cover {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 16px 16px 0 0;
+    position: relative;
+}
+
+.book-cover-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.book-card:hover .book-cover-image {
+    transform: scale(1.05);
+}
+
+/* Book Info */
+.book-info {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .book-title {
@@ -407,9 +437,9 @@ body {
 
 .book-stock {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
-    margin-top: 1.5rem;
+    margin-top: auto;
     padding-top: 1rem;
     border-top: 1px solid rgba(212, 175, 55, 0.2);
 }
@@ -1193,7 +1223,15 @@ tr:hover td {
     }
 
     .book-card {
-        padding: 1.5rem;
+        padding: 0;
+    }
+
+    .book-cover {
+        height: 180px;
+    }
+
+    .book-info {
+        padding: 1.25rem;
     }
 
     .admin-panel {
@@ -1277,6 +1315,14 @@ tr:hover td {
     }
 
     .book-card {
+        padding: 0;
+    }
+
+    .book-cover {
+        height: 160px;
+    }
+
+    .book-info {
         padding: 1rem;
     }
 

@@ -246,19 +246,39 @@ function createBookCard(book) {
         stockText = `${book.stock} disponibles (Stock bajo)`;
     }
 
+    // Función para obtener la URL de la imagen de la portada
+    const getBookCoverImage = (title) => {
+        const coverImages = {
+            'Don Quijote': 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=400&auto=format&fit=crop',
+            'Cien años de soledad': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop',
+            'El señor de los anillos': 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?q=80&w=400&auto=format&fit=crop',
+            '1984': 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=400&auto=format&fit=crop',
+            'Orgullo y prejuicio': 'https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=400&auto=format&fit=crop',
+            'Crimen y castigo': 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=400&auto=format&fit=crop',
+            'El gran Gatsby': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop',
+            'Matar a un ruiseñor': 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?q=80&w=400&auto=format&fit=crop'
+        };
+        return coverImages[title] || 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=400&auto=format&fit=crop';
+    };
+
     card.innerHTML = `
-        <div class="book-title">${book.title}</div>
-        <div class="book-author">Por: ${book.author}</div>
-        <div class="book-details">
-            <div><strong>Género:</strong> ${book.genre}</div>
-            <div><strong>Editorial:</strong> ${book.editorial}</div>
-            <div><strong>Tutor:</strong> ${book.tutor}</div>
-            <div><strong>Año:</strong> ${book.year}</div>
-            <div><strong>ISBN:</strong> ${book.isbn}</div>
+        <div class="book-cover">
+            <img src="${getBookCoverImage(book.title)}" alt="Portada de ${book.title}" class="book-cover-image" />
         </div>
-        ${book.description ? `<div class="book-description">${book.description}</div>` : ''}
-        <div class="book-stock">
-            <span class="stock-badge ${stockClass}">${stockText}</span>
+        <div class="book-info">
+            <div class="book-title">${book.title}</div>
+            <div class="book-author">Por: ${book.author}</div>
+            <div class="book-details">
+                <div><strong>Género:</strong> ${book.genre}</div>
+                <div><strong>Editorial:</strong> ${book.editorial}</div>
+                <div><strong>Tutor:</strong> ${book.tutor}</div>
+                <div><strong>Año:</strong> ${book.year}</div>
+                <div><strong>ISBN:</strong> ${book.isbn}</div>
+            </div>
+            ${book.description ? `<div class="book-description">${book.description}</div>` : ''}
+            <div class="book-stock">
+                <span class="stock-badge ${stockClass}">${stockText}</span>
+            </div>
         </div>
     `;
 
@@ -557,23 +577,24 @@ function loadLoans() {
         const userLoans = loans.filter(loan => loan.userId === currentUser.id);
         
         if (userLoans.length === 0) {
-            loansList.innerHTML = '<p style="text-align: center; color: #718096; padding: 2rem;">No tienes préstamos activos</p>';
+            loansList.innerHTML = '<p style="text-align: center; color: #ffffff; opacity: 0.8; padding: 2rem; font-size: 1.1rem;">No tienes préstamos activos</p>';
         } else {
             loansList.innerHTML = `
                 <h3>Mis Préstamos</h3>
                 <div style="display: grid; gap: 1rem; margin-top: 1rem;">
                     ${userLoans.map(loan => `
-                        <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; font-family: 'Times New Roman', Times, serif; color: black;">
-                            <div style="color: black;"><strong>Libro:</strong> ${loan.bookTitle}</div>
-                            <div style="color: black;"><strong>Usuario:</strong> ${loan.userName}</div>
-                            <div style="color: black;"><strong>Fecha de préstamo:</strong> ${loan.loanDate}</div>
-                            <div style="color: black;"><strong>Fecha de devolución:</strong> ${loan.returnDate}</div>
-                            <div style="color: black;"><strong>Estado:</strong> ${loan.status}</div>
+                        <div style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.35); font-family: 'Times New Roman', Times, serif; color: #ffffff; box-shadow: 0 4px 16px rgba(212, 175, 55, 0.1); position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #d4af37 0%, #ffe082 50%, #d4af37 100%);"></div>
+                            <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Libro:</strong> ${loan.bookTitle}</div>
+                            <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Usuario:</strong> ${loan.userName}</div>
+                            <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de préstamo:</strong> ${loan.loanDate}</div>
+                            <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de devolución:</strong> ${loan.returnDate}</div>
+                            <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Estado:</strong> ${loan.status}</div>
                             ${loan.status === 'pendiente' ? 
-                                '<span style="color: #718096;">Préstamo pendiente de aprobación</span>' :
+                                '<span style="color: #d4af37; font-style: italic;">Préstamo pendiente de aprobación</span>' :
                             loan.status === 'activo' ? 
                                 `<button class="btn" onclick="returnBook(${loan.id})" style="margin-top: 0.5rem;">Marcar como devuelto</button>` : 
-                                '<span style="color: #718096;">Préstamo finalizado</span>'
+                                '<span style="color: #ffffff; opacity: 0.8; font-style: italic;">Préstamo finalizado</span>'
                             }
                         </div>
                     `).join('')}
@@ -595,19 +616,20 @@ function loadLoans() {
             <h3>Préstamos Activos</h3>
             <div style="display: grid; gap: 1rem; margin-top: 1rem;">
                 ${loans.map(loan => `
-                    <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; font-family: 'Times New Roman', Times, serif; color: black;">
-                        <div><strong>Libro:</strong> ${loan.bookTitle}</div>
-                        <div><strong>Usuario:</strong> ${loan.userName}</div>
-                        <div><strong>Fecha de préstamo:</strong> ${loan.loanDate}</div>
-                        <div><strong>Fecha de devolución:</strong> ${loan.returnDate}</div>
-                        <div><strong>Estado:</strong> ${loan.status}</div>
+                    <div style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.35); font-family: 'Times New Roman', Times, serif; color: #ffffff; box-shadow: 0 4px 16px rgba(212, 175, 55, 0.1); position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #d4af37 0%, #ffe082 50%, #d4af37 100%);"></div>
+                        <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Libro:</strong> ${loan.bookTitle}</div>
+                        <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Usuario:</strong> ${loan.userName}</div>
+                        <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de préstamo:</strong> ${loan.loanDate}</div>
+                        <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de devolución:</strong> ${loan.returnDate}</div>
+                        <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Estado:</strong> ${loan.status}</div>
                         ${loan.status === 'pendiente' && currentUser.role === 'admin' ? 
                             `<button class="btn" onclick="acceptLoan(${loan.id})" style="margin-top: 0.5rem;">Aceptar préstamo</button>` :
                         loan.status === 'activo' && currentUser.role === 'admin' ? 
                             `<button class="btn" onclick="returnBook(${loan.id})" style="margin-top: 0.5rem;">Finalizar préstamo</button>` : 
                             loan.status === 'devuelto' ? 
-                                '<span style="color: #718096;">Préstamo finalizado</span>' :
-                                '<span style="color: #718096;">Préstamo pendiente de aprobación</span>'
+                                '<span style="color: #ffffff; opacity: 0.8; font-style: italic;">Préstamo finalizado</span>' :
+                                '<span style="color: #d4af37; font-style: italic;">Préstamo pendiente de aprobación</span>'
                         }
                     </div>
                 `).join('')}
