@@ -187,6 +187,13 @@ function showDashboard() {
     loadUsers();
     loadStats();
     checkLowStock();
+
+    // Mostrar por defecto el catálogo tras iniciar sesión
+    document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+    document.getElementById('catalogSection').classList.add('active');
+    document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+    const tabCatalog = document.getElementById('tabCatalog');
+    if (tabCatalog) tabCatalog.classList.add('active');
 }
 
 function logout() {
@@ -878,12 +885,15 @@ function checkLowStock() {
     if (lowStockBooks.length > 0) {
         alertsContainer.innerHTML = `
             <div class="alert alert-warning">
-                ⚠️ Alerta: Los siguientes libros tienen stock bajo:
-                <ul style="margin-top: 0.5rem;">
+                <div><strong>Alerta de stock bajo</strong></div>
+                <div class="low-stock-list">
                     ${lowStockBooks.map(book => `
-                        <li>${book.title} - ${book.stock} ejemplares</li>
+                        <div class="low-stock-item">
+                            <span class="low-stock-dot"></span>
+                            <span class="low-stock-text">${book.title} - ${book.stock} ejemplares</span>
+                        </div>
                     `).join('')}
-                </ul>
+                </div>
             </div>
         `;
     } else {

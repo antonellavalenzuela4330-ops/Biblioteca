@@ -759,6 +759,28 @@ tr:hover td {
     color: #000000;
 }
 
+/* Alerta de stock bajo organizada */
+.low-stock-list {
+    margin-top: 0.5rem;
+    display: grid;
+    gap: 0.35rem;
+}
+.low-stock-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.low-stock-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #d4af37;
+    flex: 0 0 8px;
+}
+.low-stock-text {
+    color: #ffffff;
+}
+
 /* --- CATÁLOGO, BUSCAR, ADMINISTRACIÓN, PRÉSTAMOS, USUARIOS, ESTADÍSTICAS --- */
 
 /* Títulos de sección */
