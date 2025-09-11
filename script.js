@@ -177,9 +177,9 @@ function showDashboard() {
         el.style.display = (currentUser.role === 'bibliotecario' || currentUser.role === 'admin') ? 'block' : 'none';
     });
 
-    // Mostrar pestaña de préstamos para usuarios
+    // Mostrar pestaña de préstamos solo para usuarios (no admin)
     userLoansElements.forEach(el => {
-        el.style.display = 'block';
+        el.style.display = currentUser.role === 'usuario' ? 'block' : 'none';
     });
 
     loadBooks();
