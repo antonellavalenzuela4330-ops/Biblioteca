@@ -11,11 +11,8 @@ class Database {
         // Eliminar usuarios con rol "admin" si existen en localStorage
         let existingUsers = JSON.parse(localStorage.getItem('biblioteca_users') || '[]');
         let filteredUsers = existingUsers.filter(u => u.role !== 'admin');
-        if (filteredUsers.length !== existingUsers.length) {
-            localStorage.setItem('biblioteca_users', JSON.stringify(filteredUsers));
-        }
-
-        if (!localStorage.getItem('biblioteca_users') || filteredUsers.length === 0) {
+        // Si hay usuarios "admin", o si no hay usuarios válidos, reescribe los usuarios por defecto
+        if (filteredUsers.length !== existingUsers.length || filteredUsers.length === 0) {
             const defaultUsers = [
                 { id: 1, name: "Bibliotecario", email: "bibliotecario@biblioteca.com", password: "biblio123", role: "bibliotecario", status: "activo" },
                 { id: 2, name: "Usuario", email: "user@biblioteca.com", password: "user123", role: "usuario", status: "activo" }
@@ -136,12 +133,12 @@ class Database {
 
     findUserByEmail(email) {
         const users = this.getUsers();
-        return users.find(user => user.email === email && user.role !== 'admin');
+        return users.find(user => user.email === email && user.status === 'activo');
     }
 
     findUserByEmailAndPassword(email, password) {
         const users = this.getUsers();
-        return users.find(user => user.email === email && user.password === password && user.role !== 'admin');
+        return users.find(user => user.email === email && user.password === password && user.status === 'activo');
     }
 
     // Métodos para libros
