@@ -105,9 +105,9 @@ function handleForgotPassword(e) {
 
 function handleLogin(e) {
     e.preventDefault();
-    console.log('Iniciando proceso de login...');
+    console.log('=== INICIANDO PROCESO DE LOGIN ===');
     
-    // Obtener los valores de los campos ANTES de cualquier otra acción
+    // Obtener los valores de los campos
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
 
@@ -116,26 +116,36 @@ function handleLogin(e) {
 
     // Validar que los campos no estén vacíos
     if (!email || !password) {
+        console.log('ERROR: Campos vacíos');
         showAlert('Por favor, completa todos los campos', 'warning');
         return;
     }
 
     try {
+        // Verificar que la base de datos esté disponible
         if (typeof db === 'undefined') {
+            console.log('ERROR: Base de datos no disponible');
             showAlert('Error: Base de datos no disponible', 'warning');
             return;
         }
 
-        console.log('Buscando usuario en la base de datos...');
+        console.log('Base de datos disponible, buscando usuario...');
+        
+        // Obtener todos los usuarios para debug
+        const allUsers = db.getUsers();
+        console.log('Todos los usuarios:', allUsers);
+
         // Buscar usuario activo y con credenciales correctas
-        const user = db.getUsers().find(
+        const user = allUsers.find(
             u => u.email === email && u.password === password && u.status === 'activo'
         );
 
         console.log('Usuario encontrado:', user);
 
         if (user) {
-            console.log('Login exitoso, estableciendo usuario actual...');
+            console.log('=== LOGIN EXITOSO ===');
+            console.log('Estableciendo usuario actual:', user);
+            
             currentUser = user;
             console.log('Usuario actual establecido:', currentUser);
             
@@ -143,16 +153,24 @@ function handleLogin(e) {
             showDashboard();
             
             showAlert('¡Bienvenido ' + user.name + '!', 'success');
+            
             // Limpiar el formulario solo después del login exitoso
             document.getElementById('loginForm').reset();
-            console.log('Login completado exitosamente');
+            console.log('=== LOGIN COMPLETADO EXITOSAMENTE ===');
         } else {
+            console.log('=== LOGIN FALLIDO ===');
             console.log('Credenciales incorrectas o usuario no encontrado');
             showAlert('Credenciales incorrectas o usuario inactivo', 'warning');
-            // No limpiar el formulario en caso de error para que el usuario pueda corregir
+            
+            // Mostrar información de debug
+            console.log('Usuarios disponibles para debug:');
+            allUsers.forEach(u => {
+                console.log(`- ${u.email} (${u.password}) - ${u.status}`);
+            });
         }
     } catch (error) {
-        console.error('Error en handleLogin:', error);
+        console.error('=== ERROR EN LOGIN ===');
+        console.error('Error:', error);
         showAlert('Error en el sistema de login: ' + error.message, 'warning');
     }
 }

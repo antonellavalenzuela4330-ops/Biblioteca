@@ -2,8 +2,6 @@
 class Database {
     constructor() {
         this.initializeDatabase();
-        // Sincronizar variables globales después de inicializar la base de datos
-        refreshGlobalData();
     }
 
     // Inicializar la base de datos con datos por defecto si está vacía
@@ -302,6 +300,9 @@ function refreshGlobalData() {
     books = db.getBooks();
     loans = db.getLoans();
 }
+
+// Sincronizar variables globales después de crear la instancia de la base de datos
+refreshGlobalData();
 
 // Función para verificar si el usuario está autenticado
 function isAuthenticated() {
