@@ -64,15 +64,23 @@ function populateFilter(filterId, options) {
 
 // Funciones de navegación entre páginas de autenticación
 function showLoginPage() {
+    console.log('Cambiando a página de login...');
     document.getElementById('loginPage').style.display = 'flex';
     document.getElementById('registerPage').style.display = 'none';
     document.getElementById('forgotPasswordPage').style.display = 'none';
+    
+    // Limpiar el formulario de registro al cambiar de página
+    document.getElementById('registerForm').reset();
 }
 
 function showRegisterPage() {
+    console.log('Cambiando a página de registro...');
     document.getElementById('loginPage').style.display = 'none';
     document.getElementById('registerPage').style.display = 'flex';
     document.getElementById('forgotPasswordPage').style.display = 'none';
+    
+    // Limpiar el formulario de login al cambiar de página
+    document.getElementById('loginForm').reset();
 }
 
 function showForgotPassword() {
@@ -97,11 +105,16 @@ function handleForgotPassword(e) {
 
 function handleLogin(e) {
     e.preventDefault();
+    
     // Obtener los valores de los campos ANTES de cualquier otra acción
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
 
-    // No limpiar ni resetear el formulario aquí
+    // Validar que los campos no estén vacíos
+    if (!email || !password) {
+        showAlert('Por favor, completa todos los campos', 'warning');
+        return;
+    }
 
     try {
         if (typeof db === 'undefined') {
@@ -118,42 +131,68 @@ function handleLogin(e) {
             currentUser = user;
             showDashboard();
             showAlert('¡Bienvenido ' + user.name + '!', 'success');
-            setTimeout(() => {
-                document.getElementById('loginForm').reset();
-            }, 300);
+            // Limpiar el formulario solo después del login exitoso
+            document.getElementById('loginForm').reset();
         } else {
             showAlert('Credenciales incorrectas o usuario inactivo', 'warning');
+            // No limpiar el formulario en caso de error para que el usuario pueda corregir
         }
     } catch (error) {
         showAlert('Error en el sistema de login: ' + error.message, 'warning');
+        console.error('Error en handleLogin:', error);
     }
 }
 
 function handleRegister(e) {
     e.preventDefault();
-    const name = document.getElementById('registerName').value;
-    const email = document.getElementById('registerEmail').value;
+    
+    const name = document.getElementById('registerName').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value;
     const role = document.getElementById('registerRole').value;
 
-    if (db.findUserByEmail(email)) {
-        showAlert('El email ya está registrado', 'warning');
+    // Validar que todos los campos estén completos
+    if (!name || !email || !password || !role) {
+        showAlert('Por favor, completa todos los campos', 'warning');
         return;
     }
 
-    const newUser = {
-        name: name,
-        email: email,
-        password: password,
-        role: role,
-        status: 'activo'
-    };
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showAlert('Por favor, ingresa un email válido', 'warning');
+        return;
+    }
 
-    db.addUser(newUser);
-    refreshGlobalData();
-    showAlert('Usuario registrado exitosamente', 'success');
-    document.getElementById('registerForm').reset();
-    showLoginPage();
+    // Validar longitud de contraseña
+    if (password.length < 6) {
+        showAlert('La contraseña debe tener al menos 6 caracteres', 'warning');
+        return;
+    }
+
+    try {
+        if (db.findUserByEmail(email)) {
+            showAlert('El email ya está registrado', 'warning');
+            return;
+        }
+
+        const newUser = {
+            name: name,
+            email: email,
+            password: password,
+            role: role,
+            status: 'activo'
+        };
+
+        db.addUser(newUser);
+        refreshGlobalData();
+        showAlert('Usuario registrado exitosamente', 'success');
+        document.getElementById('registerForm').reset();
+        showLoginPage();
+    } catch (error) {
+        showAlert('Error al registrar usuario: ' + error.message, 'warning');
+        console.error('Error en handleRegister:', error);
+    }
 }
 
 function showDashboard() {
