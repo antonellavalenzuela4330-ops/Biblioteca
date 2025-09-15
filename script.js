@@ -688,8 +688,8 @@ function loadLoans() {
                             <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #d4af37 0%, #ffe082 50%, #d4af37 100%);"></div>
                             <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Libro:</strong> ${loan.bookTitle}</div>
                             <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Usuario:</strong> ${loan.userName}</div>
-                            <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de préstamo:</strong> ${loan.loanDate}</div>
-                            <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de devolución:</strong> ${loan.returnDate}</div>
+                            <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de préstamo:</strong> ${loan.loanDate || loan.startDate || 'No especificada'}</div>
+                            <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de devolución:</strong> ${loan.returnDate || loan.endDate || 'No especificada'}</div>
                             <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Estado:</strong> ${loan.status}</div>
                             ${loan.status === 'pendiente' ? 
                                 '<span style="color: #d4af37; font-style: italic;">Préstamo pendiente de aprobación</span>' :
@@ -721,8 +721,8 @@ function loadLoans() {
                         <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #d4af37 0%, #ffe082 50%, #d4af37 100%);"></div>
                         <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Libro:</strong> ${loan.bookTitle}</div>
                         <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Usuario:</strong> ${loan.userName}</div>
-                        <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de préstamo:</strong> ${loan.loanDate}</div>
-                        <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de devolución:</strong> ${loan.returnDate}</div>
+                        <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de préstamo:</strong> ${loan.loanDate || loan.startDate || 'No especificada'}</div>
+                        <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de devolución:</strong> ${loan.returnDate || loan.endDate || 'No especificada'}</div>
                         <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Estado:</strong> ${loan.status}</div>
                         ${loan.status === 'pendiente' && currentUser.role === 'bibliotecario' ? 
                             `<div class="loan-actions">
@@ -1066,6 +1066,9 @@ function handleUserLoanRequest(e) {
         quantity: quantity,
         startDate: startDate,
         endDate: endDate,
+        // También guardar fechas en formato legible
+        loanDate: new Date(startDate).toLocaleDateString('es-ES'),
+        returnDate: new Date(endDate).toLocaleDateString('es-ES'),
         status: 'pendiente',
         createdAt: new Date().toISOString(),
         requestedAt: new Date().toLocaleString('es-ES')

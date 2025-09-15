@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Fechas - Biblioteca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-button.success {
+            background: #28a745;
+        }
+        .test-button.success:hover {
+            background: #218838;
+        }
+        .result {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .loan-card {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            color: white;
+            margin: 10px 0;
+        }
+        .loan-card h4 {
+            color: #d4af37;
+            margin-top: 0;
+        }
+        .loan-info {
+            margin: 10px 0;
+        }
+        .loan-info strong {
+            color: #d4af37;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Prueba de Fechas en Préstamos</h1>
+    
+    <div class="test-container">
+        <h2>1. Verificar Usuarios Predeterminados</h2>
+        <button class="test-button" onclick="checkUsers()">Verificar Usuarios</button>
+        <div id="usersResult"></div>
+    </div>
+
+    <div class="test-container">
+        <h2>2. Crear Préstamo de Prueba</h2>
+        <button class="test-button success" onclick="createTestLoan()">Crear Préstamo de Prueba</button>
+        <div id="loanResult"></div>
+    </div>
+
+    <div class="test-container">
+        <h2>3. Mostrar Préstamos con Fechas</h2>
+        <button class="test-button" onclick="showLoans()">Mostrar Préstamos</button>
+        <div id="loansResult"></div>
+    </div>
+
+    <div class="test-container">
+        <h2>4. Acceso al Sistema</h2>
+        <button class="test-button success" onclick="openMainSystem()">Abrir Sistema Principal</button>
+        <p><strong>Instrucciones:</strong></p>
+        <ol>
+            <li>Haz clic en "Verificar Usuarios" para ver los usuarios predeterminados</li>
+            <li>Haz clic en "Crear Préstamo de Prueba" para crear un préstamo con fechas</li>
+            <li>Haz clic en "Mostrar Préstamos" para ver cómo se muestran las fechas</li>
+            <li>Haz clic en "Abrir Sistema Principal" para usar el sistema completo</li>
+        </ol>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        function checkUsers() {
+            try {
+                const users = db.getUsers();
+                
+                if (users.length === 0) {
+                    showResult('usersResult', '⚠️ No hay usuarios. Creando usuarios predeterminados...', 'error');
+                    
+                    // Crear usuarios predeterminados
+                    const defaultUsers = [
+                        {
+                            id: 1,
+                            name: "Bibliotecario",
+                            email: "bibliotecario@biblioteca.com",
+                            password: "biblio123",
+                            role: "bibliotecario",
+                            status: "activo"
+                        },
+                        {
+                            id: 2,
+                            name: "Usuario",
+                            email: "user@biblioteca.com",
+                            password: "user123",
+                            role: "usuario",
+                            status: "activo"
+                        }
+                    ];
+                    
+                    localStorage.setItem('biblioteca_users', JSON.stringify(defaultUsers));
+                    showResult('usersResult', '✅ Usuarios predeterminados creados', 'success');
+                } else {
+                    let userList = '<strong>Usuarios disponibles:</strong><br>';
+                    users.forEach(user => {
+                        userList += `• ${user.name} (${user.email}) - ${user.role} - ${user.status}<br>`;
+                    });
+                    showResult('usersResult', userList, 'success');
+                }
+            } catch (error) {
+                showResult('usersResult', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function createTestLoan() {
+            try {
+                const users = db.getUsers();
+                const books = db.getBooks();
+                
+                if (users.length === 0 || books.length === 0) {
+                    showResult('loanResult', '⚠️ Primero verifica que hay usuarios y libros', 'error');
+                    return;
+                }
+
+                // Crear un préstamo de prueba con fechas
+                const testLoan = {
+                    id: Date.now(),
+                    bookId: 1,
+                    userId: 2, // Usuario
+                    bookTitle: books[0].title,
+                    userName: users.find(u => u.id === 2).name,
+                    quantity: 1,
+                    startDate: '2024-01-15',
+                    endDate: '2024-01-30',
+                    // Fechas en formato legible
+                    loanDate: new Date('2024-01-15').toLocaleDateString('es-ES'),
+                    returnDate: new Date('2024-01-30').toLocaleDateString('es-ES'),
+                    status: 'pendiente',
+                    createdAt: new Date().toISOString(),
+                    requestedAt: new Date().toLocaleString('es-ES')
+                };
+
+                db.addLoan(testLoan);
+                
+                showResult('loanResult', `
+                    ✅ Préstamo de prueba creado<br>
+                    📚 Libro: ${testLoan.bookTitle}<br>
+                    👤 Usuario: ${testLoan.userName}<br>
+                    📅 Fecha inicio: ${testLoan.loanDate}<br>
+                    📅 Fecha fin: ${testLoan.returnDate}<br>
+                    📊 Estado: ${testLoan.status}
+                `, 'success');
+
+            } catch (error) {
+                showResult('loanResult', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function showLoans() {
+            try {
+                const loans = db.getLoans();
+                
+                if (loans.length === 0) {
+                    showResult('loansResult', '⚠️ No hay préstamos. Crea un préstamo de prueba primero.', 'error');
+                    return;
+                }
+
+                let loansHtml = '<strong>Préstamos con fechas:</strong><br>';
+                loans.forEach(loan => {
+                    loansHtml += `
+                        <div class="loan-card">
+                            <h4>${loan.bookTitle}</h4>
+                            <div class="loan-info"><strong>Usuario:</strong> ${loan.userName}</div>
+                            <div class="loan-info"><strong>Fecha de préstamo:</strong> ${loan.loanDate || loan.startDate || 'No especificada'}</div>
+                            <div class="loan-info"><strong>Fecha de devolución:</strong> ${loan.returnDate || loan.endDate || 'No especificada'}</div>
+                            <div class="loan-info"><strong>Estado:</strong> ${loan.status}</div>
+                        </div>
+                    `;
+                });
+                
+                showResult('loansResult', loansHtml, 'info');
+
+            } catch (error) {
+                showResult('loansResult', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function openMainSystem() {
+            window.open('index.html', '_blank');
+        }
+
+        // Verificación automática al cargar
+        window.addEventListener('load', function() {
+            console.log('Página de prueba de fechas cargada');
+            checkUsers();
+        });
+    </script>
+</body>
+</html>
