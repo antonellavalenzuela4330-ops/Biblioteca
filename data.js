@@ -2,6 +2,8 @@
 class Database {
     constructor() {
         this.initializeDatabase();
+        // Sincronizar variables globales después de inicializar la base de datos
+        refreshGlobalData();
     }
 
     // Inicializar la base de datos con datos por defecto si está vacía
