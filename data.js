@@ -266,11 +266,14 @@ class Database {
         const loans = this.getLoans();
         const users = this.getUsers();
         
+        // Calcular total de libros disponibles (suma de stock de todos los libros)
+        const totalAvailableBooks = books.reduce((sum, book) => sum + book.stock, 0);
+        
         return {
             totalBooks: books.length,
-            availableBooks: books.filter(b => b.stock > 0).length,
+            availableBooks: totalAvailableBooks,
             totalLoans: loans.length,
-            activeLoans: loans.filter(l => l.status === 'activo').length,
+            activeLoans: loans.filter(l => l.status === 'activo' || l.status === 'aprobado').length,
             totalUsers: users.length,
             activeUsers: users.filter(u => u.status === 'activo').length
         };

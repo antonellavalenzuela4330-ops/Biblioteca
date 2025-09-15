@@ -707,8 +707,8 @@ function loadLoans() {
         loanUserSelect.style.display = 'block';
         loanUserSelect.innerHTML = '<option value="">Seleccionar usuario</option>';
         users.forEach(user => {
-            if (user.role === 'usuario' && user.status === 'activo') {
-                loanUserSelect.innerHTML += `<option value="${user.id}">${user.name}</option>`;
+            if (user.status === 'activo') {
+                loanUserSelect.innerHTML += `<option value="${user.id}">${user.name} (${user.role})</option>`;
             }
         });
 
