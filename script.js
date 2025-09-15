@@ -98,40 +98,33 @@ function handleForgotPassword(e) {
 function handleLogin(e) {
     e.preventDefault();
     // Obtener los valores de los campos ANTES de cualquier otra acción
-    const emailInput = document.getElementById('loginEmail');
-    const passwordInput = document.getElementById('loginPassword');
-    const email = emailInput.value;
-    const password = passwordInput.value;
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
 
     // No limpiar ni resetear el formulario aquí
 
-    console.log('Intentando login con:', email);
-
     try {
         if (typeof db === 'undefined') {
-            console.error('Base de datos no disponible');
             showAlert('Error: Base de datos no disponible', 'warning');
             return;
         }
 
-        const user = db.findUserByEmailAndPassword(email, password);
-        console.log('Usuario encontrado:', user);
+        // Buscar usuario activo y con credenciales correctas
+        const user = db.getUsers().find(
+            u => u.email === email && u.password === password && u.status === 'activo'
+        );
 
-        if (user && user.status === 'activo') {
+        if (user) {
             currentUser = user;
             showDashboard();
             showAlert('¡Bienvenido ' + user.name + '!', 'success');
-            // Limpiar el formulario SOLO después de login exitoso y después de mostrar el dashboard
             setTimeout(() => {
                 document.getElementById('loginForm').reset();
             }, 300);
-        } else if (user && user.status !== 'activo') {
-            showAlert('Tu cuenta está ' + user.status, 'warning');
         } else {
-            showAlert('Credenciales incorrectas', 'warning');
+            showAlert('Credenciales incorrectas o usuario inactivo', 'warning');
         }
     } catch (error) {
-        console.error('Error en login:', error);
         showAlert('Error en el sistema de login: ' + error.message, 'warning');
     }
 }
@@ -168,7 +161,7 @@ function showDashboard() {
     document.getElementById('registerPage').style.display = 'none';
     document.getElementById('forgotPasswordPage').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
-    
+
     document.getElementById('userName').textContent = currentUser.name;
     document.getElementById('userRole').textContent = currentUser.role;
 
@@ -177,12 +170,14 @@ function showDashboard() {
     const librarianElements = document.querySelectorAll('.librarian-only');
     const userLoansElements = document.querySelectorAll('.user-loans-tab');
 
+    // Solo mostrar admin-only si es bibliotecario
     bibliotecarioElements.forEach(el => {
         el.style.display = currentUser.role === 'bibliotecario' ? 'block' : 'none';
     });
 
+    // Mostrar librarian-only si es bibliotecario
     librarianElements.forEach(el => {
-        el.style.display = (currentUser.role === 'bibliotecario' || currentUser.role === 'bibliotecario') ? 'block' : 'none';
+        el.style.display = currentUser.role === 'bibliotecario' ? 'block' : 'none';
     });
 
     // Mostrar pestaña de préstamos solo para usuarios (no bibliotecario)
@@ -495,6 +490,13 @@ function deleteBook(bookId) {
 
 function handleLoanSubmit(e) {
     e.preventDefault();
+    const bookId = parseInt(document.getElementById('loanBook').value);
+    const loanDate = document.getElementById('loanDate').value;
+    const returnDate = document.getElementById('returnDate').value;
+
+    // Determinar el userId según el rol del usuario
+    let userId;
+    if (currentUser.role === 'usuario') {
     const bookId = parseInt(document.getElementById('loanBook').value);
     const loanDate = document.getElementById('loanDate').value;
     const returnDate = document.getElementById('returnDate').value;
