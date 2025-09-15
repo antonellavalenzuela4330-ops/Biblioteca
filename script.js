@@ -97,26 +97,28 @@ function handleForgotPassword(e) {
 
 function handleLogin(e) {
     e.preventDefault();
+    // Obtener los valores directamente en el submit, no después de un reset
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
 
     console.log('Intentando login con:', email);
-    
+
     try {
-        // Verificar que la base de datos esté disponible
         if (typeof db === 'undefined') {
             console.error('Base de datos no disponible');
             showAlert('Error: Base de datos no disponible', 'warning');
             return;
         }
-        
+
         const user = db.findUserByEmailAndPassword(email, password);
         console.log('Usuario encontrado:', user);
-        
+
         if (user && user.status === 'activo') {
             currentUser = user;
             showDashboard();
             showAlert('¡Bienvenido ' + user.name + '!', 'success');
+            // Limpiar el formulario solo después de login exitoso
+            document.getElementById('loginForm').reset();
         } else if (user && user.status !== 'activo') {
             showAlert('Tu cuenta está ' + user.status, 'warning');
         } else {
