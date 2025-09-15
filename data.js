@@ -6,7 +6,14 @@ class Database {
 
     // Inicializar la base de datos con datos por defecto si está vacía
     initializeDatabase() {
-        if (!localStorage.getItem('biblioteca_users')) {
+        // Eliminar usuarios con rol "admin" si existen en localStorage
+        let existingUsers = JSON.parse(localStorage.getItem('biblioteca_users') || '[]');
+        let filteredUsers = existingUsers.filter(u => u.role !== 'admin');
+        if (filteredUsers.length !== existingUsers.length) {
+            localStorage.setItem('biblioteca_users', JSON.stringify(filteredUsers));
+        }
+
+        if (!localStorage.getItem('biblioteca_users') || filteredUsers.length === 0) {
             const defaultUsers = [
                 { id: 1, name: "Bibliotecario", email: "bibliotecario@biblioteca.com", password: "biblio123", role: "bibliotecario", status: "activo" },
                 { id: 2, name: "Usuario", email: "user@biblioteca.com", password: "user123", role: "usuario", status: "activo" }
@@ -127,12 +134,12 @@ class Database {
 
     findUserByEmail(email) {
         const users = this.getUsers();
-        return users.find(user => user.email === email);
+        return users.find(user => user.email === email && user.role !== 'admin');
     }
 
     findUserByEmailAndPassword(email, password) {
         const users = this.getUsers();
-        return users.find(user => user.email === email && user.password === password);
+        return users.find(user => user.email === email && user.password === password && user.role !== 'admin');
     }
 
     // Métodos para libros
@@ -302,17 +309,17 @@ function isAuthenticated() {
     return currentUser !== null;
 }
 
-// Función para obtener el usuario actual
+// Función para obtener el usuario current
 function getCurrentUser() {
     return currentUser;
 }
 
-// Función para establecer el usuario actual
+// Función para establecer el usuario current
 function setCurrentUser(user) {
     currentUser = user;
 }
 
-// Función para limpiar el usuario actual (logout)
+// Función para limpiar el usuario current (logout)
 function clearCurrentUser() {
     currentUser = null;
 }
