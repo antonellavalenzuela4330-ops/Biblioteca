@@ -105,10 +105,14 @@ function handleForgotPassword(e) {
 
 function handleLogin(e) {
     e.preventDefault();
+    console.log('Iniciando proceso de login...');
     
     // Obtener los valores de los campos ANTES de cualquier otra acción
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
+
+    console.log('Email ingresado:', email);
+    console.log('Contraseña ingresada:', password ? '***' : 'vacía');
 
     // Validar que los campos no estén vacíos
     if (!email || !password) {
@@ -122,24 +126,34 @@ function handleLogin(e) {
             return;
         }
 
+        console.log('Buscando usuario en la base de datos...');
         // Buscar usuario activo y con credenciales correctas
         const user = db.getUsers().find(
             u => u.email === email && u.password === password && u.status === 'activo'
         );
 
+        console.log('Usuario encontrado:', user);
+
         if (user) {
+            console.log('Login exitoso, estableciendo usuario actual...');
             currentUser = user;
+            console.log('Usuario actual establecido:', currentUser);
+            
+            console.log('Mostrando dashboard...');
             showDashboard();
+            
             showAlert('¡Bienvenido ' + user.name + '!', 'success');
             // Limpiar el formulario solo después del login exitoso
             document.getElementById('loginForm').reset();
+            console.log('Login completado exitosamente');
         } else {
+            console.log('Credenciales incorrectas o usuario no encontrado');
             showAlert('Credenciales incorrectas o usuario inactivo', 'warning');
             // No limpiar el formulario en caso de error para que el usuario pueda corregir
         }
     } catch (error) {
-        showAlert('Error en el sistema de login: ' + error.message, 'warning');
         console.error('Error en handleLogin:', error);
+        showAlert('Error en el sistema de login: ' + error.message, 'warning');
     }
 }
 
@@ -196,11 +210,19 @@ function handleRegister(e) {
 }
 
 function showDashboard() {
+    console.log('Mostrando dashboard para usuario:', currentUser);
+    
+    // Ocultar todas las páginas de autenticación
     document.getElementById('loginPage').style.display = 'none';
     document.getElementById('registerPage').style.display = 'none';
     document.getElementById('forgotPasswordPage').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
+    
+    // Mostrar el dashboard
+    const dashboard = document.getElementById('dashboard');
+    dashboard.style.display = 'block';
+    console.log('Dashboard mostrado:', dashboard.style.display);
 
+    // Actualizar información del usuario
     document.getElementById('userName').textContent = currentUser.name;
     document.getElementById('userRole').textContent = currentUser.role;
 
@@ -224,11 +246,16 @@ function showDashboard() {
         el.style.display = currentUser.role === 'usuario' ? 'block' : 'none';
     });
 
-    loadBooks();
-    loadLoans();
-    loadUsers();
-    loadStats();
-    checkLowStock();
+    // Cargar datos del dashboard
+    try {
+        loadBooks();
+        loadLoans();
+        loadUsers();
+        loadStats();
+        checkLowStock();
+    } catch (error) {
+        console.error('Error cargando datos del dashboard:', error);
+    }
 
     // Mostrar por defecto el catálogo tras iniciar sesión
     document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
@@ -236,6 +263,8 @@ function showDashboard() {
     document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
     const tabCatalog = document.getElementById('tabCatalog');
     if (tabCatalog) tabCatalog.classList.add('active');
+    
+    console.log('Dashboard configurado completamente');
 }
 
 function logout() {

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Login - Biblioteca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .debug-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .debug-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .debug-button:hover {
+            background: #0056b3;
+        }
+        .debug-button.success {
+            background: #28a745;
+        }
+        .debug-button.danger {
+            background: #dc3545;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .console-output {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug del Sistema de Login</h1>
+    
+    <div class="debug-section">
+        <h2>1. Estado de la Base de Datos</h2>
+        <button class="debug-button" onclick="checkDatabase()">Verificar Base de Datos</button>
+        <button class="debug-button danger" onclick="clearDatabase()">Limpiar Base de Datos</button>
+        <div id="dbResult"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>2. Usuarios Disponibles</h2>
+        <button class="debug-button" onclick="listUsers()">Listar Usuarios</button>
+        <button class="debug-button success" onclick="createTestUsers()">Crear Usuarios de Prueba</button>
+        <div id="usersResult"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>3. Prueba de Login</h2>
+        <button class="debug-button" onclick="testLoginFlow()">Probar Flujo de Login</button>
+        <button class="debug-button" onclick="testLoginWithCredentials()">Login con Credenciales Específicas</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>4. Prueba de Navegación</h2>
+        <button class="debug-button" onclick="testPageNavigation()">Probar Cambio de Páginas</button>
+        <button class="debug-button" onclick="testDashboardDisplay()">Probar Mostrar Dashboard</button>
+        <div id="navigationResult"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>5. Consola de Debug</h2>
+        <button class="debug-button" onclick="clearConsole()">Limpiar Consola</button>
+        <button class="debug-button" onclick="showConsoleLog()">Mostrar Log de Consola</button>
+        <div id="consoleOutput" class="console-output"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>6. Acceso al Sistema</h2>
+        <button class="debug-button success" onclick="openMainSystem()">Abrir Sistema Principal</button>
+        <p><strong>Usuarios de prueba:</strong></p>
+        <ul>
+            <li><strong>Bibliotecario:</strong> bibliotecario@biblioteca.com / biblio123</li>
+            <li><strong>Usuario:</strong> user@biblioteca.com / user123</li>
+        </ul>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        // Capturar logs de consola
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        let consoleMessages = [];
+        
+        console.log = function(...args) {
+            consoleMessages.push('[LOG] ' + args.join(' '));
+            originalLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            consoleMessages.push('[ERROR] ' + args.join(' '));
+            originalError.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            consoleMessages.push('[WARN] ' + args.join(' '));
+            originalWarn.apply(console, args);
+        };
+
+        function checkDatabase() {
+            const resultDiv = document.getElementById('dbResult');
+            try {
+                if (typeof db !== 'undefined') {
+                    const users = db.getUsers();
+                    const books = db.getBooks();
+                    const loans = db.getLoans();
+                    
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+✅ Base de datos funcionando correctamente
+📊 Usuarios: ${users.length}
+📚 Libros: ${books.length}
+📋 Préstamos: ${loans.length}
+🔧 Instancia DB: ${typeof db}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+❌ Error: Base de datos no encontrada
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+❌ Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function listUsers() {
+            const resultDiv = document.getElementById('usersResult');
+            try {
+                const users = db.getUsers();
+                let html = '<div class="result info"><strong>Usuarios en la base de datos:</strong><br>';
+                if (users.length === 0) {
+                    html += 'No hay usuarios registrados<br>';
+                } else {
+                    users.forEach(user => {
+                        html += `• ${user.name} (${user.email}) - ${user.role} - ${user.status} - ID: ${user.id}<br>`;
+                    });
+                }
+                html += '</div>';
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+❌ Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function createTestUsers() {
+            const resultDiv = document.getElementById('usersResult');
+            try {
+                // Crear usuarios de prueba si no existen
+                const testUsers = [
+                    {
+                        name: "Bibliotecario",
+                        email: "bibliotecario@biblioteca.com",
+                        password: "biblio123",
+                        role: "bibliotecario",
+                        status: "activo"
+                    },
+                    {
+                        name: "Usuario",
+                        email: "user@biblioteca.com",
+                        password: "user123",
+                        role: "usuario",
+                        status: "activo"
+                    }
+                ];
+
+                let createdCount = 0;
+                testUsers.forEach(testUser => {
+                    if (!db.findUserByEmail(testUser.email)) {
+                        db.addUser(testUser);
+                        createdCount++;
+                    }
+                });
+
+                resultDiv.innerHTML = `
+                    <div class="result success">
+✅ Usuarios de prueba creados: ${createdCount}
+📋 Total usuarios: ${db.getUsers().length}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+❌ Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function testLoginFlow() {
+            const resultDiv = document.getElementById('loginResult');
+            try {
+                // Simular el proceso de login
+                const email = 'bibliotecario@biblioteca.com';
+                const password = 'biblio123';
+                
+                console.log('Iniciando prueba de login...');
+                
+                const user = db.findUserByEmailAndPassword(email, password);
+                
+                if (user) {
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+✅ Login exitoso
+👤 Usuario: ${user.name}
+📧 Email: ${user.email}
+🔑 Rol: ${user.role}
+📊 Estado: ${user.status}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+❌ Login fallido - Usuario no encontrado
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+❌ Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function testLoginWithCredentials() {
+            const resultDiv = document.getElementById('loginResult');
+            const email = prompt('Ingresa el email:');
+            const password = prompt('Ingresa la contraseña:');
+            
+            if (!email || !password) {
+                resultDiv.innerHTML = `
+                    <div class="result warning">
+⚠️ Credenciales no proporcionadas
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                const user = db.findUserByEmailAndPassword(email, password);
+                
+                if (user) {
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+✅ Login exitoso con credenciales proporcionadas
+👤 Usuario: ${user.name}
+📧 Email: ${user.email}
+🔑 Rol: ${user.role}
+📊 Estado: ${user.status}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+❌ Login fallido - Credenciales incorrectas
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+❌ Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function testPageNavigation() {
+            const resultDiv = document.getElementById('navigationResult');
+            try {
+                // Verificar que las funciones de navegación existan
+                const functions = ['showLoginPage', 'showRegisterPage', 'showDashboard'];
+                let results = [];
+                
+                functions.forEach(funcName => {
+                    if (typeof window[funcName] === 'function') {
+                        results.push(`✅ ${funcName} existe`);
+                    } else {
+                        results.push(`❌ ${funcName} no existe`);
+                    }
+                });
+                
+                resultDiv.innerHTML = `
+                    <div class="result info">
+<strong>Verificación de funciones de navegación:</strong><br>
+${results.join('<br>')}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+❌ Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function testDashboardDisplay() {
+            const resultDiv = document.getElementById('navigationResult');
+            try {
+                // Verificar que el elemento dashboard existe
+                const dashboard = document.getElementById('dashboard');
+                
+                if (dashboard) {
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+✅ Elemento dashboard encontrado
+📊 Display actual: ${dashboard.style.display}
+🔧 Clase: ${dashboard.className}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+❌ Elemento dashboard no encontrado
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+❌ Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function clearConsole() {
+            consoleMessages = [];
+            document.getElementById('consoleOutput').innerHTML = '';
+        }
+
+        function showConsoleLog() {
+            const output = document.getElementById('consoleOutput');
+            output.innerHTML = consoleMessages.slice(-50).join('\n');
+        }
+
+        function clearDatabase() {
+            if (confirm('¿Estás seguro de que quieres limpiar la base de datos?')) {
+                try {
+                    db.clearDatabase();
+                    document.getElementById('dbResult').innerHTML = `
+                        <div class="result success">
+✅ Base de datos limpiada y reinicializada
+                        </div>
+                    `;
+                } catch (error) {
+                    document.getElementById('dbResult').innerHTML = `
+                        <div class="result error">
+❌ Error: ${error.message}
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function openMainSystem() {
+            window.open('index.html', '_blank');
+        }
+
+        // Ejecutar verificaciones automáticamente al cargar
+        window.addEventListener('load', function() {
+            console.log('Página de debug cargada');
+            checkDatabase();
+            listUsers();
+            testPageNavigation();
+        });
+    </script>
+</body>
+</html>
