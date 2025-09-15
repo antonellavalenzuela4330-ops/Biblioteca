@@ -97,9 +97,13 @@ function handleForgotPassword(e) {
 
 function handleLogin(e) {
     e.preventDefault();
-    // Obtener los valores directamente en el submit, no después de un reset
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
+    // Obtener los valores de los campos ANTES de cualquier otra acción
+    const emailInput = document.getElementById('loginEmail');
+    const passwordInput = document.getElementById('loginPassword');
+    const email = emailInput.value;
+    const password = passwordInput.value;
+
+    // No limpiar ni resetear el formulario aquí
 
     console.log('Intentando login con:', email);
 
@@ -117,8 +121,10 @@ function handleLogin(e) {
             currentUser = user;
             showDashboard();
             showAlert('¡Bienvenido ' + user.name + '!', 'success');
-            // Limpiar el formulario solo después de login exitoso
-            document.getElementById('loginForm').reset();
+            // Limpiar el formulario SOLO después de login exitoso y después de mostrar el dashboard
+            setTimeout(() => {
+                document.getElementById('loginForm').reset();
+            }, 300);
         } else if (user && user.status !== 'activo') {
             showAlert('Tu cuenta está ' + user.status, 'warning');
         } else {
@@ -651,6 +657,10 @@ function loadLoans() {
                         }
                     </div>
                 `).join('')}
+
+                <div style="grid-column: span 2; text-align: center; margin-top: 1rem;">
+                    <button class="btn" onclick="exportLoansToCSV()" style="padding: 0.75rem 1.5rem; font-size: 1rem;">Exportar Préstamos a CSV</button>
+                </div>
             </div>
         `;
     }
@@ -852,6 +862,10 @@ function createLoansChart() {
                     </div>
                 </div>
             `).join('')}
+
+            <div style="grid-column: span 2; text-align: center; margin-top: 1rem;">
+                <button class="btn" onclick="exportLoansToCSV()" style="padding: 0.75rem 1.5rem; font-size: 1rem;">Exportar Préstamos a CSV</button>
+            </div>
         </div>
     `;
 }
