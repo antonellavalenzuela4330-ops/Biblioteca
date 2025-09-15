@@ -294,16 +294,6 @@ let books = [];
 let loans = [];
 let currentUser = null;
 
-// Función para actualizar las variables globales desde la base de datos
-function refreshGlobalData() {
-    users = db.getUsers();
-    books = db.getBooks();
-    loans = db.getLoans();
-}
-
-// Sincronizar variables globales después de crear la instancia de la base de datos
-refreshGlobalData();
-
 // Función para verificar si el usuario está autenticado
 function isAuthenticated() {
     return currentUser !== null;

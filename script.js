@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Asegurar que la base de datos esté lista
     if (typeof db !== 'undefined') {
         console.log('Base de datos encontrada:', db);
-        refreshGlobalData();
         console.log('Datos globales actualizados:', { users: users.length, books: books.length, loans: loans.length });
         
         setupEventListeners();
@@ -217,7 +216,6 @@ function handleRegister(e) {
         };
 
         db.addUser(newUser);
-        refreshGlobalData();
         showAlert('Usuario registrado exitosamente', 'success');
         document.getElementById('registerForm').reset();
         showLoginPage();
@@ -479,7 +477,6 @@ function handleModalBookSubmit(e) {
         showAlert('Libro agregado exitosamente', 'success');
     }
 
-    refreshGlobalData();
     loadBooks();
     loadInventoryTable();
     closeBookModal();
@@ -511,7 +508,6 @@ function handleBookSubmit(e) {
     };
 
     db.addBook(newBook);
-    refreshGlobalData();
     loadBooks();
     document.getElementById('bookForm').reset();
     showAlert('Libro agregado exitosamente', 'success');
@@ -567,7 +563,6 @@ function loadInventoryTable() {
 function deleteBook(bookId) {
     if (confirm('¿Estás seguro de que quieres eliminar este libro?')) {
         db.deleteBook(bookId);
-        refreshGlobalData();
         loadBooks();
         loadInventoryTable();
         showAlert('Libro eliminado exitosamente', 'success');
@@ -642,7 +637,6 @@ function handleLoanSubmit(e) {
     };
 
     db.addLoan(newLoan);
-    refreshGlobalData();
     loadBooks();
     loadLoans();
     document.getElementById('loanForm').reset();
@@ -760,7 +754,6 @@ function acceptLoan(loanId) {
         status: 'aprobado',
         approvedAt: now
     });
-    refreshGlobalData();
     loadBooks();
     loadLoans();
     showAlert('Préstamo aprobado exitosamente', 'success');
@@ -773,7 +766,6 @@ function rejectLoan(loanId) {
             status: 'rechazado',
             rejectedAt: now
         });
-        refreshGlobalData();
         loadBooks();
         loadLoans();
         showAlert('Préstamo rechazado', 'warning');
@@ -796,7 +788,6 @@ function returnBook(loanId) {
         status: 'devuelto',
         returnDate: currentDateTime
     });
-    refreshGlobalData();
     loadBooks();
     loadLoans();
     showAlert('Préstamo finalizado exitosamente', 'success');
@@ -819,7 +810,6 @@ function handleUserSubmit(e) {
     };
 
     db.addUser(newUser);
-    refreshGlobalData();
     loadUsers();
     document.getElementById('userForm').reset();
     showAlert('Usuario agregado exitosamente', 'success');
@@ -880,7 +870,6 @@ function editUser(userId) {
 function deleteUser(userId) {
     if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
         db.deleteUser(userId);
-        refreshGlobalData();
         loadUsers();
         showAlert('Usuario eliminado exitosamente', 'success');
     }
@@ -1221,8 +1210,8 @@ function returnUserBook(loanId) {
             returnedAt: now
         });
         
-        refreshGlobalData();
         loadUserLoans();
         showUserNotification('Libro marcado como devuelto exitosamente', 'success');
     }
+}
 }
