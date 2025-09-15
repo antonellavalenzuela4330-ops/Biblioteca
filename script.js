@@ -264,6 +264,11 @@ function showDashboard() {
 
     // Cargar datos del dashboard
     try {
+        // Actualizar variables globales
+        users = db.getUsers();
+        books = db.getBooks();
+        loans = db.getLoans();
+        
         loadBooks();
         loadLoans();
         loadUsers();
@@ -578,13 +583,6 @@ function handleLoanSubmit(e) {
     // Determinar el userId según el rol del usuario
     let userId;
     if (currentUser.role === 'usuario') {
-    const bookId = parseInt(document.getElementById('loanBook').value);
-    const loanDate = document.getElementById('loanDate').value;
-    const returnDate = document.getElementById('returnDate').value;
-
-    // Determinar el userId según el rol del usuario
-    let userId;
-    if (currentUser.role === 'usuario') {
         userId = currentUser.id;
     } else {
         userId = parseInt(document.getElementById('loanUser').value);
@@ -876,7 +874,15 @@ function deleteUser(userId) {
 }
 
 function loadStats() {
+    // Actualizar variables globales antes de calcular estadísticas
+    users = db.getUsers();
+    books = db.getBooks();
+    loans = db.getLoans();
+    
     const stats = db.getStats();
+    
+    console.log('Estadísticas calculadas:', stats);
+    console.log('Datos actuales:', { users: users.length, books: books.length, loans: loans.length });
     
     document.getElementById('totalBooks').textContent = stats.totalBooks;
     document.getElementById('availableBooks').textContent = stats.availableBooks;
@@ -1004,6 +1010,19 @@ function showAlert(message, type) {
     setTimeout(() => {
         alert.remove();
     }, 3000);
+}
+
+// Función debounce para optimizar búsquedas
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }
 
 
@@ -1217,4 +1236,24 @@ function returnUserBook(loanId) {
         showUserNotification('Libro marcado como devuelto exitosamente', 'success');
     }
 }
+
+function exportLoansToCSV() {
+    const loans = db.getLoans();
+    const csvContent = [
+        ['ID', 'Libro', 'Usuario', 'Fecha de Préstamo', 'Fecha de Devolución', 'Estado'],
+        ...loans.map(loan => [
+            loan.id,
+            loan.bookTitle,
+            loan.userName,
+            loan.loanDate || loan.startDate || 'N/A',
+            loan.returnDate || loan.endDate || 'N/A',
+            loan.status
+        ])
+    ].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'prestamos_biblioteca.csv';
+    link.click();
 }
