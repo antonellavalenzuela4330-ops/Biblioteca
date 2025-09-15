@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 ARREGLAR LOGIN - Biblioteca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .fix-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        .fix-button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px 5px;
+        }
+        .fix-button:hover {
+            background: #c82333;
+        }
+        .fix-button.success {
+            background: #28a745;
+        }
+        .fix-button.success:hover {
+            background: #218838;
+        }
+        .fix-button.info {
+            background: #17a2b8;
+        }
+        .fix-button.info:hover {
+            background: #138496;
+        }
+        .result {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .credentials {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: monospace;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 ARREGLAR LOGIN - Sistema de Biblioteca</h1>
+    
+    <div class="fix-container">
+        <h2>🚨 PROBLEMA IDENTIFICADO</h2>
+        <p>El sistema de login no funciona correctamente. Vamos a arreglarlo paso a paso.</p>
+        
+        <div class="step">
+            <h3>Paso 1: Verificar Base de Datos</h3>
+            <button class="fix-button info" onclick="checkDatabaseStatus()">Verificar Estado de BD</button>
+            <div id="dbStatus"></div>
+        </div>
+
+        <div class="step">
+            <h3>Paso 2: Crear Usuarios de Prueba</h3>
+            <button class="fix-button success" onclick="createTestUsers()">Crear Usuarios de Prueba</button>
+            <div id="userStatus"></div>
+        </div>
+
+        <div class="step">
+            <h3>Paso 3: Probar Login</h3>
+            <button class="fix-button" onclick="testLogin()">Probar Login</button>
+            <div id="loginStatus"></div>
+        </div>
+
+        <div class="step">
+            <h3>Paso 4: Limpiar Todo y Reiniciar</h3>
+            <button class="fix-button" onclick="resetEverything()">Limpiar Todo</button>
+            <div id="resetStatus"></div>
+        </div>
+    </div>
+
+    <div class="fix-container">
+        <h2>📋 Credenciales de Prueba</h2>
+        <div class="credentials">
+            <strong>Bibliotecario:</strong><br>
+            Email: bibliotecario@biblioteca.com<br>
+            Contraseña: biblio123<br><br>
+            
+            <strong>Usuario:</strong><br>
+            Email: user@biblioteca.com<br>
+            Contraseña: user123
+        </div>
+    </div>
+
+    <div class="fix-container">
+        <h2>🎯 Acceso al Sistema</h2>
+        <button class="fix-button success" onclick="openMainSystem()">Abrir Sistema Principal</button>
+        <p><strong>Instrucciones:</strong></p>
+        <ol>
+            <li>Haz clic en "Verificar Estado de BD"</li>
+            <li>Haz clic en "Crear Usuarios de Prueba"</li>
+            <li>Haz clic en "Probar Login"</li>
+            <li>Si todo está bien, haz clic en "Abrir Sistema Principal"</li>
+            <li>Usa las credenciales de arriba para hacer login</li>
+        </ol>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        function checkDatabaseStatus() {
+            try {
+                if (typeof db === 'undefined') {
+                    showResult('dbStatus', '❌ ERROR: Base de datos no encontrada', 'error');
+                    return;
+                }
+
+                const users = db.getUsers();
+                const books = db.getBooks();
+                const loans = db.getLoans();
+
+                showResult('dbStatus', `
+                    ✅ Base de datos funcionando<br>
+                    📊 Usuarios: ${users.length}<br>
+                    📚 Libros: ${books.length}<br>
+                    📋 Préstamos: ${loans.length}
+                `, 'success');
+
+            } catch (error) {
+                showResult('dbStatus', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function createTestUsers() {
+            try {
+                if (typeof db === 'undefined') {
+                    showResult('userStatus', '❌ ERROR: Base de datos no disponible', 'error');
+                    return;
+                }
+
+                // Limpiar usuarios existentes primero
+                localStorage.removeItem('biblioteca_users');
+                
+                // Crear usuarios de prueba
+                const testUsers = [
+                    {
+                        id: 1,
+                        name: "Bibliotecario",
+                        email: "bibliotecario@biblioteca.com",
+                        password: "biblio123",
+                        role: "bibliotecario",
+                        status: "activo"
+                    },
+                    {
+                        id: 2,
+                        name: "Usuario",
+                        email: "user@biblioteca.com",
+                        password: "user123",
+                        role: "usuario",
+                        status: "activo"
+                    }
+                ];
+
+                // Guardar usuarios
+                localStorage.setItem('biblioteca_users', JSON.stringify(testUsers));
+                
+                // Verificar que se guardaron
+                const savedUsers = JSON.parse(localStorage.getItem('biblioteca_users') || '[]');
+                
+                showResult('userStatus', `
+                    ✅ Usuarios de prueba creados exitosamente<br>
+                    📊 Total usuarios: ${savedUsers.length}<br>
+                    👤 Usuarios: ${savedUsers.map(u => u.name).join(', ')}
+                `, 'success');
+
+            } catch (error) {
+                showResult('userStatus', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function testLogin() {
+            try {
+                if (typeof db === 'undefined') {
+                    showResult('loginStatus', '❌ ERROR: Base de datos no disponible', 'error');
+                    return;
+                }
+
+                const users = db.getUsers();
+                
+                if (users.length === 0) {
+                    showResult('loginStatus', '⚠️ No hay usuarios. Haz clic en "Crear Usuarios de Prueba" primero.', 'warning');
+                    return;
+                }
+
+                // Probar login con bibliotecario
+                const testEmail = 'bibliotecario@biblioteca.com';
+                const testPassword = 'biblio123';
+                
+                const user = users.find(u => u.email === testEmail && u.password === testPassword && u.status === 'activo');
+                
+                if (user) {
+                    showResult('loginStatus', `
+                        ✅ Login de prueba exitoso<br>
+                        👤 Usuario: ${user.name}<br>
+                        📧 Email: ${user.email}<br>
+                        🔑 Rol: ${user.role}
+                    `, 'success');
+                } else {
+                    showResult('loginStatus', `
+                        ❌ Login de prueba fallido<br>
+                        📊 Usuarios disponibles: ${users.map(u => u.email).join(', ')}
+                    `, 'error');
+                }
+
+            } catch (error) {
+                showResult('loginStatus', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function resetEverything() {
+            try {
+                if (confirm('¿Estás seguro de que quieres limpiar todo y reiniciar?')) {
+                    // Limpiar localStorage
+                    localStorage.removeItem('biblioteca_users');
+                    localStorage.removeItem('biblioteca_books');
+                    localStorage.removeItem('biblioteca_loans');
+                    
+                    // Recargar la página para reinicializar
+                    showResult('resetStatus', '✅ Todo limpiado. Recargando página...', 'success');
+                    
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                }
+            } catch (error) {
+                showResult('resetStatus', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function openMainSystem() {
+            window.open('index.html', '_blank');
+        }
+
+        // Verificación automática al cargar
+        window.addEventListener('load', function() {
+            console.log('Página de arreglo cargada');
+            checkDatabaseStatus();
+        });
+    </script>
+</body>
+</html>
