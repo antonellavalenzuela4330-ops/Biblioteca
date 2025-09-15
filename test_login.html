@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Login - Biblioteca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Prueba del Sistema de Login</h1>
+    
+    <div class="test-section">
+        <h2>1. Verificar Base de Datos</h2>
+        <button class="test-button" onclick="testDatabase()">Probar Base de Datos</button>
+        <div id="dbResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Verificar Usuarios Disponibles</h2>
+        <button class="test-button" onclick="testUsers()">Mostrar Usuarios</button>
+        <div id="usersResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Probar Login</h2>
+        <button class="test-button" onclick="testLogin()">Probar Login con Usuario de Prueba</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Probar Registro</h2>
+        <button class="test-button" onclick="testRegister()">Probar Registro de Usuario</button>
+        <div id="registerResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Ir al Sistema Principal</h2>
+        <button class="test-button" onclick="openMainSystem()">Abrir Sistema de Biblioteca</button>
+        <p><strong>Usuarios de prueba disponibles:</strong></p>
+        <ul>
+            <li><strong>Bibliotecario:</strong> bibliotecario@biblioteca.com / biblio123</li>
+            <li><strong>Usuario:</strong> user@biblioteca.com / user123</li>
+        </ul>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        function testDatabase() {
+            const resultDiv = document.getElementById('dbResult');
+            try {
+                if (typeof db !== 'undefined') {
+                    const users = db.getUsers();
+                    const books = db.getBooks();
+                    const loans = db.getLoans();
+                    
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            ✅ Base de datos funcionando correctamente<br>
+                            📊 Usuarios: ${users.length}<br>
+                            📚 Libros: ${books.length}<br>
+                            📋 Préstamos: ${loans.length}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            ❌ Error: Base de datos no encontrada
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        ❌ Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function testUsers() {
+            const resultDiv = document.getElementById('usersResult');
+            try {
+                const users = db.getUsers();
+                let html = '<div class="result info"><strong>Usuarios disponibles:</strong><br>';
+                users.forEach(user => {
+                    html += `• ${user.name} (${user.email}) - ${user.role} - ${user.status}<br>`;
+                });
+                html += '</div>';
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        ❌ Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function testLogin() {
+            const resultDiv = document.getElementById('loginResult');
+            try {
+                // Probar login con usuario bibliotecario
+                const user = db.findUserByEmailAndPassword('bibliotecario@biblioteca.com', 'biblio123');
+                if (user) {
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            ✅ Login funcionando correctamente<br>
+                            👤 Usuario encontrado: ${user.name} (${user.role})
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            ❌ Error: Usuario no encontrado
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        ❌ Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function testRegister() {
+            const resultDiv = document.getElementById('registerResult');
+            try {
+                // Crear un usuario de prueba
+                const testUser = {
+                    name: 'Usuario Prueba',
+                    email: 'prueba@test.com',
+                    password: 'test123',
+                    role: 'usuario',
+                    status: 'activo'
+                };
+
+                // Verificar si ya existe
+                if (db.findUserByEmail(testUser.email)) {
+                    resultDiv.innerHTML = `
+                        <div class="result info">
+                            ℹ️ Usuario de prueba ya existe
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Agregar usuario
+                const newUser = db.addUser(testUser);
+                resultDiv.innerHTML = `
+                    <div class="result success">
+                        ✅ Registro funcionando correctamente<br>
+                        👤 Usuario creado: ${newUser.name} (ID: ${newUser.id})
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        ❌ Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function openMainSystem() {
+            window.open('index.html', '_blank');
+        }
+
+        // Ejecutar pruebas automáticamente al cargar
+        window.addEventListener('load', function() {
+            console.log('Página de prueba cargada');
+            testDatabase();
+        });
+    </script>
+</body>
+</html>
