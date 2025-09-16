@@ -994,6 +994,20 @@ tr:hover td {
     }
 }
 
+/* Contenedor más angosto para listas de préstamos */
+.loans-narrow {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Información dentro de cada préstamo en formato vertical */
+.loan-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;

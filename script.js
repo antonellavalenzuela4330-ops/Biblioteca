@@ -677,26 +677,28 @@ function loadLoans() {
         } else {
             loansList.innerHTML = `
                 <h3>Mis Préstamos</h3>
-                <div class="loans-grid" style="margin-top: 1rem;">
-                    ${userLoans.map(loan => `
-                        <div class="user-loan-card">
-                            <div class="loan-info">
-                                <div class="loan-info-item"><strong>Libro:</strong> ${loan.bookTitle}</div>
-                                <div class="loan-info-item"><strong>Usuario:</strong> ${loan.userName}</div>
-                                <div class="loan-info-item"><strong>Fecha de préstamo:</strong> ${loan.loanDate || loan.startDate || 'No especificada'}</div>
-                                <div class="loan-info-item"><strong>Fecha de devolución:</strong> ${loan.returnDate || loan.endDate || 'No especificada'}</div>
-                                <div class="loan-info-item"><strong>Estado:</strong> ${loan.status}</div>
+                <div class="loans-narrow">
+                    <div class="loans-grid" style="margin-top: 1rem;">
+                        ${userLoans.map(loan => `
+                            <div class="user-loan-card">
+                                <div class="loan-info">
+                                    <div class="loan-info-item"><strong>Libro:</strong> ${loan.bookTitle}</div>
+                                    <div class="loan-info-item"><strong>Usuario:</strong> ${loan.userName}</div>
+                                    <div class="loan-info-item"><strong>Fecha de préstamo:</strong> ${loan.loanDate || loan.startDate || 'No especificada'}</div>
+                                    <div class="loan-info-item"><strong>Fecha de devolución:</strong> ${loan.returnDate || loan.endDate || 'No especificada'}</div>
+                                    <div class="loan-info-item"><strong>Estado:</strong> ${loan.status}</div>
+                                </div>
+                                <div class="loan-actions">
+                                    ${loan.status === 'pendiente' ? 
+                                        '<span style="color: #d4af37; font-style: italic;">Préstamo pendiente de aprobación</span>' :
+                                    loan.status === 'activo' ? 
+                                        `<button class=\"btn\" onclick=\"returnBook(${loan.id})\">Marcar como devuelto</button>` : 
+                                        '<span style="color: #ffffff; opacity: 0.8; font-style: italic;">Préstamo finalizado</span>'
+                                    }
+                                </div>
                             </div>
-                            <div class="loan-actions">
-                                ${loan.status === 'pendiente' ? 
-                                    '<span style="color: #d4af37; font-style: italic;">Préstamo pendiente de aprobación</span>' :
-                                loan.status === 'activo' ? 
-                                    `<button class="btn" onclick="returnBook(${loan.id})">Marcar como devuelto</button>` : 
-                                    '<span style="color: #ffffff; opacity: 0.8; font-style: italic;">Préstamo finalizado</span>'
-                                }
-                            </div>
-                        </div>
-                    `).join('')}
+                        `).join('')}
+                    </div>
                 </div>
             `;
         }
@@ -710,34 +712,36 @@ function loadLoans() {
             }
         });
 
-        // Mostrar todos los préstamos
+        // Mostrar todos los préstamos (administración) en grid y contenedor angosto
         loansList.innerHTML = `
             <h3>Préstamos Activos</h3>
-            <div style="display: grid; gap: 1rem; margin-top: 1rem;">
-                ${loans.map(loan => `
-                    <div style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.35); font-family: 'Times New Roman', Times, serif; color: #ffffff; box-shadow: 0 4px 16px rgba(212, 175, 55, 0.1); position: relative; overflow: hidden;">
-                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #d4af37 0%, #ffe082 50%, #d4af37 100%);"></div>
-                        <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Libro:</strong> ${loan.bookTitle}</div>
-                        <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Usuario:</strong> ${loan.userName}</div>
-                        <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de préstamo:</strong> ${loan.loanDate || loan.startDate || 'No especificada'}</div>
-                        <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Fecha de devolución:</strong> ${loan.returnDate || loan.endDate || 'No especificada'}</div>
-                        <div style="color: #ffffff; margin-bottom: 0.75rem;"><strong style="color: #d4af37;">Estado:</strong> ${loan.status}</div>
-                        ${loan.status === 'pendiente' && currentUser.role === 'bibliotecario' ? 
-                            `<div class="loan-actions">
-                                <button class="btn" onclick="acceptLoan(${loan.id})" style="margin-right: 0.5rem;">Aprobar Préstamo</button>
-                                <button class="btn btn-secondary" onclick="rejectLoan(${loan.id})">Rechazar</button>
-                            </div>` :
-                        loan.status === 'aprobado' && currentUser.role === 'bibliotecario' ? 
-                            `<button class="btn" onclick="returnBook(${loan.id})" style="margin-top: 0.5rem;">Finalizar préstamo</button>` : 
-                            loan.status === 'devuelto' ? 
-                                '<span style="color: #ffffff; opacity: 0.8; font-style: italic;">Préstamo finalizado</span>' :
-                                loan.status === 'rechazado' ?
-                                    '<span style="color: #dc3545; font-style: italic;">Préstamo rechazado</span>' :
-                                    '<span style="color: #d4af37; font-style: italic;">Préstamo pendiente de aprobación</span>'
-                        }
-                    </div>
-                `).join('')}
-
+            <div class="loans-narrow">
+                <div class="loans-grid" style="margin-top: 1rem;">
+                    ${loans.map(loan => `
+                        <div class="user-loan-card">
+                            <div class="loan-info">
+                                <div class="loan-info-item"><strong>Libro:</strong> ${loan.bookTitle}</div>
+                                <div class="loan-info-item"><strong>Usuario:</strong> ${loan.userName}</div>
+                                <div class="loan-info-item"><strong>Fecha de préstamo:</strong> ${loan.loanDate || loan.startDate || 'No especificada'}</div>
+                                <div class="loan-info-item"><strong>Fecha de devolución:</strong> ${loan.returnDate || loan.endDate || 'No especificada'}</div>
+                                <div class="loan-info-item"><strong>Estado:</strong> ${loan.status}</div>
+                            </div>
+                            ${loan.status === 'pendiente' && currentUser.role === 'bibliotecario' ? 
+                                `<div class=\"loan-actions\">
+                                    <button class=\"btn\" onclick=\"acceptLoan(${loan.id})\" style=\"margin-right: 0.5rem;\">Aprobar Préstamo</button>
+                                    <button class=\"btn btn-secondary\" onclick=\"rejectLoan(${loan.id})\">Rechazar</button>
+                                </div>` :
+                            loan.status === 'aprobado' && currentUser.role === 'bibliotecario' ? 
+                                `<div class=\"loan-actions\"><button class=\"btn\" onclick=\"returnBook(${loan.id})\">Finalizar préstamo</button></div>` : 
+                                loan.status === 'devuelto' ? 
+                                    '<span style="color: #ffffff; opacity: 0.8; font-style: italic;">Préstamo finalizado</span>' :
+                                    loan.status === 'rechazado' ?
+                                        '<span style="color: #dc3545; font-style: italic;">Préstamo rechazado</span>' :
+                                        '<span style="color: #d4af37; font-style: italic;">Préstamo pendiente de aprobación</span>'
+                            }
+                        </div>
+                    `).join('')}
+                </div>
             </div>
         `;
     }
