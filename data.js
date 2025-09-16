@@ -213,8 +213,12 @@ class Database {
         // Actualizar stock del libro
         const books = this.getBooks();
         const book = books.find(b => b.id === loan.bookId);
-        if (book && book.stock > 0) {
-            book.stock--;
+        if (book) {
+            const quantity = Math.max(1, parseInt(loan.quantity) || 1);
+            if (book.stock < quantity) {
+                throw new Error('No hay suficiente stock para realizar el préstamo');
+            }
+            book.stock -= quantity;
             if (book.stock === 0) {
                 book.status = 'agotado';
             }
@@ -231,13 +235,16 @@ class Database {
             const oldStatus = loans[index].status;
             loans[index] = { ...loans[index], ...updatedLoan };
             
-            // Si el préstamo se marca como devuelto, restaurar stock
-            if (oldStatus === 'activo' && updatedLoan.status === 'devuelto') {
+            // Si el préstamo se marca como devuelto, restaurar stock por cantidad
+            if (updatedLoan.status === 'devuelto' && oldStatus !== 'devuelto') {
                 const books = this.getBooks();
                 const book = books.find(b => b.id === loans[index].bookId);
                 if (book) {
-                    book.stock++;
-                    book.status = 'disponible';
+                    const quantity = Math.max(1, parseInt(loans[index].quantity) || 1);
+                    book.stock += quantity;
+                    if (book.stock > 0) {
+                        book.status = 'disponible';
+                    }
                     this.saveBooks(books);
                 }
             }

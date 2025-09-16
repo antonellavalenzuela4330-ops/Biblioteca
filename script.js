@@ -25,15 +25,7 @@ function setupEventListeners() {
     document.getElementById('userForm').addEventListener('submit', handleUserSubmit);
     document.getElementById('modalBookForm').addEventListener('submit', handleModalBookSubmit);
     document.getElementById('userLoanRequestForm').addEventListener('submit', handleUserLoanRequest);
-    
-    // Búsqueda en tiempo real
-    document.getElementById('searchInput').addEventListener('input', debounce(searchBooks, 300));
-    
-    // Filtros
-    document.getElementById('genreFilter').addEventListener('change', searchBooks);
-    document.getElementById('editorialFilter').addEventListener('change', searchBooks);
-    document.getElementById('tutorFilter').addEventListener('change', searchBooks);
-    document.getElementById('statusFilter').addEventListener('change', searchBooks);
+    // Quitar búsquedas automáticas: solo con el botón
 }
 
 function setupSearchFilters() {
@@ -577,6 +569,7 @@ function deleteBook(bookId) {
 function handleLoanSubmit(e) {
     e.preventDefault();
     const bookId = parseInt(document.getElementById('loanBook').value);
+    const quantity = parseInt(document.getElementById('loanQuantity').value) || 1;
     const loanDate = document.getElementById('loanDate').value;
     const returnDate = document.getElementById('returnDate').value;
 
@@ -596,8 +589,12 @@ function handleLoanSubmit(e) {
         return;
     }
 
-    if (book.stock <= 0) {
-        showAlert('No hay stock disponible para este libro', 'warning');
+    if (quantity <= 0) {
+        showAlert('La cantidad debe ser mayor a 0', 'warning');
+        return;
+    }
+    if (book.stock < quantity) {
+        showAlert('No hay suficiente stock disponible para este libro', 'warning');
         return;
     }
 
@@ -629,6 +626,7 @@ function handleLoanSubmit(e) {
         userId: userId,
         bookTitle: book.title,
         userName: user.name,
+        quantity: quantity,
         loanDate: currentDateTime,
         returnDate: returnDate,
         status: 'pendiente'
@@ -658,12 +656,11 @@ function loadLoans() {
     const users = db.getUsers();
     const loans = db.getLoans();
 
-    // Cargar opciones de libros
+    // Cargar opciones de libros (mostrar todos, indicando stock)
     loanBookSelect.innerHTML = '<option value="">Seleccionar libro</option>';
     books.forEach(book => {
-        if (book.stock > 0) {
-            loanBookSelect.innerHTML += `<option value="${book.id}">${book.title} (${book.stock} disponibles)</option>`;
-        }
+        const disabled = book.stock <= 0 ? 'disabled' : '';
+        loanBookSelect.innerHTML += `<option value="${book.id}" ${disabled}>${book.title} (${book.stock} disponibles)</option>`;
     });
 
     // Adaptar formulario según el rol del usuario
@@ -738,9 +735,6 @@ function loadLoans() {
                     </div>
                 `).join('')}
 
-                <div style="grid-column: span 2; text-align: center; margin-top: 1rem;">
-                    <button class="btn" onclick="exportLoansToCSV()" style="padding: 0.75rem 1.5rem; font-size: 1rem;">Exportar Préstamos a CSV</button>
-                </div>
             </div>
         `;
     }
@@ -945,37 +939,10 @@ function createLoansChart() {
                     </div>
                 </div>
             `).join('')}
-
-            <div style="grid-column: span 2; text-align: center; margin-top: 1rem;">
-                <button class="btn" onclick="exportLoansToCSV()" style="padding: 0.75rem 1.5rem; font-size: 1rem;">Exportar Préstamos a CSV</button>
-            </div>
         </div>
     `;
 }
 
-function exportCatalog() {
-    const books = db.getBooks();
-    const csvContent = [
-        ['Título', 'Autor', 'Género', 'Editorial', 'Tutor', 'Año', 'Stock', 'ISBN', 'Estado'],
-        ...books.map(book => [
-            book.title,
-            book.author,
-            book.genre,
-            book.editorial,
-            book.tutor,
-            book.year,
-            book.stock,
-            book.isbn,
-            book.status
-        ])
-    ].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'catalogo_biblioteca.csv';
-    link.click();
-}
 
 function checkLowStock() {
     const lowStockBooks = db.getBooks().filter(book => book.stock <= 2);
@@ -1235,25 +1202,4 @@ function returnUserBook(loanId) {
         loadUserLoans();
         showUserNotification('Libro marcado como devuelto exitosamente', 'success');
     }
-}
-
-function exportLoansToCSV() {
-    const loans = db.getLoans();
-    const csvContent = [
-        ['ID', 'Libro', 'Usuario', 'Fecha de Préstamo', 'Fecha de Devolución', 'Estado'],
-        ...loans.map(loan => [
-            loan.id,
-            loan.bookTitle,
-            loan.userName,
-            loan.loanDate || loan.startDate || 'N/A',
-            loan.returnDate || loan.endDate || 'N/A',
-            loan.status
-        ])
-    ].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'prestamos_biblioteca.csv';
-    link.click();
 }
