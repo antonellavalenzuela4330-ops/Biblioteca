@@ -2435,11 +2435,97 @@ tr:hover td {
 
 /* ===== DIFERENCIACIÓN VISUAL DE ROLES ===== */
 
+/* Header con título dinámico centrado */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #d4af37, #ffe082, #d4af37);
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+.welcome-title-container {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+}
+
+.welcome-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+    background: linear-gradient(135deg, #d4af37 0%, #ffe082 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+    animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+    from { text-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
+    to { text-shadow: 0 0 30px rgba(212, 175, 55, 0.6); }
+}
+
+.welcome-subtitle {
+    font-size: 1rem;
+    color: #cccccc;
+    margin-top: 0.5rem;
+    opacity: 0.8;
+}
+
+/* Títulos específicos por rol */
+.welcome-title.user-welcome {
+    background: linear-gradient(135deg, #2196f3 0%, #64b5f6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.welcome-title.librarian-welcome {
+    background: linear-gradient(135deg, #4caf50 0%, #81c784 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.welcome-title.admin-welcome {
+    background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
 /* Header con información de usuario */
 .user-info {
     display: flex;
     align-items: center;
     gap: 1rem;
+    z-index: 10;
 }
 
 .user-avatar {
@@ -2529,57 +2615,84 @@ tr:hover td {
     color: white;
 }
 
-/* Pestañas con roles específicos */
+/* Pestañas con roles específicos - DIFERENCIACIÓN NOTABLE */
 .user-role-tab {
     position: relative;
-    border-left: 3px solid #2196f3;
-    background: rgba(33, 150, 243, 0.05);
+    border-left: 5px solid #2196f3;
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%);
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+    border-radius: 12px;
+    margin: 0.25rem;
+    transition: all 0.3s ease;
 }
 
 .user-role-tab:hover {
     border-color: #2196f3;
-    background: rgba(33, 150, 243, 0.1);
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.2) 0%, rgba(33, 150, 243, 0.1) 100%);
+    box-shadow: 0 4px 16px rgba(33, 150, 243, 0.3);
+    transform: translateY(-2px);
 }
 
 .librarian-role-tab {
     position: relative;
-    border-left: 3px solid #4caf50;
-    background: rgba(76, 175, 80, 0.05);
+    border-left: 5px solid #4caf50;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+    border-radius: 12px;
+    margin: 0.25rem;
+    transition: all 0.3s ease;
 }
 
 .librarian-role-tab:hover {
     border-color: #4caf50;
-    background: rgba(76, 175, 80, 0.1);
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(76, 175, 80, 0.1) 100%);
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+    transform: translateY(-2px);
 }
 
 .admin-role-tab {
     position: relative;
-    border-left: 3px solid #9c27b0;
-    background: rgba(156, 39, 176, 0.05);
+    border-left: 5px solid #9c27b0;
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(156, 39, 176, 0.05) 100%);
+    box-shadow: 0 2px 8px rgba(156, 39, 176, 0.2);
+    border-radius: 12px;
+    margin: 0.25rem;
+    transition: all 0.3s ease;
 }
 
 .admin-role-tab:hover {
     border-color: #9c27b0;
-    background: rgba(156, 39, 176, 0.1);
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.2) 0%, rgba(156, 39, 176, 0.1) 100%);
+    box-shadow: 0 4px 16px rgba(156, 39, 176, 0.3);
+    transform: translateY(-2px);
 }
 
-/* Pestañas activas con roles */
+/* Pestañas activas con roles - DIFERENCIACIÓN EXTREMA */
 .user-role-tab.active {
     background: linear-gradient(135deg, #2196f3 0%, #64b5f6 100%);
     color: white;
     border-color: #2196f3;
+    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+    transform: translateY(-3px);
+    border-left: 8px solid #1976d2;
 }
 
 .librarian-role-tab.active {
     background: linear-gradient(135deg, #4caf50 0%, #81c784 100%);
     color: white;
     border-color: #4caf50;
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    transform: translateY(-3px);
+    border-left: 8px solid #388e3c;
 }
 
 .admin-role-tab.active {
     background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);
     color: white;
     border-color: #9c27b0;
+    box-shadow: 0 6px 20px rgba(156, 39, 176, 0.4);
+    transform: translateY(-3px);
+    border-left: 8px solid #7b1fa2;
 }
 
 /* Separadores visuales en navegación */
@@ -2595,6 +2708,51 @@ tr:hover td {
         rgba(212, 175, 55, 0.3) 20%, 
         rgba(212, 175, 55, 0.3) 80%, 
         transparent 100%);
+}
+
+/* Diferenciación extrema del contenedor de navegación */
+.nav-tabs {
+    position: relative;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    border-radius: 15px;
+    border: 2px solid rgba(212, 175, 55, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.nav-tabs::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        #2196f3 0%, 
+        #4caf50 25%, 
+        #9c27b0 50%, 
+        #4caf50 75%, 
+        #2196f3 100%);
+    animation: colorShift 4s ease-in-out infinite;
+}
+
+@keyframes colorShift {
+    0%, 100% { 
+        background: linear-gradient(90deg, 
+            #2196f3 0%, 
+            #4caf50 25%, 
+            #9c27b0 50%, 
+            #4caf50 75%, 
+            #2196f3 100%);
+    }
+    50% { 
+        background: linear-gradient(90deg, 
+            #4caf50 0%, 
+            #9c27b0 25%, 
+            #2196f3 50%, 
+            #9c27b0 75%, 
+            #4caf50 100%);
+    }
 }
 
 /* Responsive para roles */
