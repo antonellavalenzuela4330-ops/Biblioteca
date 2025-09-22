@@ -1028,44 +1028,44 @@ tr:hover td {
 /* Columnas específicas con anchos fijos - OPTIMIZADO */
 .usersTable th:nth-child(1), /* ID */
 .usersTable td:nth-child(1) {
-    width: 4%;
+    width: 3%;
     text-align: center;
 }
 
 .usersTable th:nth-child(2), /* NOMBRE */
 .usersTable td:nth-child(2) {
-    width: 11%;
+    width: 10%;
 }
 
 .usersTable th:nth-child(3), /* EMAIL */
 .usersTable td:nth-child(3) {
-    width: 15%;
+    width: 13%;
 }
 
 .usersTable th:nth-child(4), /* DNI */
 .usersTable td:nth-child(4) {
-    width: 7%;
+    width: 6%;
 }
 
 .usersTable th:nth-child(5), /* TELÉFONO */
 .usersTable td:nth-child(5) {
-    width: 9%;
+    width: 8%;
 }
 
 .usersTable th:nth-child(6), /* ROL */
 .usersTable td:nth-child(6) {
-    width: 7%;
+    width: 6%;
 }
 
 .usersTable th:nth-child(7), /* ESTADO */
 .usersTable td:nth-child(7) {
-    width: 8%;
+    width: 12%;
     text-align: center;
 }
 
 .usersTable th:nth-child(8), /* CONFIABILIDAD */
 .usersTable td:nth-child(8) {
-    width: 10%;
+    width: 14%;
     text-align: center;
 }
 
@@ -1119,15 +1119,16 @@ tr:hover td {
 .usersTable .status-badge,
 .usersTable .reliability-score {
     display: inline-block;
-    padding: 0.2rem 0.4rem;
+    padding: 0.25rem 0.5rem;
     font-size: 0.7rem;
     font-weight: bold;
     border-radius: 4px;
     text-align: center;
     white-space: nowrap;
-    min-width: 35px;
+    min-width: 45px;
     max-width: 100%;
     box-sizing: border-box;
+    margin: 0 auto;
 }
 
 /* Asegurar que los badges no se desborden */
@@ -1135,6 +1136,7 @@ tr:hover td {
 .usersTable td:nth-child(8) {
     overflow: visible;
     word-wrap: normal;
+    padding: 0.4rem 0.2rem;
 }
 
 /* Grid para tarjetas de préstamos (2 columnas en desktop, 1 en móvil) */
@@ -2885,12 +2887,12 @@ tr:hover td {
     
     .usersTable th:nth-child(7),
     .usersTable td:nth-child(7) {
-        width: 10%;
+        width: 14%;
     }
     
     .usersTable th:nth-child(8),
     .usersTable td:nth-child(8) {
-        width: 12%;
+        width: 16%;
     }
     
     .usersTable th:nth-child(9),
@@ -2910,9 +2912,14 @@ tr:hover td {
     /* Badges responsivos */
     .usersTable .status-badge,
     .usersTable .reliability-score {
-        padding: 0.15rem 0.3rem;
+        padding: 0.2rem 0.4rem;
         font-size: 0.65rem;
-        min-width: 30px;
+        min-width: 40px;
+    }
+    
+    .usersTable td:nth-child(7),
+    .usersTable td:nth-child(8) {
+        padding: 0.3rem 0.15rem;
     }
     
     .usersTable .btn {
