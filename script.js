@@ -354,7 +354,13 @@ function loadUserProfile() {
     
     console.log('Usuario actualizado de BD:', updatedUser);
     
-    const userToDisplay = updatedUser || currentUser;
+    // Usar el usuario actualizado de la BD, no el currentUser
+    const userToDisplay = updatedUser;
+    
+    if (!userToDisplay) {
+        console.error('No se pudo encontrar el usuario en la base de datos');
+        return;
+    }
 
     // Actualizar información personal
     document.getElementById('profileName').textContent = userToDisplay.name || '-';
@@ -364,14 +370,13 @@ function loadUserProfile() {
     document.getElementById('profilePhone').textContent = userToDisplay.phone || '-';
     document.getElementById('profileRole').textContent = userToDisplay.role || '-';
 
-    // Calcular estadísticas de préstamos
-    const userLoans = db.getLoans().filter(loan => loan.userId === userToDisplay.id);
-    const returnedLoans = userLoans.filter(loan => loan.status === 'returned');
-    
-    const booksGoodState = returnedLoans.filter(loan => loan.returnCondition === 'buen_estado').length;
-    const booksRegularState = returnedLoans.filter(loan => loan.returnCondition === 'regular').length;
-    const booksBadState = returnedLoans.filter(loan => loan.returnCondition === 'mal_estado').length;
-    const totalLoans = userLoans.length;
+    // Usar los datos almacenados en el usuario (igual que en la interfaz de bibliotecario)
+    const booksGoodState = userToDisplay.goodReturns || 0;
+    const booksRegularState = userToDisplay.regularReturns || 0;
+    const booksBadState = userToDisplay.badReturns || 0;
+    const booksNotReturned = userToDisplay.notReturned || 0;
+    const totalLoans = userToDisplay.totalLoans || 0;
+    const reliabilityScore = userToDisplay.reliabilityScore || 100;
 
     // Actualizar estadísticas
     document.getElementById('totalLoans').textContent = totalLoans;
@@ -379,11 +384,12 @@ function loadUserProfile() {
     document.getElementById('booksRegularState').textContent = booksRegularState;
     document.getElementById('booksBadState').textContent = booksBadState;
 
-    // Calcular sistema de puntos
-    const pointsGoodState = booksGoodState * 10; // 10 puntos por libro en buen estado
-    const pointsRegularState = booksRegularState * 5; // 5 puntos por libro en estado regular
-    const pointsBadState = booksBadState * -5; // -5 puntos por libro en mal estado
-    const totalPoints = pointsGoodState + pointsRegularState + pointsBadState;
+    // Calcular sistema de puntos (usando la misma lógica que en data.js)
+    const pointsGoodState = booksGoodState * 5; // 5 puntos por libro en buen estado
+    const pointsRegularState = booksRegularState * -10; // -10 puntos por libro en estado regular
+    const pointsBadState = booksBadState * -25; // -25 puntos por libro en mal estado
+    const pointsNotReturned = booksNotReturned * -50; // -50 puntos por libro no devuelto
+    const totalPoints = pointsGoodState + pointsRegularState + pointsBadState + pointsNotReturned;
 
     // Actualizar puntos
     document.getElementById('userPoints').textContent = Math.max(0, totalPoints);
@@ -391,43 +397,18 @@ function loadUserProfile() {
     document.getElementById('pointsRegularState').textContent = `${pointsRegularState} pts`;
     document.getElementById('pointsBadState').textContent = `${pointsBadState} pts`;
 
-    // Calcular nivel de confiabilidad
-    let reliabilityScore = 100; // Puntuación base
-    
-    if (totalLoans > 0) {
-        const goodPercentage = (booksGoodState / totalLoans) * 100;
-        const regularPercentage = (booksRegularState / totalLoans) * 100;
-        const badPercentage = (booksBadState / totalLoans) * 100;
-        
-        // Cálculo de confiabilidad basado en el estado de devolución
-        reliabilityScore = Math.round(
-            (goodPercentage * 1.0) + 
-            (regularPercentage * 0.7) + 
-            (badPercentage * 0.3)
-        );
-    }
-    
-    // Ajustar por puntos negativos
-    if (totalPoints < 0) {
-        reliabilityScore = Math.max(0, reliabilityScore + totalPoints);
-    }
-
-    // Actualizar confiabilidad
+    // Actualizar confiabilidad (usar el score calculado por la base de datos)
     document.getElementById('userReliabilityScore').textContent = reliabilityScore;
     document.getElementById('reliabilityBar').style.width = `${reliabilityScore}%`;
     
     // Determinar estado de confiabilidad
     let reliabilityStatus = 'Excelente';
-    if (reliabilityScore >= 90) {
+    if (reliabilityScore >= 80) {
         reliabilityStatus = 'Excelente';
-    } else if (reliabilityScore >= 75) {
-        reliabilityStatus = 'Bueno';
-    } else if (reliabilityScore >= 60) {
-        reliabilityStatus = 'Regular';
-    } else if (reliabilityScore >= 40) {
-        reliabilityStatus = 'Bajo';
+    } else if (reliabilityScore >= 50) {
+        reliabilityStatus = 'Intermedio';
     } else {
-        reliabilityStatus = 'Crítico';
+        reliabilityStatus = 'Bajo';
     }
     
     document.getElementById('reliabilityStatus').textContent = reliabilityStatus;

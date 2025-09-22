@@ -473,14 +473,6 @@ class Database {
         if (!user) return null;
 
         const loans = this.getLoans().filter(loan => loan.userId === userId);
-        const returns = this.getReturns().filter(ret => {
-            const loan = loans.find(l => l.id === ret.loanId);
-            return loan;
-        });
-        const notReturned = this.getNotReturned().filter(nr => {
-            const loan = loans.find(l => l.id === nr.loanId);
-            return loan;
-        });
 
         return {
             ...user,
