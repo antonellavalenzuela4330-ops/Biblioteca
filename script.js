@@ -140,7 +140,9 @@ function handleLogin(e) {
             console.log('=== LOGIN EXITOSO ===');
             console.log('Estableciendo usuario actual:', user);
             
-            currentUser = user;
+            // Asegurar que tenemos los datos más recientes del usuario
+            const latestUser = db.findUserByEmail(user.email) || user;
+            currentUser = latestUser;
             console.log('Usuario actual establecido:', currentUser);
             
             console.log('Mostrando dashboard...');
@@ -339,16 +341,31 @@ function loadUserProfile() {
         return;
     }
 
+    console.log('=== CARGANDO PERFIL DE USUARIO ===');
+    console.log('Usuario actual:', currentUser);
+
+    // Obtener el usuario actualizado de la base de datos
+    let updatedUser = db.findUserByEmail(currentUser.email);
+    
+    // Si no se encuentra por email, buscar por ID
+    if (!updatedUser) {
+        updatedUser = db.getUsers().find(user => user.id === currentUser.id);
+    }
+    
+    console.log('Usuario actualizado de BD:', updatedUser);
+    
+    const userToDisplay = updatedUser || currentUser;
+
     // Actualizar información personal
-    document.getElementById('profileName').textContent = currentUser.name || '-';
-    document.getElementById('profileEmail').textContent = currentUser.email || '-';
-    document.getElementById('profileDni').textContent = currentUser.dni || '-';
-    document.getElementById('profileAddress').textContent = currentUser.address || '-';
-    document.getElementById('profilePhone').textContent = currentUser.phone || '-';
-    document.getElementById('profileRole').textContent = currentUser.role || '-';
+    document.getElementById('profileName').textContent = userToDisplay.name || '-';
+    document.getElementById('profileEmail').textContent = userToDisplay.email || '-';
+    document.getElementById('profileDni').textContent = userToDisplay.dni || '-';
+    document.getElementById('profileAddress').textContent = userToDisplay.address || '-';
+    document.getElementById('profilePhone').textContent = userToDisplay.phone || '-';
+    document.getElementById('profileRole').textContent = userToDisplay.role || '-';
 
     // Calcular estadísticas de préstamos
-    const userLoans = db.getLoans().filter(loan => loan.userId === currentUser.id);
+    const userLoans = db.getLoans().filter(loan => loan.userId === userToDisplay.id);
     const returnedLoans = userLoans.filter(loan => loan.status === 'returned');
     
     const booksGoodState = returnedLoans.filter(loan => loan.returnCondition === 'buen_estado').length;
