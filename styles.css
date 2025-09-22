@@ -1005,6 +1005,13 @@ tr:hover td {
     color: #ffffff;
     box-shadow: 0 4px 16px rgba(212, 175, 55, 0.1);
     table-layout: fixed;
+    max-width: 100%;
+}
+
+/* Asegurar que el contenedor de la tabla no se desborde */
+.usersTable {
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .usersTable th,
@@ -1025,61 +1032,81 @@ tr:hover td {
 
 .usersTable th:nth-child(2), /* NOMBRE */
 .usersTable td:nth-child(2) {
-    width: 15%;
+    width: 14%;
 }
 
 .usersTable th:nth-child(3), /* EMAIL */
 .usersTable td:nth-child(3) {
-    width: 20%;
+    width: 18%;
 }
 
 .usersTable th:nth-child(4), /* DNI */
 .usersTable td:nth-child(4) {
-    width: 10%;
+    width: 9%;
 }
 
 .usersTable th:nth-child(5), /* TELÉFONO */
 .usersTable td:nth-child(5) {
-    width: 12%;
+    width: 11%;
 }
 
 .usersTable th:nth-child(6), /* ROL */
 .usersTable td:nth-child(6) {
-    width: 10%;
+    width: 9%;
 }
 
 .usersTable th:nth-child(7), /* ESTADO */
 .usersTable td:nth-child(7) {
-    width: 8%;
+    width: 7%;
     text-align: center;
 }
 
 .usersTable th:nth-child(8), /* CONFIABILIDAD */
 .usersTable td:nth-child(8) {
-    width: 10%;
+    width: 9%;
     text-align: center;
 }
 
 .usersTable th:nth-child(9), /* ACCIONES */
 .usersTable td:nth-child(9) {
-    width: 10%;
+    width: 12%;
     text-align: center;
     white-space: nowrap;
+    padding: 0.5rem 0.25rem;
+    overflow: visible;
+}
+
+/* Contenedor para botones de acción */
+.usersTable td:nth-child(9) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.25rem;
 }
 
 /* Estilos para los botones de acción */
 .usersTable .btn {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-    margin: 0.1rem;
-    min-width: 60px;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+    margin: 0;
+    min-width: 55px;
+    max-width: 70px;
+    width: 100%;
+    text-align: center;
+    border-radius: 6px;
 }
 
 .usersTable .btn-secondary {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-    margin: 0.1rem;
-    min-width: 60px;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+    margin: 0;
+    min-width: 55px;
+    max-width: 70px;
+    width: 100%;
+    text-align: center;
+    border-radius: 6px;
 }
 
 /* Grid para tarjetas de préstamos (2 columnas en desktop, 1 en móvil) */
@@ -2828,16 +2855,30 @@ tr:hover td {
         font-size: 0.85rem;
     }
     
+    .usersTable th:nth-child(9),
+    .usersTable td:nth-child(9) {
+        width: 15%;
+        padding: 0.25rem 0.1rem;
+    }
+    
+    .usersTable td:nth-child(9) {
+        flex-direction: column;
+        gap: 0.2rem;
+        padding: 0.25rem 0.1rem;
+    }
+    
     .usersTable .btn {
-        padding: 0.3rem 0.6rem;
-        font-size: 0.75rem;
-        min-width: 50px;
+        padding: 0.25rem 0.4rem;
+        font-size: 0.7rem;
+        min-width: 45px;
+        max-width: 60px;
     }
     
     .usersTable .btn-secondary {
-        padding: 0.3rem 0.6rem;
-        font-size: 0.75rem;
-        min-width: 50px;
+        padding: 0.25rem 0.4rem;
+        font-size: 0.7rem;
+        min-width: 45px;
+        max-width: 60px;
     }
     
     .role-indicator {
