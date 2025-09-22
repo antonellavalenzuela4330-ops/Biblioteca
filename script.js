@@ -2145,6 +2145,19 @@ function initializeNotifications() {
     const savedNotifications = localStorage.getItem('notifications');
     if (savedNotifications) {
         notifications = JSON.parse(savedNotifications);
+        
+        // Limpiar notificaciones con timestamps inválidos
+        notifications = notifications.filter(notification => {
+            const ts = typeof notification.timestamp === 'number' ? notification.timestamp : new Date(notification.timestamp).getTime();
+            return !isNaN(ts) && ts > 0;
+        });
+        
+        // Actualizar timestamps de notificaciones existentes si es necesario
+        notifications.forEach(notification => {
+            if (typeof notification.timestamp !== 'number') {
+                notification.timestamp = new Date(notification.timestamp).getTime();
+            }
+        });
     }
     
     // Cargar notificaciones de ejemplo si no hay ninguna
@@ -2163,7 +2176,7 @@ function loadSampleNotifications() {
             type: 'loan_approved',
             title: 'Préstamo Aprobado',
             content: 'Tu solicitud de préstamo para "El Quijote" ha sido aprobada. Puedes recoger el libro en la biblioteca.',
-            timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 horas atrás
+            timestamp: Date.now() - 2 * 60 * 60 * 1000, // 2 horas atrás
             read: false,
             userId: 1
         },
@@ -2172,7 +2185,7 @@ function loadSampleNotifications() {
             type: 'return_reminder',
             title: 'Recordatorio de Devolución',
             content: 'Tienes 2 días para devolver "Cien años de soledad". La fecha límite es el 15 de diciembre.',
-            timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 día atrás
+            timestamp: Date.now() - 1 * 24 * 60 * 60 * 1000, // 1 día atrás
             read: false,
             userId: 1
         },
@@ -2181,7 +2194,7 @@ function loadSampleNotifications() {
             type: 'rating_update',
             title: 'Actualización de Calificación',
             content: 'Tu calificación de confiabilidad ha mejorado a 95 puntos tras una devolución puntual.',
-            timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 días atrás
+            timestamp: Date.now() - 3 * 24 * 60 * 60 * 1000, // 3 días atrás
             read: true,
             userId: 1
         }
@@ -2203,7 +2216,7 @@ function createNotification(type, title, content, userId = null) {
         type: type,
         title: title,
         content: content,
-        timestamp: new Date(),
+        timestamp: Date.now(),
         read: false,
         userId: userId || getCurrentUserId()
     };
@@ -2304,18 +2317,37 @@ function getNotificationTypeText(type) {
 
 // Obtener tiempo transcurrido
 function getTimeAgo(timestamp) {
-    const now = new Date();
-    const diff = now - timestamp;
+    // Asegurar que timestamp sea un número válido
+    const ts = typeof timestamp === 'number' ? timestamp : new Date(timestamp).getTime();
+    
+    // Si no es un timestamp válido, retornar texto genérico
+    if (isNaN(ts) || ts <= 0) {
+        return 'reciente';
+    }
+    
+    const now = Date.now();
+    const diff = now - ts;
+    
+    // Si la diferencia es negativa (fecha futura), retornar 'reciente'
+    if (diff < 0) {
+        return 'reciente';
+    }
+    
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
     
-    if (minutes < 60) {
+    if (minutes < 1) {
+        return 'ahora';
+    } else if (minutes < 60) {
         return `hace ${minutes} min`;
     } else if (hours < 24) {
         return `hace ${hours}h`;
-    } else {
+    } else if (days < 7) {
         return `hace ${days} días`;
+    } else {
+        const weeks = Math.floor(days / 7);
+        return `hace ${weeks} semana${weeks > 1 ? 's' : ''}`;
     }
 }
 
