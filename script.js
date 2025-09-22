@@ -667,10 +667,16 @@ function deleteBook(bookId) {
 
 function handleLoanSubmit(e) {
     e.preventDefault();
-    const bookId = parseInt(document.getElementById('loanBook').value);
+    const bookId = parseInt(document.getElementById('loanBookId').value);
     const quantity = parseInt(document.getElementById('loanQuantity').value) || 1;
     const loanDate = document.getElementById('loanDate').value;
     const returnDate = document.getElementById('returnDate').value;
+
+    // Validar que se haya seleccionado un libro
+    if (!bookId) {
+        showAlert('Por favor, selecciona un libro de la lista', 'warning');
+        return;
+    }
 
     // Determinar el userId según el rol del usuario
     let userId;
@@ -1274,10 +1280,16 @@ function setupUserLoanForm() {
 function handleUserLoanRequest(e) {
     e.preventDefault();
     
-    const bookId = parseInt(document.getElementById('requestBook').value);
+    const bookId = parseInt(document.getElementById('requestBookId').value);
     const quantity = parseInt(document.getElementById('requestQuantity').value);
     const startDate = document.getElementById('requestStartDate').value;
     const endDate = document.getElementById('requestEndDate').value;
+    
+    // Validar que se haya seleccionado un libro
+    if (!bookId) {
+        showUserNotification('Por favor, selecciona un libro de la lista', 'error');
+        return;
+    }
     
     const book = db.getBooks().find(b => b.id === bookId);
     
@@ -2670,4 +2682,156 @@ setInterval(runAutomaticNotifications, 5 * 60 * 1000);
 document.addEventListener('DOMContentLoaded', function() {
     // Esperar un poco para que la base de datos esté lista
     setTimeout(runAutomaticNotifications, 2000);
+    
+    // Inicializar campos de búsqueda de libros
+    initializeBookSearchFields();
 });
+
+// ===== SISTEMA DE BÚSQUEDA DE LIBROS =====
+
+// Inicializar campos de búsqueda de libros
+function initializeBookSearchFields() {
+    // Campo de búsqueda para solicitud de préstamo (usuarios)
+    const requestBookInput = document.getElementById('requestBook');
+    const requestBookSuggestions = document.getElementById('requestBookSuggestions');
+    const requestBookId = document.getElementById('requestBookId');
+    
+    if (requestBookInput) {
+        setupBookSearchField(requestBookInput, requestBookSuggestions, requestBookId);
+    }
+    
+    // Campo de búsqueda para nuevo préstamo (bibliotecarios)
+    const loanBookInput = document.getElementById('loanBook');
+    const loanBookSuggestions = document.getElementById('loanBookSuggestions');
+    const loanBookId = document.getElementById('loanBookId');
+    
+    if (loanBookInput) {
+        setupBookSearchField(loanBookInput, loanBookSuggestions, loanBookId);
+    }
+}
+
+// Configurar campo de búsqueda de libros
+function setupBookSearchField(input, suggestionsContainer, hiddenIdInput) {
+    let searchTimeout;
+    let currentSuggestions = [];
+    let selectedIndex = -1;
+    
+    // Evento de entrada de texto
+    input.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Limpiar timeout anterior
+        clearTimeout(searchTimeout);
+        
+        if (query.length < 2) {
+            hideSuggestions();
+            return;
+        }
+        
+        // Buscar libros con delay para evitar muchas búsquedas
+        searchTimeout = setTimeout(() => {
+            searchBooks(query, suggestionsContainer, hiddenIdInput);
+        }, 300);
+    });
+    
+    // Evento de teclado para navegación
+    input.addEventListener('keydown', function(e) {
+        if (!suggestionsContainer.classList.contains('show')) return;
+        
+        switch(e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, currentSuggestions.length - 1);
+                updateSelection();
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                updateSelection();
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (selectedIndex >= 0 && currentSuggestions[selectedIndex]) {
+                    selectBook(currentSuggestions[selectedIndex]);
+                }
+                break;
+            case 'Escape':
+                hideSuggestions();
+                break;
+        }
+    });
+    
+    // Ocultar sugerencias al hacer clic fuera
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+            hideSuggestions();
+        }
+    });
+    
+    // Función para actualizar la selección visual
+    function updateSelection() {
+        const items = suggestionsContainer.querySelectorAll('.book-suggestion-item');
+        items.forEach((item, index) => {
+            item.classList.toggle('selected', index === selectedIndex);
+        });
+    }
+    
+    // Función para ocultar sugerencias
+    function hideSuggestions() {
+        suggestionsContainer.classList.remove('show');
+        suggestionsContainer.innerHTML = '';
+        currentSuggestions = [];
+        selectedIndex = -1;
+    }
+    
+    // Función para mostrar sugerencias
+    function showSuggestions(suggestions) {
+        currentSuggestions = suggestions;
+        selectedIndex = -1;
+        
+        if (suggestions.length === 0) {
+            suggestionsContainer.innerHTML = '<div class="book-suggestion-item">No se encontraron libros</div>';
+        } else {
+            suggestionsContainer.innerHTML = suggestions.map((book, index) => `
+                <div class="book-suggestion-item" data-index="${index}">
+                    <div class="book-suggestion-title">${book.title}</div>
+                    <div class="book-suggestion-author">${book.author}</div>
+                    <div class="book-suggestion-isbn">ISBN: ${book.isbn}</div>
+                    <div class="${book.stock > 0 ? 'book-suggestion-stock' : 'book-suggestion-no-stock'}">
+                        ${book.stock > 0 ? `Stock: ${book.stock}` : 'Sin stock'}
+                    </div>
+                </div>
+            `).join('');
+            
+            // Agregar event listeners a los elementos
+            suggestionsContainer.querySelectorAll('.book-suggestion-item').forEach((item, index) => {
+                item.addEventListener('click', () => selectBook(suggestions[index]));
+                item.addEventListener('mouseenter', () => {
+                    selectedIndex = index;
+                    updateSelection();
+                });
+            });
+        }
+        
+        suggestionsContainer.classList.add('show');
+    }
+    
+    // Función para seleccionar un libro
+    function selectBook(book) {
+        input.value = `${book.title} - ${book.author}`;
+        hiddenIdInput.value = book.id;
+        hideSuggestions();
+    }
+    
+    // Función para buscar libros
+    function searchBooks(query, suggestionsContainer, hiddenIdInput) {
+        const books = db.getBooks();
+        const filteredBooks = books.filter(book => 
+            book.title.toLowerCase().includes(query.toLowerCase()) ||
+            book.author.toLowerCase().includes(query.toLowerCase()) ||
+            book.isbn.toLowerCase().includes(query.toLowerCase())
+        ).slice(0, 10); // Limitar a 10 resultados
+        
+        showSuggestions(filteredBooks);
+    }
+}

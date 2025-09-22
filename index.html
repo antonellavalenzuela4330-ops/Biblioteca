@@ -199,9 +199,11 @@
                 <div class="admin-panel">
                     <h3>Solicitar Préstamo</h3>
                     <form id="userLoanRequestForm" class="admin-form">
-                        <select id="requestBook" required>
-                            <option value="">Seleccionar libro</option>
-                        </select>
+                        <div class="book-search-container">
+                            <input type="text" id="requestBook" placeholder="Buscar libro por título, autor o ISBN..." required autocomplete="off">
+                            <div id="requestBookSuggestions" class="book-suggestions"></div>
+                            <input type="hidden" id="requestBookId" value="">
+                        </div>
                         <input type="number" id="requestQuantity" placeholder="Cantidad" min="1" max="3" required>
                         <input type="date" id="requestStartDate" required>
                         <input type="date" id="requestEndDate" required>
@@ -396,9 +398,11 @@
                 <div class="admin-panel">
                     <h3>Nuevo Préstamo</h3>
                     <form id="loanForm" class="admin-form">
-                        <select id="loanBook" required>
-                            <option value="">LIBRO</option>
-                        </select>
+                        <div class="book-search-container">
+                            <input type="text" id="loanBook" placeholder="Buscar libro por título, autor o ISBN..." required autocomplete="off">
+                            <div id="loanBookSuggestions" class="book-suggestions"></div>
+                            <input type="hidden" id="loanBookId" value="">
+                        </div>
                         <select id="loanUser" required>
                             <option value="">USUARIO</option>
                         </select>

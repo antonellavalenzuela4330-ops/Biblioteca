@@ -3446,3 +3446,123 @@ tr:hover td {
         font-size: 2.5rem;
     }
 }
+
+/* ===== ESTILOS PARA CAMPOS DE BÚSQUEDA DE LIBROS ===== */
+
+.book-search-container {
+    position: relative;
+    width: 100%;
+}
+
+.book-search-container input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #d4af37;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.book-search-container input[type="text"]:focus {
+    outline: none;
+    border-color: #f4d03f;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.book-search-container input[type="text"]::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.book-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #1a1a1a;
+    border: 2px solid #d4af37;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.book-suggestions.show {
+    display: block;
+}
+
+.book-suggestion-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    transition: background-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.book-suggestion-item:hover,
+.book-suggestion-item.selected {
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.book-suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.book-suggestion-title {
+    font-weight: bold;
+    color: #d4af37;
+    font-size: 14px;
+}
+
+.book-suggestion-author {
+    color: #ffffff;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.book-suggestion-isbn {
+    color: #ffffff;
+    font-size: 11px;
+    opacity: 0.6;
+}
+
+.book-suggestion-stock {
+    color: #4CAF50;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.book-suggestion-no-stock {
+    color: #f44336;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* Responsive para campos de búsqueda */
+@media (max-width: 768px) {
+    .book-search-container input[type="text"] {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+    
+    .book-suggestion-item {
+        padding: 10px 12px;
+    }
+    
+    .book-suggestion-title {
+        font-size: 13px;
+    }
+    
+    .book-suggestion-author,
+    .book-suggestion-isbn,
+    .book-suggestion-stock,
+    .book-suggestion-no-stock {
+        font-size: 10px;
+    }
+}
