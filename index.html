@@ -110,6 +110,7 @@
                 <div class="nav-tab librarian-only" onclick="showSection('loans')">Préstamos</div>
                 <div class="nav-tab librarian-only" onclick="showSection('returns')">Devoluciones</div>
                 <div class="nav-tab admin-only" onclick="showSection('users')">Usuarios</div>
+                <div class="nav-tab admin-only" onclick="showSection('profiles')">Perfiles</div>
                 <div class="nav-tab admin-only" onclick="showSection('stats')">Estadísticas</div>
             </div>
 
@@ -225,6 +226,9 @@
                 <div class="admin-panel">
                     <h3>Registrar Devolución</h3>
                     <form id="returnForm" class="admin-form">
+                        <select id="returnUser" required>
+                            <option value="">SELECCIONAR USUARIO</option>
+                        </select>
                         <input type="text" id="returnIsbn" placeholder="CÓDIGO ISBN" required>
                         <select id="returnCondition" required>
                             <option value="">ESTADO DEL LIBRO</option>
@@ -242,6 +246,9 @@
                 <div class="admin-panel">
                     <h3>Registrar Libro No Devuelto</h3>
                     <form id="notReturnedForm" class="admin-form">
+                        <select id="notReturnedUser" required>
+                            <option value="">SELECCIONAR USUARIO</option>
+                        </select>
                         <input type="text" id="notReturnedIsbn" placeholder="CÓDIGO ISBN" required>
                         <select id="notReturnedReason" required>
                             <option value="">MOTIVO</option>
@@ -288,6 +295,9 @@
                         <input type="text" id="userName" placeholder="Nombre completo" required>
                         <input type="email" id="userEmail" placeholder="Email" required>
                         <input type="password" id="userPassword" placeholder="Contraseña" required>
+                        <input type="text" id="userDni" placeholder="DNI" required>
+                        <input type="text" id="userPhone" placeholder="Teléfono" required>
+                        <input type="text" id="userAddress" placeholder="Dirección" required>
                         <select id="userRole" required>
                             <option value="usuario">Usuario</option>
                             <option value="bibliotecario">Bibliotecario</option>
@@ -301,6 +311,130 @@
                     </form>
                 </div>
                 <div id="usersTable" class="usersTable"></div>
+            </div>
+
+            <!-- Perfiles de Usuarios -->
+            <div id="profilesSection" class="content-section">
+                <h2>PERFILES DE USUARIOS</h2>
+                
+                <!-- Búsqueda de Usuario -->
+                <div class="admin-panel">
+                    <h3>Buscar Perfil de Usuario</h3>
+                    <div class="search-profile">
+                        <select id="profileUserSelect">
+                            <option value="">Seleccionar usuario para ver perfil</option>
+                        </select>
+                        <button class="btn" onclick="loadUserProfile()">VER PERFIL</button>
+                    </div>
+                </div>
+
+                <!-- Perfil del Usuario Seleccionado -->
+                <div id="userProfileContainer" class="user-profile-container" style="display: none;">
+                    <div class="profile-header">
+                        <h3 id="profileUserName">Nombre del Usuario</h3>
+                        <div class="profile-actions">
+                            <button class="btn" onclick="suspendUser()" id="suspendBtn">SUSPENDER</button>
+                            <button class="btn btn-secondary" onclick="reactivateUser()" id="reactivateBtn">REACTIVAR</button>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-content">
+                        <!-- Información Básica -->
+                        <div class="profile-section">
+                            <h4>Información Básica</h4>
+                            <div class="profile-info">
+                                <div class="info-item">
+                                    <strong>DNI:</strong> <span id="profileDni">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>Email:</strong> <span id="profileEmail">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>Teléfono:</strong> <span id="profilePhone">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>Dirección:</strong> <span id="profileAddress">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>Estado:</strong> <span id="profileStatus" class="status-badge">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>Fecha de Registro:</strong> <span id="profileCreatedAt">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Confiabilidad -->
+                        <div class="profile-section">
+                            <h4>Confiabilidad</h4>
+                            <div class="reliability-info">
+                                <div class="reliability-score">
+                                    <div class="score-circle">
+                                        <span id="reliabilityScore">100</span>
+                                        <div class="score-label">Puntos</div>
+                                    </div>
+                                    <div class="reliability-level">
+                                        <span id="reliabilityLevel">Excelente</span>
+                                        <div class="level-description">Nivel de Confiabilidad</div>
+                                    </div>
+                                </div>
+                                <div class="reliability-breakdown">
+                                    <div class="breakdown-item good">
+                                        <span class="breakdown-label">Buenas Devoluciones:</span>
+                                        <span class="breakdown-value" id="goodReturns">0</span>
+                                    </div>
+                                    <div class="breakdown-item regular">
+                                        <span class="breakdown-label">Devoluciones Regulares:</span>
+                                        <span class="breakdown-value" id="regularReturns">0</span>
+                                    </div>
+                                    <div class="breakdown-item bad">
+                                        <span class="breakdown-label">Malas Devoluciones:</span>
+                                        <span class="breakdown-value" id="badReturns">0</span>
+                                    </div>
+                                    <div class="breakdown-item not-returned">
+                                        <span class="breakdown-label">No Devueltos:</span>
+                                        <span class="breakdown-value" id="notReturned">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Estadísticas de Préstamos -->
+                        <div class="profile-section">
+                            <h4>Estadísticas de Préstamos</h4>
+                            <div class="loan-stats">
+                                <div class="stat-item">
+                                    <div class="stat-number" id="totalLoansCount">0</div>
+                                    <div class="stat-label">Total de Préstamos</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number" id="activeLoansCount">0</div>
+                                    <div class="stat-label">Préstamos Activos</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number" id="completedLoansCount">0</div>
+                                    <div class="stat-label">Préstamos Completados</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actividad Reciente -->
+                        <div class="profile-section">
+                            <h4>Actividad Reciente</h4>
+                            <div id="recentActivity" class="recent-activity">
+                                <!-- Se llena dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Usuarios con Confiabilidad -->
+                <div class="admin-panel">
+                    <h3>Usuarios por Confiabilidad</h3>
+                    <div id="usersReliabilityList" class="users-reliability-list">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
             </div>
 
             <!-- Estadísticas -->

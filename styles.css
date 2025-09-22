@@ -1946,6 +1946,442 @@ tr:hover td {
     color: #17a2b8;
 }
 
+/* ==================== ESTILOS PARA PERFILES DE USUARIOS ==================== */
+
+/* Búsqueda de perfil */
+.search-profile {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-profile select {
+    flex: 1;
+    min-width: 300px;
+}
+
+/* Contenedor del perfil */
+.user-profile-container {
+    background: rgba(13, 13, 13, 0.95);
+    border-radius: 10px;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.profile-header {
+    background: rgba(212, 175, 55, 0.1);
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.profile-header h3 {
+    color: #d4af37;
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.profile-content {
+    padding: 2rem;
+}
+
+.profile-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.profile-section h4 {
+    color: #d4af37;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+/* Información básica */
+.profile-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.info-item strong {
+    color: #d4af37;
+    font-size: 0.9rem;
+}
+
+.info-item span {
+    color: #ffffff;
+    font-size: 1rem;
+}
+
+/* Confiabilidad */
+.reliability-info {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.reliability-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #d4af37, #b8941f);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+}
+
+.score-circle span {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #000;
+}
+
+.score-label {
+    font-size: 0.8rem;
+    color: #000;
+    font-weight: 600;
+}
+
+.reliability-level {
+    text-align: center;
+}
+
+.reliability-level span {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #d4af37;
+    margin-bottom: 0.5rem;
+}
+
+.level-description {
+    font-size: 0.9rem;
+    color: #ffffff;
+    opacity: 0.8;
+}
+
+.reliability-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: rgba(20, 20, 20, 0.8);
+}
+
+.breakdown-item.good {
+    border-left: 4px solid #28a745;
+}
+
+.breakdown-item.regular {
+    border-left: 4px solid #ffc107;
+}
+
+.breakdown-item.bad {
+    border-left: 4px solid #dc3545;
+}
+
+.breakdown-item.not-returned {
+    border-left: 4px solid #6c757d;
+}
+
+.breakdown-label {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.breakdown-value {
+    color: #d4af37;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* Estadísticas de préstamos */
+.loan-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #d4af37;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #ffffff;
+    opacity: 0.8;
+}
+
+/* Actividad reciente */
+.recent-activity {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    background: rgba(20, 20, 20, 0.8);
+    border-left: 4px solid transparent;
+}
+
+.activity-item.activity-loan {
+    border-left-color: #17a2b8;
+}
+
+.activity-item.activity-return {
+    border-left-color: #28a745;
+}
+
+.activity-item.activity-not-returned {
+    border-left-color: #dc3545;
+}
+
+.activity-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.activity-text {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.activity-date {
+    color: #d4af37;
+    font-size: 0.9rem;
+}
+
+/* Lista de usuarios por confiabilidad */
+.users-reliability-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.user-reliability-card {
+    background: rgba(20, 20, 20, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.user-reliability-card:hover {
+    border-color: rgba(212, 175, 55, 0.5);
+    transform: translateY(-2px);
+}
+
+.user-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-card-header h4 {
+    color: #d4af37;
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.dni-badge {
+    background: rgba(212, 175, 55, 0.2);
+    color: #d4af37;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.user-card-info {
+    margin-bottom: 1rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-row .label {
+    color: #d4af37;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.info-row .value {
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+.user-card-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.user-card-stats .stat-item {
+    text-align: center;
+    padding: 0.75rem;
+    background: rgba(13, 13, 13, 0.8);
+    border-radius: 6px;
+}
+
+.user-card-stats .stat-number {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.user-card-stats .stat-label {
+    font-size: 0.8rem;
+}
+
+.user-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+}
+
+/* Badges de estado y confiabilidad */
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-active {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border: 1px solid #28a745;
+}
+
+.status-inactive {
+    background: rgba(108, 117, 125, 0.2);
+    color: #6c757d;
+    border: 1px solid #6c757d;
+}
+
+.status-suspended {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}
+
+.status-warning {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border: 1px solid #ffc107;
+}
+
+.reliability-score, .reliability-level {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.reliability-excellent {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border: 1px solid #28a745;
+}
+
+.reliability-good {
+    background: rgba(23, 162, 184, 0.2);
+    color: #17a2b8;
+    border: 1px solid #17a2b8;
+}
+
+.reliability-regular {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border: 1px solid #ffc107;
+}
+
+.reliability-low {
+    background: rgba(255, 87, 34, 0.2);
+    color: #ff5722;
+    border: 1px solid #ff5722;
+}
+
+.reliability-very-low {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}
+
 /* Responsive para devoluciones */
 @media (max-width: 768px) {
     .returns-grid, .not-returned-grid {
@@ -1968,5 +2404,43 @@ tr:hover td {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.25rem;
+    }
+    
+    /* Responsive para perfiles */
+    .reliability-info {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .profile-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .users-reliability-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .user-card-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .profile-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .search-profile {
+        flex-direction: column;
+    }
+    
+    .search-profile select {
+        min-width: auto;
+        width: 100%;
     }
 }

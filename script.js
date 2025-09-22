@@ -318,6 +318,10 @@ function showSection(sectionName) {
         loadReturns();
         loadNotReturnedBooks();
         loadStockStatus();
+        setupReturnUserSelectors();
+    } else if (sectionName === 'profiles') {
+        loadUserProfiles();
+        setupProfileUserSelector();
     }
 }
 
@@ -803,6 +807,9 @@ function handleUserSubmit(e) {
     const name = document.getElementById('userName').value;
     const email = document.getElementById('userEmail').value;
     const password = document.getElementById('userPassword').value;
+    const dni = document.getElementById('userDni').value;
+    const phone = document.getElementById('userPhone').value;
+    const address = document.getElementById('userAddress').value;
     const role = document.getElementById('userRole').value;
     const status = document.getElementById('userStatus').value;
 
@@ -810,6 +817,9 @@ function handleUserSubmit(e) {
         name: name,
         email: email,
         password: password,
+        dni: dni,
+        phone: phone,
+        address: address,
         role: role,
         status: status
     };
@@ -832,8 +842,11 @@ function loadUsers() {
                     <th>ID</th>
                     <th>Nombre</th>
                     <th>Email</th>
+                    <th>DNI</th>
+                    <th>Teléfono</th>
                     <th>Rol</th>
                     <th>Estado</th>
+                    <th>Confiabilidad</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -843,8 +856,11 @@ function loadUsers() {
                         <td>${user.id}</td>
                         <td>${user.name}</td>
                         <td>${user.email}</td>
+                        <td>${user.dni || '-'}</td>
+                        <td>${user.phone || '-'}</td>
                         <td>${user.role}</td>
-                        <td>${user.status}</td>
+                        <td><span class="status-badge ${getStatusClass(user.status)}">${user.status}</span></td>
+                        <td><span class="reliability-score ${getReliabilityClass(user.reliabilityScore)}">${user.reliabilityScore}</span></td>
                         <td>
                             <button class="btn" onclick="editUser(${user.id})">Editar</button>
                             <button class="btn btn-secondary" onclick="deleteUser(${user.id})">Eliminar</button>
@@ -862,6 +878,9 @@ function editUser(userId) {
         document.getElementById('userName').value = user.name;
         document.getElementById('userEmail').value = user.email;
         document.getElementById('userPassword').value = user.password;
+        document.getElementById('userDni').value = user.dni || '';
+        document.getElementById('userPhone').value = user.phone || '';
+        document.getElementById('userAddress').value = user.address || '';
         document.getElementById('userRole').value = user.role;
         document.getElementById('userStatus').value = user.status;
         
@@ -1222,13 +1241,14 @@ function returnUserBook(loanId) {
 function handleReturnSubmit(e) {
     e.preventDefault();
     
+    const userId = parseInt(document.getElementById('returnUser').value);
     const isbn = document.getElementById('returnIsbn').value.trim();
     const condition = document.getElementById('returnCondition').value;
     const returnDate = document.getElementById('returnDate').value;
     const notes = document.getElementById('returnNotes').value.trim();
     
     // Validar que todos los campos estén completos
-    if (!isbn || !condition || !returnDate) {
+    if (!userId || !isbn || !condition || !returnDate) {
         showAlert('Por favor, completa todos los campos obligatorios', 'warning');
         return;
     }
@@ -1240,14 +1260,15 @@ function handleReturnSubmit(e) {
         return;
     }
     
-    // Buscar préstamos activos de este libro
+    // Buscar préstamos activos de este libro y usuario específico
     const activeLoans = db.getLoans().filter(loan => 
         loan.bookId === book.id && 
+        loan.userId === userId &&
         (loan.status === 'activo' || loan.status === 'aprobado')
     );
     
     if (activeLoans.length === 0) {
-        showAlert('No hay préstamos activos para este libro', 'warning');
+        showAlert('No hay préstamos activos de este libro para el usuario seleccionado', 'warning');
         return;
     }
     
@@ -1256,6 +1277,8 @@ function handleReturnSubmit(e) {
         id: Date.now(),
         bookId: book.id,
         bookTitle: book.title,
+        userId: userId,
+        userName: db.getUsers().find(u => u.id === userId).name,
         isbn: isbn,
         condition: condition,
         returnDate: returnDate,
@@ -1270,6 +1293,9 @@ function handleReturnSubmit(e) {
     
     // Actualizar el estado del libro según su condición física
     updateBookCondition(book.id, condition);
+    
+    // Actualizar la confiabilidad del usuario
+    db.updateUserReliability(userId, condition);
     
     // Finalizar el préstamo más antiguo de este libro
     const oldestLoan = activeLoans.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))[0];
@@ -1295,13 +1321,14 @@ function handleReturnSubmit(e) {
 function handleNotReturnedSubmit(e) {
     e.preventDefault();
     
+    const userId = parseInt(document.getElementById('notReturnedUser').value);
     const isbn = document.getElementById('notReturnedIsbn').value.trim();
     const reason = document.getElementById('notReturnedReason').value;
     const notReturnedDate = document.getElementById('notReturnedDate').value;
     const notes = document.getElementById('notReturnedNotes').value.trim();
     
     // Validar que todos los campos estén completos
-    if (!isbn || !reason || !notReturnedDate || !notes) {
+    if (!userId || !isbn || !reason || !notReturnedDate || !notes) {
         showAlert('Por favor, completa todos los campos obligatorios', 'warning');
         return;
     }
@@ -1318,6 +1345,8 @@ function handleNotReturnedSubmit(e) {
         id: Date.now(),
         bookId: book.id,
         bookTitle: book.title,
+        userId: userId,
+        userName: db.getUsers().find(u => u.id === userId).name,
         isbn: isbn,
         reason: reason,
         notReturnedDate: notReturnedDate,
@@ -1333,9 +1362,13 @@ function handleNotReturnedSubmit(e) {
     // Actualizar el estado del libro según el motivo
     updateBookNotReturned(book.id, reason);
     
-    // Buscar y finalizar préstamos activos de este libro
+    // Actualizar la confiabilidad del usuario
+    db.updateUserReliability(userId, reason);
+    
+    // Buscar y finalizar préstamos activos de este libro y usuario
     const activeLoans = db.getLoans().filter(loan => 
         loan.bookId === book.id && 
+        loan.userId === userId &&
         (loan.status === 'activo' || loan.status === 'aprobado')
     );
     
@@ -1651,4 +1684,274 @@ function getReasonText(reason) {
         'dañado_irreparable': 'Dañado Irreparable'
     };
     return reasons[reason] || reason;
+}
+
+// ==================== FUNCIONES DE GESTIÓN DE PERFILES DE USUARIOS ====================
+
+function setupReturnUserSelectors() {
+    const returnUserSelect = document.getElementById('returnUser');
+    const notReturnedUserSelect = document.getElementById('notReturnedUser');
+    const users = db.getUsers().filter(u => u.status === 'activo' || u.status === 'advertencia');
+    
+    // Limpiar opciones existentes
+    returnUserSelect.innerHTML = '<option value="">SELECCIONAR USUARIO</option>';
+    notReturnedUserSelect.innerHTML = '<option value="">SELECCIONAR USUARIO</option>';
+    
+    users.forEach(user => {
+        const option1 = document.createElement('option');
+        option1.value = user.id;
+        option1.textContent = `${user.name} (${user.dni}) - Score: ${user.reliabilityScore}`;
+        returnUserSelect.appendChild(option1);
+        
+        const option2 = document.createElement('option');
+        option2.value = user.id;
+        option2.textContent = `${user.name} (${user.dni}) - Score: ${user.reliabilityScore}`;
+        notReturnedUserSelect.appendChild(option2);
+    });
+}
+
+function setupProfileUserSelector() {
+    const profileUserSelect = document.getElementById('profileUserSelect');
+    const users = db.getUsers();
+    
+    profileUserSelect.innerHTML = '<option value="">Seleccionar usuario para ver perfil</option>';
+    
+    users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = `${user.name} (${user.dni}) - ${user.reliabilityLevel || 'N/A'} - Score: ${user.reliabilityScore}`;
+        profileUserSelect.appendChild(option);
+    });
+}
+
+function loadUserProfiles() {
+    const usersReliabilityList = document.getElementById('usersReliabilityList');
+    const users = db.getUsers();
+    
+    // Ordenar usuarios por score de confiabilidad (descendente)
+    const sortedUsers = users.sort((a, b) => b.reliabilityScore - a.reliabilityScore);
+    
+    usersReliabilityList.innerHTML = `
+        <div class="users-reliability-grid">
+            ${sortedUsers.map(user => {
+                const reliabilityLevel = db.getReliabilityLevel(user.reliabilityScore);
+                const statusClass = getStatusClass(user.status);
+                const reliabilityClass = getReliabilityClass(user.reliabilityScore);
+                
+                return `
+                    <div class="user-reliability-card">
+                        <div class="user-card-header">
+                            <h4>${user.name}</h4>
+                            <span class="dni-badge">DNI: ${user.dni}</span>
+                        </div>
+                        <div class="user-card-info">
+                            <div class="info-row">
+                                <span class="label">Email:</span>
+                                <span class="value">${user.email}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Estado:</span>
+                                <span class="status-badge ${statusClass}">${user.status}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Score de Confiabilidad:</span>
+                                <span class="reliability-score ${reliabilityClass}">${user.reliabilityScore}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Nivel:</span>
+                                <span class="reliability-level ${reliabilityClass}">${reliabilityLevel}</span>
+                            </div>
+                        </div>
+                        <div class="user-card-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">${user.goodReturns || 0}</span>
+                                <span class="stat-label">Buenas</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">${user.regularReturns || 0}</span>
+                                <span class="stat-label">Regulares</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">${user.badReturns || 0}</span>
+                                <span class="stat-label">Malas</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">${user.notReturned || 0}</span>
+                                <span class="stat-label">No Devueltos</span>
+                            </div>
+                        </div>
+                        <div class="user-card-actions">
+                            <button class="btn btn-sm" onclick="viewUserProfile(${user.id})">Ver Perfil</button>
+                            ${user.status === 'suspendido' ? 
+                                `<button class="btn btn-sm btn-secondary" onclick="reactivateUserProfile(${user.id})">Reactivar</button>` :
+                                `<button class="btn btn-sm btn-warning" onclick="suspendUserProfile(${user.id})">Suspender</button>`
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+function loadUserProfile() {
+    const userId = parseInt(document.getElementById('profileUserSelect').value);
+    if (!userId) {
+        showAlert('Por favor, selecciona un usuario', 'warning');
+        return;
+    }
+    
+    const profile = db.getUserProfile(userId);
+    if (!profile) {
+        showAlert('No se pudo cargar el perfil del usuario', 'error');
+        return;
+    }
+    
+    // Mostrar el contenedor del perfil
+    document.getElementById('userProfileContainer').style.display = 'block';
+    
+    // Llenar información básica
+    document.getElementById('profileUserName').textContent = profile.name;
+    document.getElementById('profileDni').textContent = profile.dni || '-';
+    document.getElementById('profileEmail').textContent = profile.email;
+    document.getElementById('profilePhone').textContent = profile.phone || '-';
+    document.getElementById('profileAddress').textContent = profile.address || '-';
+    document.getElementById('profileCreatedAt').textContent = new Date(profile.createdAt).toLocaleDateString('es-ES');
+    
+    // Estado del usuario
+    const statusElement = document.getElementById('profileStatus');
+    statusElement.textContent = profile.status;
+    statusElement.className = `status-badge ${getStatusClass(profile.status)}`;
+    
+    // Confiabilidad
+    document.getElementById('reliabilityScore').textContent = profile.reliabilityScore;
+    document.getElementById('reliabilityLevel').textContent = profile.reliabilityLevel;
+    document.getElementById('goodReturns').textContent = profile.goodReturns || 0;
+    document.getElementById('regularReturns').textContent = profile.regularReturns || 0;
+    document.getElementById('badReturns').textContent = profile.badReturns || 0;
+    document.getElementById('notReturned').textContent = profile.notReturned || 0;
+    
+    // Estadísticas de préstamos
+    document.getElementById('totalLoansCount').textContent = profile.totalLoans || 0;
+    document.getElementById('activeLoansCount').textContent = profile.activeLoans || 0;
+    document.getElementById('completedLoansCount').textContent = profile.completedLoans || 0;
+    
+    // Actividad reciente
+    loadRecentActivity(profile.recentActivity);
+    
+    // Mostrar/ocultar botones según el estado
+    const suspendBtn = document.getElementById('suspendBtn');
+    const reactivateBtn = document.getElementById('reactivateBtn');
+    
+    if (profile.status === 'suspendido') {
+        suspendBtn.style.display = 'none';
+        reactivateBtn.style.display = 'inline-block';
+    } else {
+        suspendBtn.style.display = 'inline-block';
+        reactivateBtn.style.display = 'none';
+    }
+    
+    // Guardar el ID del usuario actual para las acciones
+    document.getElementById('userProfileContainer').dataset.userId = userId;
+}
+
+function loadRecentActivity(activities) {
+    const recentActivity = document.getElementById('recentActivity');
+    
+    if (!activities || activities.length === 0) {
+        recentActivity.innerHTML = '<p>No hay actividad reciente</p>';
+        return;
+    }
+    
+    recentActivity.innerHTML = activities.map(activity => {
+        const date = new Date(activity.date).toLocaleDateString('es-ES');
+        const time = new Date(activity.date).toLocaleTimeString('es-ES');
+        
+        let activityText = '';
+        let activityClass = '';
+        
+        switch (activity.type) {
+            case 'loan':
+                activityText = `Préstamo: ${activity.bookTitle}`;
+                activityClass = 'activity-loan';
+                break;
+            case 'return':
+                activityText = `Devolución: ${activity.bookTitle} (${getConditionText(activity.condition)})`;
+                activityClass = 'activity-return';
+                break;
+            case 'not_returned':
+                activityText = `No devuelto: ${activity.bookTitle} (${getReasonText(activity.reason)})`;
+                activityClass = 'activity-not-returned';
+                break;
+        }
+        
+        return `
+            <div class="activity-item ${activityClass}">
+                <div class="activity-content">
+                    <div class="activity-text">${activityText}</div>
+                    <div class="activity-date">${date} ${time}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function viewUserProfile(userId) {
+    document.getElementById('profileUserSelect').value = userId;
+    loadUserProfile();
+}
+
+function suspendUserProfile(userId) {
+    const reason = prompt('Motivo de suspensión:');
+    if (reason) {
+        const user = db.suspendUser(userId, reason);
+        if (user) {
+            showAlert('Usuario suspendido exitosamente', 'warning');
+            loadUserProfiles();
+            if (document.getElementById('userProfileContainer').dataset.userId == userId) {
+                loadUserProfile();
+            }
+        }
+    }
+}
+
+function reactivateUserProfile(userId) {
+    if (confirm('¿Estás seguro de que quieres reactivar este usuario?')) {
+        const user = db.reactivateUser(userId);
+        if (user) {
+            showAlert('Usuario reactivado exitosamente', 'success');
+            loadUserProfiles();
+            if (document.getElementById('userProfileContainer').dataset.userId == userId) {
+                loadUserProfile();
+            }
+        }
+    }
+}
+
+function suspendUser() {
+    const userId = parseInt(document.getElementById('userProfileContainer').dataset.userId);
+    suspendUserProfile(userId);
+}
+
+function reactivateUser() {
+    const userId = parseInt(document.getElementById('userProfileContainer').dataset.userId);
+    reactivateUserProfile(userId);
+}
+
+function getStatusClass(status) {
+    const classes = {
+        'activo': 'status-active',
+        'inactivo': 'status-inactive',
+        'suspendido': 'status-suspended',
+        'advertencia': 'status-warning'
+    };
+    return classes[status] || 'status-unknown';
+}
+
+function getReliabilityClass(score) {
+    if (score >= 80) return 'reliability-excellent';
+    if (score >= 60) return 'reliability-good';
+    if (score >= 40) return 'reliability-regular';
+    if (score >= 20) return 'reliability-low';
+    return 'reliability-very-low';
 }
