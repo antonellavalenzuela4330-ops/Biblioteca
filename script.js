@@ -235,6 +235,9 @@ function showDashboard() {
     // Actualizar información del usuario
     document.getElementById('userName').textContent = currentUser.name;
     document.getElementById('userRole').textContent = currentUser.role;
+    
+    // Actualizar indicadores visuales de rol
+    updateRoleIndicators(currentUser.role);
 
     // Mostrar/ocultar elementos según el rol
     const bibliotecarioElements = document.querySelectorAll('.admin-only');
@@ -2338,3 +2341,40 @@ document.addEventListener = function(event, handler) {
         originalDOMContentLoaded.call(this, event, handler);
     }
 };
+
+// ===== FUNCIONES DE DIFERENCIACIÓN VISUAL DE ROLES =====
+
+// Actualizar indicadores visuales según el rol del usuario
+function updateRoleIndicators(role) {
+    const userAvatarIcon = document.getElementById('userAvatarIcon');
+    const roleBadge = document.getElementById('roleBadge');
+    const roleIcon = roleBadge.querySelector('.role-icon');
+    const roleText = roleBadge.querySelector('.role-text');
+    
+    // Actualizar avatar según el rol
+    switch (role) {
+        case 'usuario':
+            userAvatarIcon.textContent = '👤';
+            roleBadge.className = 'role-badge user-role';
+            roleIcon.textContent = '📚';
+            roleText.textContent = 'USUARIO';
+            break;
+        case 'bibliotecario':
+            userAvatarIcon.textContent = '👨‍💼';
+            roleBadge.className = 'role-badge librarian-role';
+            roleIcon.textContent = '📋';
+            roleText.textContent = 'BIBLIOTECARIO';
+            break;
+        case 'admin':
+            userAvatarIcon.textContent = '👑';
+            roleBadge.className = 'role-badge admin-role';
+            roleIcon.textContent = '⚙️';
+            roleText.textContent = 'ADMIN';
+            break;
+        default:
+            userAvatarIcon.textContent = '👤';
+            roleBadge.className = 'role-badge user-role';
+            roleIcon.textContent = '📚';
+            roleText.textContent = 'USUARIO';
+    }
+}
