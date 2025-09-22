@@ -173,12 +173,15 @@ function handleRegister(e) {
     e.preventDefault();
     
     const name = document.getElementById('registerName').value.trim();
+    const dni = document.getElementById('registerDni').value.trim();
+    const address = document.getElementById('registerAddress').value.trim();
+    const phone = document.getElementById('registerPhone').value.trim();
     const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value;
     const role = document.getElementById('registerRole').value;
 
     // Validar que todos los campos estén completos
-    if (!name || !email || !password || !role) {
+    if (!name || !dni || !address || !phone || !email || !password || !role) {
         showAlert('Por favor, completa todos los campos', 'warning');
         return;
     }
@@ -204,6 +207,9 @@ function handleRegister(e) {
 
         const newUser = {
             name: name,
+            dni: dni,
+            address: address,
+            phone: phone,
             email: email,
             password: password,
             role: role,
