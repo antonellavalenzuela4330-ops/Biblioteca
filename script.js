@@ -1344,8 +1344,6 @@ function handleUserLoanRequest(e) {
 function loadUserLoans() {
     // Para usuarios, no mostrar historial de préstamos
     // El historial ha sido eliminado del HTML para usuarios
-    // Solo cargar notificaciones del usuario
-    loadUserNotifications();
 }
 
 function getStatusText(status) {
@@ -2432,40 +2430,6 @@ function updateNotificationBadge() {
     }
 }
 
-// Mostrar notificaciones en la sección de Mis Préstamos
-function loadUserNotifications() {
-    const userId = getCurrentUserId();
-    if (!userId) return;
-    
-    const userNotifications = getUserNotifications(userId).slice(0, 3); // Mostrar solo las 3 más recientes
-    const container = document.getElementById('userNotifications');
-    
-    if (!container) return;
-    
-    if (userNotifications.length === 0) {
-        container.innerHTML = `
-            <h3>Notificaciones</h3>
-            <p>No tienes notificaciones nuevas.</p>
-            <p>Aquí recibirás notificaciones sobre el estado de tus préstamos, recordatorios de devolución y actualizaciones importantes.</p>
-            <button class="btn btn-secondary" onclick="showSection('notifications')">Ver todas las notificaciones</button>
-        `;
-        return;
-    }
-    
-    container.innerHTML = `
-        <h3>Notificaciones Recientes</h3>
-        ${userNotifications.map(notification => `
-            <div class="notification-item ${notification.read ? 'read' : 'unread'}" onclick="markAsRead(${notification.id})">
-                <div class="notification-header">
-                    <h4>${notification.title}</h4>
-                    <span>${getTimeAgo(notification.timestamp)}</span>
-                </div>
-                <p>${notification.content}</p>
-            </div>
-        `).join('')}
-        <button class="btn btn-secondary" onclick="showSection('notifications')">Ver todas las notificaciones</button>
-    `;
-}
 
 // Integrar notificaciones con el sistema de préstamos
 function createLoanNotification(loan, action) {
@@ -2559,8 +2523,6 @@ showSection = function(sectionName) {
     // Cargar datos específicos de la sección
     if (sectionName === 'notifications') {
         loadNotifications();
-    } else if (sectionName === 'userLoans') {
-        loadUserNotifications();
     }
 };
 
