@@ -988,10 +988,11 @@ tr:hover td {
 .usersTable, .loansList {
     background: #0a0a0a;
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 1rem;
     border: 1px solid #d4af37;
     margin-top: 1.5rem;
     overflow-x: auto;
+    max-width: 100%;
 }
 
 /* Estilos específicos para la tabla de usuarios */
@@ -1016,63 +1017,64 @@ tr:hover td {
 
 .usersTable th,
 .usersTable td {
-    padding: 0.75rem 0.5rem;
+    padding: 0.4rem 0.3rem;
     text-align: left;
     border-bottom: 1px solid rgba(212, 175, 55, 0.2);
     word-wrap: break-word;
     overflow: hidden;
+    font-size: 0.85rem;
 }
 
-/* Columnas específicas con anchos fijos */
+/* Columnas específicas con anchos fijos - OPTIMIZADO */
 .usersTable th:nth-child(1), /* ID */
 .usersTable td:nth-child(1) {
-    width: 5%;
+    width: 4%;
     text-align: center;
 }
 
 .usersTable th:nth-child(2), /* NOMBRE */
 .usersTable td:nth-child(2) {
-    width: 14%;
+    width: 12%;
 }
 
 .usersTable th:nth-child(3), /* EMAIL */
 .usersTable td:nth-child(3) {
-    width: 18%;
+    width: 16%;
 }
 
 .usersTable th:nth-child(4), /* DNI */
 .usersTable td:nth-child(4) {
-    width: 9%;
+    width: 8%;
 }
 
 .usersTable th:nth-child(5), /* TELÉFONO */
 .usersTable td:nth-child(5) {
-    width: 11%;
+    width: 10%;
 }
 
 .usersTable th:nth-child(6), /* ROL */
 .usersTable td:nth-child(6) {
-    width: 9%;
+    width: 8%;
 }
 
 .usersTable th:nth-child(7), /* ESTADO */
 .usersTable td:nth-child(7) {
-    width: 7%;
+    width: 6%;
     text-align: center;
 }
 
 .usersTable th:nth-child(8), /* CONFIABILIDAD */
 .usersTable td:nth-child(8) {
-    width: 9%;
+    width: 8%;
     text-align: center;
 }
 
 .usersTable th:nth-child(9), /* ACCIONES */
 .usersTable td:nth-child(9) {
-    width: 12%;
+    width: 18%;
     text-align: center;
     white-space: nowrap;
-    padding: 0.5rem 0.25rem;
+    padding: 0.3rem 0.2rem;
     overflow: visible;
 }
 
@@ -1082,31 +1084,34 @@ tr:hover td {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.25rem;
-    padding: 0.5rem 0.25rem;
+    gap: 0.15rem;
+    padding: 0.3rem 0.1rem;
+    min-width: 80px;
 }
 
-/* Estilos para los botones de acción */
+/* Estilos para los botones de acción - COMPACTOS */
 .usersTable .btn {
-    padding: 0.3rem 0.5rem;
-    font-size: 0.75rem;
+    padding: 0.25rem 0.4rem;
+    font-size: 0.7rem;
     margin: 0;
-    min-width: 55px;
-    max-width: 70px;
+    min-width: 45px;
+    max-width: 65px;
     width: 100%;
     text-align: center;
-    border-radius: 6px;
+    border-radius: 4px;
+    white-space: nowrap;
 }
 
 .usersTable .btn-secondary {
-    padding: 0.3rem 0.5rem;
-    font-size: 0.75rem;
+    padding: 0.25rem 0.4rem;
+    font-size: 0.7rem;
     margin: 0;
-    min-width: 55px;
-    max-width: 70px;
+    min-width: 45px;
+    max-width: 65px;
     width: 100%;
     text-align: center;
-    border-radius: 6px;
+    border-radius: 4px;
+    white-space: nowrap;
 }
 
 /* Grid para tarjetas de préstamos (2 columnas en desktop, 1 en móvil) */
@@ -2841,44 +2846,45 @@ tr:hover td {
     
     /* Tabla de usuarios responsiva */
     .usersTable {
-        padding: 1rem;
+        padding: 0.5rem;
         overflow-x: auto;
     }
     
     .usersTable table {
-        min-width: 800px;
+        min-width: 700px;
     }
     
     .usersTable th,
     .usersTable td {
-        padding: 0.5rem 0.3rem;
-        font-size: 0.85rem;
+        padding: 0.3rem 0.2rem;
+        font-size: 0.8rem;
     }
     
     .usersTable th:nth-child(9),
     .usersTable td:nth-child(9) {
-        width: 15%;
-        padding: 0.25rem 0.1rem;
+        width: 20%;
+        padding: 0.2rem 0.05rem;
     }
     
     .usersTable td:nth-child(9) {
         flex-direction: column;
-        gap: 0.2rem;
-        padding: 0.25rem 0.1rem;
+        gap: 0.1rem;
+        padding: 0.2rem 0.05rem;
+        min-width: 70px;
     }
     
     .usersTable .btn {
-        padding: 0.25rem 0.4rem;
-        font-size: 0.7rem;
-        min-width: 45px;
-        max-width: 60px;
+        padding: 0.2rem 0.3rem;
+        font-size: 0.65rem;
+        min-width: 40px;
+        max-width: 55px;
     }
     
     .usersTable .btn-secondary {
-        padding: 0.25rem 0.4rem;
-        font-size: 0.7rem;
-        min-width: 45px;
-        max-width: 60px;
+        padding: 0.2rem 0.3rem;
+        font-size: 0.65rem;
+        min-width: 40px;
+        max-width: 55px;
     }
     
     .role-indicator {
