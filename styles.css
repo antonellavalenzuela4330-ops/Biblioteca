@@ -1034,44 +1034,44 @@ tr:hover td {
 
 .usersTable th:nth-child(2), /* NOMBRE */
 .usersTable td:nth-child(2) {
-    width: 8%;
+    width: 7%;
 }
 
 .usersTable th:nth-child(3), /* EMAIL */
 .usersTable td:nth-child(3) {
-    width: 11%;
+    width: 9%;
 }
 
 .usersTable th:nth-child(4), /* DNI */
 .usersTable td:nth-child(4) {
-    width: 4%;
+    width: 3%;
 }
 
 .usersTable th:nth-child(5), /* TELÉFONO */
 .usersTable td:nth-child(5) {
-    width: 13%;
+    width: 16%;
 }
 
 .usersTable th:nth-child(6), /* ROL */
 .usersTable td:nth-child(6) {
-    width: 11%;
+    width: 14%;
 }
 
 .usersTable th:nth-child(7), /* ESTADO */
 .usersTable td:nth-child(7) {
-    width: 10%;
+    width: 8%;
     text-align: center;
 }
 
 .usersTable th:nth-child(8), /* CONFIABILIDAD */
 .usersTable td:nth-child(8) {
-    width: 12%;
+    width: 10%;
     text-align: center;
 }
 
 .usersTable th:nth-child(9), /* ACCIONES */
 .usersTable td:nth-child(9) {
-    width: 14%;
+    width: 12%;
     text-align: center;
     white-space: nowrap;
     padding: 0.3rem 0.2rem;
@@ -1090,28 +1090,28 @@ tr:hover td {
     text-align: center;
 }
 
-/* Estilos para los botones de acción - ULTRA COMPACTOS */
+/* Estilos para los botones de acción - EXTREMO COMPACTO */
 .usersTable .btn {
-    padding: 0.2rem 0.3rem;
-    font-size: 0.65rem;
+    padding: 0.15rem 0.25rem;
+    font-size: 0.6rem;
     margin: 0;
-    min-width: 40px;
-    max-width: 55px;
+    min-width: 35px;
+    max-width: 50px;
     width: 100%;
     text-align: center;
-    border-radius: 3px;
+    border-radius: 2px;
     white-space: nowrap;
 }
 
 .usersTable .btn-secondary {
-    padding: 0.2rem 0.3rem;
-    font-size: 0.65rem;
+    padding: 0.15rem 0.25rem;
+    font-size: 0.6rem;
     margin: 0;
-    min-width: 40px;
-    max-width: 55px;
+    min-width: 35px;
+    max-width: 50px;
     width: 100%;
     text-align: center;
-    border-radius: 3px;
+    border-radius: 2px;
     white-space: nowrap;
 }
 
@@ -1119,13 +1119,13 @@ tr:hover td {
 .usersTable .status-badge,
 .usersTable .reliability-score {
     display: inline-block;
-    padding: 0.2rem 0.4rem;
-    font-size: 0.65rem;
+    padding: 0.15rem 0.3rem;
+    font-size: 0.6rem;
     font-weight: bold;
-    border-radius: 3px;
+    border-radius: 2px;
     text-align: center;
     white-space: nowrap;
-    min-width: 40px;
+    min-width: 35px;
     max-width: 100%;
     box-sizing: border-box;
     margin: 0 auto;
@@ -2897,12 +2897,12 @@ tr:hover td {
     
     .usersTable th:nth-child(5),
     .usersTable td:nth-child(5) {
-        width: 15%;
+        width: 18%;
     }
     
     .usersTable th:nth-child(6),
     .usersTable td:nth-child(6) {
-        width: 13%;
+        width: 15%;
     }
     
     .usersTable th:nth-child(9),
