@@ -108,6 +108,7 @@
                 <div class="nav-tab user-loans-tab" onclick="showSection('userLoans')">Mis Préstamos</div>
                 <div class="nav-tab admin-only" onclick="showSection('admin')">Administración</div>
                 <div class="nav-tab librarian-only" onclick="showSection('loans')">Préstamos</div>
+                <div class="nav-tab librarian-only" onclick="showSection('returns')">Devoluciones</div>
                 <div class="nav-tab admin-only" onclick="showSection('users')">Usuarios</div>
                 <div class="nav-tab admin-only" onclick="showSection('stats')">Estadísticas</div>
             </div>
@@ -214,6 +215,68 @@
                     </form>
                 </div>
                 <div id="loansList" class="loansList"></div>
+            </div>
+
+            <!-- Devoluciones -->
+            <div id="returnsSection" class="content-section">
+                <h2>GESTIÓN DE DEVOLUCIONES</h2>
+                
+                <!-- Devolución Normal -->
+                <div class="admin-panel">
+                    <h3>Registrar Devolución</h3>
+                    <form id="returnForm" class="admin-form">
+                        <input type="text" id="returnIsbn" placeholder="CÓDIGO ISBN" required>
+                        <select id="returnCondition" required>
+                            <option value="">ESTADO DEL LIBRO</option>
+                            <option value="buen_estado">Buen Estado</option>
+                            <option value="estado_regular">Estado Regular</option>
+                            <option value="mal_estado">Mal Estado</option>
+                        </select>
+                        <input type="date" id="returnDate" required>
+                        <textarea id="returnNotes" placeholder="Observaciones (opcional)" rows="2"></textarea>
+                        <button type="submit" class="btn">REGISTRAR DEVOLUCIÓN</button>
+                    </form>
+                </div>
+
+                <!-- Libros No Devueltos -->
+                <div class="admin-panel">
+                    <h3>Registrar Libro No Devuelto</h3>
+                    <form id="notReturnedForm" class="admin-form">
+                        <input type="text" id="notReturnedIsbn" placeholder="CÓDIGO ISBN" required>
+                        <select id="notReturnedReason" required>
+                            <option value="">MOTIVO</option>
+                            <option value="no_devuelto">No Devuelto</option>
+                            <option value="devuelto_tarde">Devuelto Fuera de Tiempo</option>
+                            <option value="perdido">Libro Perdido</option>
+                            <option value="dañado_irreparable">Dañado Irreparable</option>
+                        </select>
+                        <input type="date" id="notReturnedDate" required>
+                        <textarea id="notReturnedNotes" placeholder="Observaciones" rows="2" required></textarea>
+                        <button type="submit" class="btn btn-warning">REGISTRAR NO DEVUELTO</button>
+                    </form>
+                </div>
+
+                <!-- Control de Stock por Estado -->
+                <div class="admin-panel">
+                    <h3>Control de Stock por Estado</h3>
+                    <div class="stock-controls">
+                        <button class="btn" onclick="updateBookAvailability()">ACTUALIZAR DISPONIBILIDAD</button>
+                        <button class="btn btn-secondary" onclick="generateStockReport()">GENERAR REPORTE DE STOCK</button>
+                    </div>
+                    <div id="stockStatus" class="stock-status"></div>
+                </div>
+
+                <!-- Lista de Devoluciones -->
+                <div class="admin-panel">
+                    <h3>Historial de Devoluciones</h3>
+                    <div id="returnsList" class="returns-list"></div>
+                </div>
+
+                <!-- Libros No Devueltos -->
+                <div class="admin-panel">
+                    <h3>Libros No Devueltos</h3>
+                    <div id="notReturnedList" class="not-returned-list"></div>
+                </div>
             </div>
 
             <!-- Usuarios -->

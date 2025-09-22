@@ -92,6 +92,14 @@ class Database {
         if (!localStorage.getItem('biblioteca_loans')) {
             localStorage.setItem('biblioteca_loans', JSON.stringify([]));
         }
+
+        if (!localStorage.getItem('biblioteca_returns')) {
+            localStorage.setItem('biblioteca_returns', JSON.stringify([]));
+        }
+
+        if (!localStorage.getItem('biblioteca_not_returned')) {
+            localStorage.setItem('biblioteca_not_returned', JSON.stringify([]));
+        }
     }
 
     // Métodos para usuarios
@@ -286,11 +294,81 @@ class Database {
         };
     }
 
+    // Métodos para devoluciones
+    getReturns() {
+        return JSON.parse(localStorage.getItem('biblioteca_returns') || '[]');
+    }
+
+    saveReturns(returns) {
+        localStorage.setItem('biblioteca_returns', JSON.stringify(returns));
+    }
+
+    addReturn(returnRecord) {
+        const returns = this.getReturns();
+        returnRecord.id = this.getNextId(returns);
+        returns.push(returnRecord);
+        this.saveReturns(returns);
+        return returnRecord;
+    }
+
+    updateReturn(returnId, updatedReturn) {
+        const returns = this.getReturns();
+        const index = returns.findIndex(returnRecord => returnRecord.id === returnId);
+        if (index !== -1) {
+            returns[index] = { ...returns[index], ...updatedReturn };
+            this.saveReturns(returns);
+            return returns[index];
+        }
+        return null;
+    }
+
+    deleteReturn(returnId) {
+        const returns = this.getReturns();
+        const filteredReturns = returns.filter(returnRecord => returnRecord.id !== returnId);
+        this.saveReturns(filteredReturns);
+    }
+
+    // Métodos para libros no devueltos
+    getNotReturned() {
+        return JSON.parse(localStorage.getItem('biblioteca_not_returned') || '[]');
+    }
+
+    saveNotReturned(notReturned) {
+        localStorage.setItem('biblioteca_not_returned', JSON.stringify(notReturned));
+    }
+
+    addNotReturned(notReturnedRecord) {
+        const notReturned = this.getNotReturned();
+        notReturnedRecord.id = this.getNextId(notReturned);
+        notReturned.push(notReturnedRecord);
+        this.saveNotReturned(notReturned);
+        return notReturnedRecord;
+    }
+
+    updateNotReturned(notReturnedId, updatedNotReturned) {
+        const notReturned = this.getNotReturned();
+        const index = notReturned.findIndex(record => record.id === notReturnedId);
+        if (index !== -1) {
+            notReturned[index] = { ...notReturned[index], ...updatedNotReturned };
+            this.saveNotReturned(notReturned);
+            return notReturned[index];
+        }
+        return null;
+    }
+
+    deleteNotReturned(notReturnedId) {
+        const notReturned = this.getNotReturned();
+        const filteredNotReturned = notReturned.filter(record => record.id !== notReturnedId);
+        this.saveNotReturned(filteredNotReturned);
+    }
+
     // Limpiar toda la base de datos (útil para testing)
     clearDatabase() {
         localStorage.removeItem('biblioteca_users');
         localStorage.removeItem('biblioteca_books');
         localStorage.removeItem('biblioteca_loans');
+        localStorage.removeItem('biblioteca_returns');
+        localStorage.removeItem('biblioteca_not_returned');
         this.initializeDatabase();
     }
 }

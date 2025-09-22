@@ -25,6 +25,8 @@ function setupEventListeners() {
     document.getElementById('userForm').addEventListener('submit', handleUserSubmit);
     document.getElementById('modalBookForm').addEventListener('submit', handleModalBookSubmit);
     document.getElementById('userLoanRequestForm').addEventListener('submit', handleUserLoanRequest);
+    document.getElementById('returnForm').addEventListener('submit', handleReturnSubmit);
+    document.getElementById('notReturnedForm').addEventListener('submit', handleNotReturnedSubmit);
     // Quitar búsquedas automáticas: solo con el botón
 }
 
@@ -312,6 +314,10 @@ function showSection(sectionName) {
     } else if (sectionName === 'userLoans') {
         setupUserLoanForm();
         loadUserLoans();
+    } else if (sectionName === 'returns') {
+        loadReturns();
+        loadNotReturnedBooks();
+        loadStockStatus();
     }
 }
 
@@ -1209,4 +1215,440 @@ function returnUserBook(loanId) {
         loadUserLoans();
         showUserNotification('Libro marcado como devuelto exitosamente', 'success');
     }
+}
+
+// ==================== FUNCIONES DE GESTIÓN DE DEVOLUCIONES ====================
+
+function handleReturnSubmit(e) {
+    e.preventDefault();
+    
+    const isbn = document.getElementById('returnIsbn').value.trim();
+    const condition = document.getElementById('returnCondition').value;
+    const returnDate = document.getElementById('returnDate').value;
+    const notes = document.getElementById('returnNotes').value.trim();
+    
+    // Validar que todos los campos estén completos
+    if (!isbn || !condition || !returnDate) {
+        showAlert('Por favor, completa todos los campos obligatorios', 'warning');
+        return;
+    }
+    
+    // Buscar el libro por ISBN
+    const book = db.getBooks().find(b => b.isbn === isbn);
+    if (!book) {
+        showAlert('No se encontró un libro con ese ISBN', 'warning');
+        return;
+    }
+    
+    // Buscar préstamos activos de este libro
+    const activeLoans = db.getLoans().filter(loan => 
+        loan.bookId === book.id && 
+        (loan.status === 'activo' || loan.status === 'aprobado')
+    );
+    
+    if (activeLoans.length === 0) {
+        showAlert('No hay préstamos activos para este libro', 'warning');
+        return;
+    }
+    
+    // Registrar la devolución
+    const returnRecord = {
+        id: Date.now(),
+        bookId: book.id,
+        bookTitle: book.title,
+        isbn: isbn,
+        condition: condition,
+        returnDate: returnDate,
+        notes: notes,
+        processedBy: currentUser.name,
+        processedAt: new Date().toLocaleString('es-ES'),
+        type: 'normal'
+    };
+    
+    // Guardar el registro de devolución
+    db.addReturn(returnRecord);
+    
+    // Actualizar el estado del libro según su condición física
+    updateBookCondition(book.id, condition);
+    
+    // Finalizar el préstamo más antiguo de este libro
+    const oldestLoan = activeLoans.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))[0];
+    db.updateLoan(oldestLoan.id, { 
+        status: 'devuelto',
+        returnDate: returnDate,
+        returnCondition: condition,
+        returnNotes: notes
+    });
+    
+    // Limpiar formulario
+    document.getElementById('returnForm').reset();
+    
+    // Recargar datos
+    loadReturns();
+    loadBooks();
+    loadLoans();
+    loadStockStatus();
+    
+    showAlert('Devolución registrada exitosamente', 'success');
+}
+
+function handleNotReturnedSubmit(e) {
+    e.preventDefault();
+    
+    const isbn = document.getElementById('notReturnedIsbn').value.trim();
+    const reason = document.getElementById('notReturnedReason').value;
+    const notReturnedDate = document.getElementById('notReturnedDate').value;
+    const notes = document.getElementById('notReturnedNotes').value.trim();
+    
+    // Validar que todos los campos estén completos
+    if (!isbn || !reason || !notReturnedDate || !notes) {
+        showAlert('Por favor, completa todos los campos obligatorios', 'warning');
+        return;
+    }
+    
+    // Buscar el libro por ISBN
+    const book = db.getBooks().find(b => b.isbn === isbn);
+    if (!book) {
+        showAlert('No se encontró un libro con ese ISBN', 'warning');
+        return;
+    }
+    
+    // Registrar el libro no devuelto
+    const notReturnedRecord = {
+        id: Date.now(),
+        bookId: book.id,
+        bookTitle: book.title,
+        isbn: isbn,
+        reason: reason,
+        notReturnedDate: notReturnedDate,
+        notes: notes,
+        processedBy: currentUser.name,
+        processedAt: new Date().toLocaleString('es-ES'),
+        status: 'no_devuelto'
+    };
+    
+    // Guardar el registro
+    db.addNotReturned(notReturnedRecord);
+    
+    // Actualizar el estado del libro según el motivo
+    updateBookNotReturned(book.id, reason);
+    
+    // Buscar y finalizar préstamos activos de este libro
+    const activeLoans = db.getLoans().filter(loan => 
+        loan.bookId === book.id && 
+        (loan.status === 'activo' || loan.status === 'aprobado')
+    );
+    
+    activeLoans.forEach(loan => {
+        db.updateLoan(loan.id, { 
+            status: 'no_devuelto',
+            notReturnedDate: notReturnedDate,
+            notReturnedReason: reason,
+            notReturnedNotes: notes
+        });
+    });
+    
+    // Limpiar formulario
+    document.getElementById('notReturnedForm').reset();
+    
+    // Recargar datos
+    loadNotReturnedBooks();
+    loadBooks();
+    loadLoans();
+    loadStockStatus();
+    
+    showAlert('Libro no devuelto registrado exitosamente', 'warning');
+}
+
+function updateBookCondition(bookId, condition) {
+    const books = db.getBooks();
+    const book = books.find(b => b.id === bookId);
+    
+    if (book) {
+        // Actualizar el estado del libro según su condición física
+        switch (condition) {
+            case 'buen_estado':
+                book.physicalCondition = 'buen_estado';
+                book.status = 'disponible';
+                break;
+            case 'estado_regular':
+                book.physicalCondition = 'estado_regular';
+                book.status = 'disponible';
+                break;
+            case 'mal_estado':
+                book.physicalCondition = 'mal_estado';
+                book.status = 'no_disponible';
+                break;
+        }
+        
+        book.lastConditionUpdate = new Date().toLocaleString('es-ES');
+        db.saveBooks(books);
+    }
+}
+
+function updateBookNotReturned(bookId, reason) {
+    const books = db.getBooks();
+    const book = books.find(b => b.id === bookId);
+    
+    if (book) {
+        switch (reason) {
+            case 'no_devuelto':
+            case 'devuelto_tarde':
+                book.status = 'no_disponible';
+                book.notReturnedReason = reason;
+                break;
+            case 'perdido':
+            case 'dañado_irreparable':
+                book.status = 'perdido';
+                book.notReturnedReason = reason;
+                // Reducir stock permanentemente
+                book.stock = Math.max(0, book.stock - 1);
+                break;
+        }
+        
+        book.lastNotReturnedUpdate = new Date().toLocaleString('es-ES');
+        db.saveBooks(books);
+    }
+}
+
+function loadReturns() {
+    const returnsList = document.getElementById('returnsList');
+    const returns = db.getReturns();
+    
+    if (returns.length === 0) {
+        returnsList.innerHTML = '<p style="text-align: center; color: #ffffff; opacity: 0.8; padding: 2rem;">No hay devoluciones registradas</p>';
+        return;
+    }
+    
+    returnsList.innerHTML = `
+        <div class="returns-grid">
+            ${returns.map(returnRecord => `
+                <div class="return-card">
+                    <div class="return-header">
+                        <h4>${returnRecord.bookTitle}</h4>
+                        <span class="return-date">${returnRecord.returnDate}</span>
+                    </div>
+                    <div class="return-details">
+                        <div class="return-detail">
+                            <strong>ISBN:</strong> ${returnRecord.isbn}
+                        </div>
+                        <div class="return-detail">
+                            <strong>Estado:</strong> 
+                            <span class="condition-badge condition-${returnRecord.condition}">
+                                ${getConditionText(returnRecord.condition)}
+                            </span>
+                        </div>
+                        <div class="return-detail">
+                            <strong>Procesado por:</strong> ${returnRecord.processedBy}
+                        </div>
+                        <div class="return-detail">
+                            <strong>Fecha de procesamiento:</strong> ${returnRecord.processedAt}
+                        </div>
+                        ${returnRecord.notes ? `
+                            <div class="return-detail">
+                                <strong>Observaciones:</strong> ${returnRecord.notes}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function loadNotReturnedBooks() {
+    const notReturnedList = document.getElementById('notReturnedList');
+    const notReturned = db.getNotReturned();
+    
+    if (notReturned.length === 0) {
+        notReturnedList.innerHTML = '<p style="text-align: center; color: #ffffff; opacity: 0.8; padding: 2rem;">No hay libros no devueltos registrados</p>';
+        return;
+    }
+    
+    notReturnedList.innerHTML = `
+        <div class="not-returned-grid">
+            ${notReturned.map(record => `
+                <div class="not-returned-card">
+                    <div class="not-returned-header">
+                        <h4>${record.bookTitle}</h4>
+                        <span class="not-returned-date">${record.notReturnedDate}</span>
+                    </div>
+                    <div class="not-returned-details">
+                        <div class="not-returned-detail">
+                            <strong>ISBN:</strong> ${record.isbn}
+                        </div>
+                        <div class="not-returned-detail">
+                            <strong>Motivo:</strong> 
+                            <span class="reason-badge reason-${record.reason}">
+                                ${getReasonText(record.reason)}
+                            </span>
+                        </div>
+                        <div class="not-returned-detail">
+                            <strong>Procesado por:</strong> ${record.processedBy}
+                        </div>
+                        <div class="not-returned-detail">
+                            <strong>Fecha de procesamiento:</strong> ${record.processedAt}
+                        </div>
+                        <div class="not-returned-detail">
+                            <strong>Observaciones:</strong> ${record.notes}
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function loadStockStatus() {
+    const stockStatus = document.getElementById('stockStatus');
+    const books = db.getBooks();
+    
+    const statusCounts = {
+        disponible: 0,
+        no_disponible: 0,
+        agotado: 0,
+        perdido: 0
+    };
+    
+    const conditionCounts = {
+        buen_estado: 0,
+        estado_regular: 0,
+        mal_estado: 0
+    };
+    
+    books.forEach(book => {
+        statusCounts[book.status] = (statusCounts[book.status] || 0) + 1;
+        if (book.physicalCondition) {
+            conditionCounts[book.physicalCondition] = (conditionCounts[book.physicalCondition] || 0) + 1;
+        }
+    });
+    
+    stockStatus.innerHTML = `
+        <div class="stock-summary">
+            <h4>Resumen de Estado del Stock</h4>
+            <div class="stock-cards">
+                <div class="stock-card available">
+                    <div class="stock-number">${statusCounts.disponible}</div>
+                    <div class="stock-label">Disponibles</div>
+                </div>
+                <div class="stock-card unavailable">
+                    <div class="stock-number">${statusCounts.no_disponible}</div>
+                    <div class="stock-label">No Disponibles</div>
+                </div>
+                <div class="stock-card out-of-stock">
+                    <div class="stock-number">${statusCounts.agotado}</div>
+                    <div class="stock-label">Agotados</div>
+                </div>
+                <div class="stock-card lost">
+                    <div class="stock-number">${statusCounts.perdido}</div>
+                    <div class="stock-label">Perdidos</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="condition-summary">
+            <h4>Estado Físico de los Libros</h4>
+            <div class="condition-cards">
+                <div class="condition-card good">
+                    <div class="condition-number">${conditionCounts.buen_estado}</div>
+                    <div class="condition-label">Buen Estado</div>
+                </div>
+                <div class="condition-card regular">
+                    <div class="condition-number">${conditionCounts.estado_regular}</div>
+                    <div class="condition-label">Estado Regular</div>
+                </div>
+                <div class="condition-card bad">
+                    <div class="condition-number">${conditionCounts.mal_estado}</div>
+                    <div class="condition-label">Mal Estado</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function updateBookAvailability() {
+    const books = db.getBooks();
+    let updated = 0;
+    
+    books.forEach(book => {
+        // Si el libro tiene mal estado físico, marcarlo como no disponible
+        if (book.physicalCondition === 'mal_estado' && book.status === 'disponible') {
+            book.status = 'no_disponible';
+            updated++;
+        }
+        // Si el libro está en buen estado y no está perdido, marcarlo como disponible
+        else if (book.physicalCondition === 'buen_estado' && book.status === 'no_disponible' && book.stock > 0) {
+            book.status = 'disponible';
+            updated++;
+        }
+    });
+    
+    if (updated > 0) {
+        db.saveBooks(books);
+        loadBooks();
+        loadStockStatus();
+        showAlert(`Se actualizó la disponibilidad de ${updated} libros`, 'success');
+    } else {
+        showAlert('No se encontraron libros que necesiten actualización de disponibilidad', 'info');
+    }
+}
+
+function generateStockReport() {
+    const books = db.getBooks();
+    const returns = db.getReturns();
+    const notReturned = db.getNotReturned();
+    
+    let report = 'REPORTE DE STOCK DE BIBLIOTECA\n';
+    report += '=====================================\n\n';
+    
+    report += 'RESUMEN GENERAL:\n';
+    report += `Total de libros en catálogo: ${books.length}\n`;
+    report += `Total de ejemplares: ${books.reduce((sum, book) => sum + book.stock, 0)}\n`;
+    report += `Devoluciones registradas: ${returns.length}\n`;
+    report += `Libros no devueltos: ${notReturned.length}\n\n`;
+    
+    report += 'ESTADO POR LIBRO:\n';
+    report += '================\n';
+    books.forEach(book => {
+        report += `${book.title} (${book.isbn}):\n`;
+        report += `  - Stock: ${book.stock}\n`;
+        report += `  - Estado: ${book.status}\n`;
+        report += `  - Condición física: ${book.physicalCondition || 'No evaluada'}\n`;
+        if (book.notReturnedReason) {
+            report += `  - Motivo no devolución: ${getReasonText(book.notReturnedReason)}\n`;
+        }
+        report += '\n';
+    });
+    
+    // Crear y descargar el archivo
+    const blob = new Blob([report], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reporte_stock_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    showAlert('Reporte de stock generado y descargado', 'success');
+}
+
+function getConditionText(condition) {
+    const conditions = {
+        'buen_estado': 'Buen Estado',
+        'estado_regular': 'Estado Regular',
+        'mal_estado': 'Mal Estado'
+    };
+    return conditions[condition] || condition;
+}
+
+function getReasonText(reason) {
+    const reasons = {
+        'no_devuelto': 'No Devuelto',
+        'devuelto_tarde': 'Devuelto Fuera de Tiempo',
+        'perdido': 'Libro Perdido',
+        'dañado_irreparable': 'Dañado Irreparable'
+    };
+    return reasons[reason] || reason;
 }
