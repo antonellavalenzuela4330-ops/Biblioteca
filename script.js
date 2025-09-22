@@ -1143,18 +1143,8 @@ function handleUserLoanRequest(e) {
 }
 function loadUserLoans() {
     // Para usuarios, no mostrar historial de préstamos
-    // Solo mostrar mensaje informativo
-    const userLoansList = document.getElementById('userLoansList');
-    if (userLoansList) {
-        userLoansList.innerHTML = `
-            <div style="text-align: center; color: #ffffff; opacity: 0.8; padding: 2rem; font-size: 1.1rem;">
-                <p>El historial de préstamos no está disponible para usuarios.</p>
-                <p>Utiliza las notificaciones para estar informado sobre el estado de tus solicitudes.</p>
-            </div>
-        `;
-    }
-    
-    // Cargar notificaciones del usuario
+    // El historial ha sido eliminado del HTML para usuarios
+    // Solo cargar notificaciones del usuario
     loadUserNotifications();
 }
 
@@ -1192,32 +1182,7 @@ function formatDate(dateString) {
     return date.toLocaleDateString('es-ES');
 }
 
-function showUserNotifications(loans) {
-    const notificationsContainer = document.getElementById('userNotifications');
-    notificationsContainer.innerHTML = '';
-    
-    loans.forEach(loan => {
-        if (loan.status === 'aprobado') {
-            const daysRemaining = calculateDaysRemaining(loan.endDate, loan.status);
-            if (daysRemaining) {
-                const notificationClass = daysRemaining.includes('¡Ya se pasó') ? 'notification-danger' : 
-                                        daysRemaining.includes('último día') ? 'notification-warning' : 
-                                        'notification-info';
-                
-                const notification = document.createElement('div');
-                notification.className = `notification ${notificationClass}`;
-                notification.innerHTML = `
-                    <div class="notification-title">Recordatorio de Préstamo</div>
-                    <div class="notification-message">
-                        <strong>${loan.bookTitle}</strong><br>
-                        ${daysRemaining}
-                    </div>
-                `;
-                notificationsContainer.appendChild(notification);
-            }
-        }
-    });
-}
+// Función eliminada - ya no se muestra historial de préstamos para usuarios
 
 function showUserNotification(message, type) {
     const notification = document.createElement('div');
