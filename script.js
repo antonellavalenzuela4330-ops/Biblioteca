@@ -1950,7 +1950,7 @@ function loadUserProfiles() {
     `;
 }
 
-function loadUserProfile() {
+function loadSelectedUserProfile() {
     const userId = parseInt(document.getElementById('profileUserSelect').value);
     if (!userId) {
         showAlert('Por favor, selecciona un usuario', 'warning');
@@ -2054,7 +2054,7 @@ function loadRecentActivity(activities) {
 
 function viewUserProfile(userId) {
     document.getElementById('profileUserSelect').value = userId;
-    loadUserProfile();
+    loadSelectedUserProfile();
 }
 
 function suspendUserProfile(userId) {
@@ -2065,7 +2065,7 @@ function suspendUserProfile(userId) {
             showAlert('Usuario suspendido exitosamente', 'warning');
             loadUserProfiles();
             if (document.getElementById('userProfileContainer').dataset.userId == userId) {
-                loadUserProfile();
+                loadSelectedUserProfile();
             }
         }
     }
@@ -2078,7 +2078,7 @@ function reactivateUserProfile(userId) {
             showAlert('Usuario reactivado exitosamente', 'success');
             loadUserProfiles();
             if (document.getElementById('userProfileContainer').dataset.userId == userId) {
-                loadUserProfile();
+                loadSelectedUserProfile();
             }
         }
     }
