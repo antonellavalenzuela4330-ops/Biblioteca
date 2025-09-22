@@ -646,6 +646,9 @@ function handleLoanSubmit(e) {
     loadLoans();
     document.getElementById('loanForm').reset();
     
+    // Crear notificación de préstamo aprobado
+    createLoanNotification(newLoan, 'approved');
+    
     if (currentUser.role === 'usuario') {
         showAlert('Tu préstamo ha sido creado exitosamente', 'success');
     } else {
@@ -1340,6 +1343,10 @@ function handleReturnSubmit(e) {
     // Limpiar formulario
     document.getElementById('returnForm').reset();
     
+    // Crear notificación de devolución exitosa
+    createNotification('rating_update', 'Devolución Exitosa', 
+        `Has devuelto "${book.title}" exitosamente. Tu calificación de confiabilidad ha sido actualizada.`, userId);
+    
     // Recargar datos
     loadReturns();
     loadBooks();
@@ -1411,6 +1418,10 @@ function handleNotReturnedSubmit(e) {
             notReturnedNotes: notes
         });
     });
+    
+    // Crear notificación de libro no devuelto
+    createNotification('system', 'Libro No Devuelto', 
+        `Se ha registrado que no devolviste "${book.title}". Esto afectará tu calificación de confiabilidad.`, userId);
     
     // Limpiar formulario
     document.getElementById('notReturnedForm').reset();
@@ -1984,3 +1995,400 @@ function getReliabilityClass(score) {
     if (score >= 50) return 'reliability-intermediate';
     return 'reliability-low';
 }
+
+// ===== SISTEMA DE NOTIFICACIONES =====
+
+// Array global para almacenar notificaciones
+let notifications = [];
+
+// Inicializar notificaciones al cargar la página
+function initializeNotifications() {
+    // Cargar notificaciones desde localStorage si existen
+    const savedNotifications = localStorage.getItem('notifications');
+    if (savedNotifications) {
+        notifications = JSON.parse(savedNotifications);
+    }
+    
+    // Cargar notificaciones de ejemplo si no hay ninguna
+    if (notifications.length === 0) {
+        loadSampleNotifications();
+    }
+    
+    updateNotificationBadge();
+}
+
+// Cargar notificaciones de ejemplo
+function loadSampleNotifications() {
+    const sampleNotifications = [
+        {
+            id: 1,
+            type: 'loan_approved',
+            title: 'Préstamo Aprobado',
+            content: 'Tu solicitud de préstamo para "El Quijote" ha sido aprobada. Puedes recoger el libro en la biblioteca.',
+            timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 horas atrás
+            read: false,
+            userId: 1
+        },
+        {
+            id: 2,
+            type: 'return_reminder',
+            title: 'Recordatorio de Devolución',
+            content: 'Tienes 2 días para devolver "Cien años de soledad". La fecha límite es el 15 de diciembre.',
+            timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 día atrás
+            read: false,
+            userId: 1
+        },
+        {
+            id: 3,
+            type: 'rating_update',
+            title: 'Actualización de Calificación',
+            content: 'Tu calificación de confiabilidad ha mejorado a 95 puntos tras una devolución puntual.',
+            timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 días atrás
+            read: true,
+            userId: 1
+        }
+    ];
+    
+    notifications = sampleNotifications;
+    saveNotifications();
+}
+
+// Guardar notificaciones en localStorage
+function saveNotifications() {
+    localStorage.setItem('notifications', JSON.stringify(notifications));
+}
+
+// Crear una nueva notificación
+function createNotification(type, title, content, userId = null) {
+    const notification = {
+        id: Date.now(),
+        type: type,
+        title: title,
+        content: content,
+        timestamp: new Date(),
+        read: false,
+        userId: userId || getCurrentUserId()
+    };
+    
+    notifications.unshift(notification); // Agregar al inicio
+    saveNotifications();
+    updateNotificationBadge();
+    
+    // Si estamos en la sección de notificaciones, actualizar la vista
+    if (document.getElementById('notificationsSection').classList.contains('active')) {
+        loadNotifications();
+    }
+    
+    return notification;
+}
+
+// Obtener el ID del usuario actual
+function getCurrentUserId() {
+    const currentUser = getCurrentUser();
+    return currentUser ? currentUser.id : null;
+}
+
+// Obtener notificaciones del usuario actual
+function getUserNotifications(userId = null) {
+    const targetUserId = userId || getCurrentUserId();
+    return notifications.filter(notification => notification.userId === targetUserId);
+}
+
+// Cargar notificaciones en la interfaz
+function loadNotifications(filter = 'all') {
+    const userId = getCurrentUserId();
+    if (!userId) return;
+    
+    let userNotifications = getUserNotifications(userId);
+    
+    // Aplicar filtro
+    if (filter !== 'all') {
+        if (filter === 'unread') {
+            userNotifications = userNotifications.filter(n => !n.read);
+        } else {
+            userNotifications = userNotifications.filter(n => n.type === filter);
+        }
+    }
+    
+    const notificationsList = document.getElementById('notificationsList');
+    const noNotificationsMessage = document.getElementById('noNotificationsMessage');
+    
+    if (userNotifications.length === 0) {
+        notificationsList.innerHTML = '';
+        noNotificationsMessage.style.display = 'block';
+        return;
+    }
+    
+    noNotificationsMessage.style.display = 'none';
+    
+    notificationsList.innerHTML = userNotifications.map(notification => {
+        return createNotificationHTML(notification);
+    }).join('');
+}
+
+// Crear HTML para una notificación
+function createNotificationHTML(notification) {
+    const timeAgo = getTimeAgo(notification.timestamp);
+    const readClass = notification.read ? 'read' : 'unread';
+    const unreadIndicator = notification.read ? '' : '<div class="notification-unread-indicator"></div>';
+    
+    return `
+        <div class="notification-item ${readClass}" onclick="markAsRead(${notification.id})">
+            ${unreadIndicator}
+            <div class="notification-header">
+                <h3 class="notification-title">${notification.title}</h3>
+                <span class="notification-time">${timeAgo}</span>
+            </div>
+            <div class="notification-content">${notification.content}</div>
+            <div class="notification-type ${notification.type}">${getNotificationTypeText(notification.type)}</div>
+            <div class="notification-actions-item">
+                <button class="btn btn-secondary" onclick="event.stopPropagation(); deleteNotification(${notification.id})">Eliminar</button>
+            </div>
+        </div>
+    `;
+}
+
+// Obtener texto del tipo de notificación
+function getNotificationTypeText(type) {
+    const types = {
+        'loan_approved': 'Préstamo Aprobado',
+        'loan_rejected': 'Préstamo Rechazado',
+        'return_reminder': 'Recordatorio',
+        'overdue': 'Vencido',
+        'rating_update': 'Calificación',
+        'system': 'Sistema'
+    };
+    return types[type] || 'General';
+}
+
+// Obtener tiempo transcurrido
+function getTimeAgo(timestamp) {
+    const now = new Date();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    
+    if (minutes < 60) {
+        return `hace ${minutes} min`;
+    } else if (hours < 24) {
+        return `hace ${hours}h`;
+    } else {
+        return `hace ${days} días`;
+    }
+}
+
+// Marcar notificación como leída
+function markAsRead(notificationId) {
+    const notification = notifications.find(n => n.id === notificationId);
+    if (notification && !notification.read) {
+        notification.read = true;
+        saveNotifications();
+        updateNotificationBadge();
+        loadNotifications(document.getElementById('notificationFilter').value);
+    }
+}
+
+// Marcar todas las notificaciones como leídas
+function markAllAsRead() {
+    const userId = getCurrentUserId();
+    notifications.forEach(notification => {
+        if (notification.userId === userId) {
+            notification.read = true;
+        }
+    });
+    saveNotifications();
+    updateNotificationBadge();
+    loadNotifications(document.getElementById('notificationFilter').value);
+    showAlert('Todas las notificaciones han sido marcadas como leídas', 'success');
+}
+
+// Eliminar notificación
+function deleteNotification(notificationId) {
+    if (confirm('¿Estás seguro de que quieres eliminar esta notificación?')) {
+        notifications = notifications.filter(n => n.id !== notificationId);
+        saveNotifications();
+        updateNotificationBadge();
+        loadNotifications(document.getElementById('notificationFilter').value);
+    }
+}
+
+// Limpiar todas las notificaciones
+function clearAllNotifications() {
+    if (confirm('¿Estás seguro de que quieres eliminar todas las notificaciones?')) {
+        const userId = getCurrentUserId();
+        notifications = notifications.filter(n => n.userId !== userId);
+        saveNotifications();
+        updateNotificationBadge();
+        loadNotifications();
+        showAlert('Todas las notificaciones han sido eliminadas', 'success');
+    }
+}
+
+// Filtrar notificaciones
+function filterNotifications() {
+    const filter = document.getElementById('notificationFilter').value;
+    loadNotifications(filter);
+}
+
+// Actualizar badge de notificaciones
+function updateNotificationBadge() {
+    const userId = getCurrentUserId();
+    if (!userId) return;
+    
+    const unreadCount = getUserNotifications(userId).filter(n => !n.read).length;
+    const badge = document.getElementById('notificationBadge');
+    
+    if (unreadCount > 0) {
+        badge.textContent = unreadCount;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+// Mostrar notificaciones en la sección de Mis Préstamos
+function loadUserNotifications() {
+    const userId = getCurrentUserId();
+    if (!userId) return;
+    
+    const userNotifications = getUserNotifications(userId).slice(0, 3); // Mostrar solo las 3 más recientes
+    const container = document.getElementById('userNotifications');
+    
+    if (userNotifications.length === 0) {
+        container.innerHTML = '<h3>Notificaciones</h3><p>No tienes notificaciones nuevas.</p>';
+        return;
+    }
+    
+    container.innerHTML = `
+        <h3>Notificaciones Recientes</h3>
+        ${userNotifications.map(notification => `
+            <div class="notification-item ${notification.read ? 'read' : 'unread'}" onclick="markAsRead(${notification.id})">
+                <div class="notification-header">
+                    <h4>${notification.title}</h4>
+                    <span>${getTimeAgo(notification.timestamp)}</span>
+                </div>
+                <p>${notification.content}</p>
+            </div>
+        `).join('')}
+        <button class="btn btn-secondary" onclick="showSection('notifications')">Ver todas las notificaciones</button>
+    `;
+}
+
+// Integrar notificaciones con el sistema de préstamos
+function createLoanNotification(loan, action) {
+    const book = db.getBookById(loan.bookId);
+    const user = db.getUserById(loan.userId);
+    
+    if (!book || !user) return;
+    
+    let title, content, type;
+    
+    switch (action) {
+        case 'approved':
+            title = 'Préstamo Aprobado';
+            content = `Tu solicitud de préstamo para "${book.title}" ha sido aprobada. Puedes recoger el libro en la biblioteca.`;
+            type = 'loan_approved';
+            break;
+        case 'rejected':
+            title = 'Préstamo Rechazado';
+            content = `Tu solicitud de préstamo para "${book.title}" ha sido rechazada. Contacta a la biblioteca para más información.`;
+            type = 'loan_rejected';
+            break;
+        case 'return_reminder':
+            title = 'Recordatorio de Devolución';
+            const daysLeft = Math.ceil((new Date(loan.returnDate) - new Date()) / (1000 * 60 * 60 * 24));
+            content = `Tienes ${daysLeft} días para devolver "${book.title}". La fecha límite es el ${new Date(loan.returnDate).toLocaleDateString()}.`;
+            type = 'return_reminder';
+            break;
+        case 'overdue':
+            title = 'Libro Vencido';
+            content = `El libro "${book.title}" está vencido. Por favor, devuélvelo lo antes posible para evitar sanciones.`;
+            type = 'overdue';
+            break;
+    }
+    
+    createNotification(type, title, content, loan.userId);
+}
+
+// Verificar préstamos vencidos y crear notificaciones
+function checkOverdueLoans() {
+    const currentDate = new Date();
+    const loans = db.getLoans();
+    
+    loans.forEach(loan => {
+        if (loan.status === 'activo' && new Date(loan.returnDate) < currentDate) {
+            // Verificar si ya existe una notificación de vencimiento para este préstamo
+            const existingNotification = notifications.find(n => 
+                n.type === 'overdue' && 
+                n.userId === loan.userId && 
+                n.content.includes(loan.bookId.toString())
+            );
+            
+            if (!existingNotification) {
+                createLoanNotification(loan, 'overdue');
+            }
+        }
+    });
+}
+
+// Verificar recordatorios de devolución (3 días antes)
+function checkReturnReminders() {
+    const currentDate = new Date();
+    const reminderDate = new Date(currentDate.getTime() + (3 * 24 * 60 * 60 * 1000)); // 3 días después
+    const loans = db.getLoans();
+    
+    loans.forEach(loan => {
+        if (loan.status === 'activo') {
+            const returnDate = new Date(loan.returnDate);
+            const daysDiff = Math.ceil((returnDate - currentDate) / (1000 * 60 * 60 * 24));
+            
+            if (daysDiff === 3) {
+                // Verificar si ya existe un recordatorio para este préstamo
+                const existingNotification = notifications.find(n => 
+                    n.type === 'return_reminder' && 
+                    n.userId === loan.userId && 
+                    n.content.includes(loan.bookId.toString())
+                );
+                
+                if (!existingNotification) {
+                    createLoanNotification(loan, 'return_reminder');
+                }
+            }
+        }
+    });
+}
+
+// Actualizar la función showSection para incluir notificaciones
+const originalShowSection = showSection;
+showSection = function(sectionName) {
+    originalShowSection(sectionName);
+    
+    // Cargar datos específicos de la sección
+    if (sectionName === 'notifications') {
+        loadNotifications();
+    } else if (sectionName === 'userLoans') {
+        loadUserNotifications();
+    }
+};
+
+// Inicializar notificaciones cuando se carga la página
+// Modificar la función original de inicialización
+const originalDOMContentLoaded = document.addEventListener;
+document.addEventListener = function(event, handler) {
+    if (event === 'DOMContentLoaded') {
+        originalDOMContentLoaded.call(this, event, function() {
+            // Llamar al handler original
+            handler();
+            
+            // Inicializar sistema de notificaciones
+            setTimeout(() => {
+                initializeNotifications();
+                checkOverdueLoans();
+                checkReturnReminders();
+            }, 1000);
+        });
+    } else {
+        originalDOMContentLoaded.call(this, event, handler);
+    }
+};

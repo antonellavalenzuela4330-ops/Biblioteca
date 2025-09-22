@@ -2432,3 +2432,269 @@ tr:hover td {
         width: 100%;
     }
 }
+
+/* ===== ESTILOS DE NOTIFICACIONES ===== */
+
+/* Badge de notificaciones en la navegación */
+.notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff4444;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Header de notificaciones */
+.notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(212, 175, 55, 0.05);
+    border-radius: 15px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.notifications-header h2 {
+    color: #d4af37;
+    font-size: 2rem;
+    margin: 0;
+}
+
+.notification-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Filtros de notificaciones */
+.notification-filters {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(212, 175, 55, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.notification-filters .filter-select {
+    width: 100%;
+    max-width: 300px;
+    padding: 0.75rem 1rem;
+    background: #000000;
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    color: #ffffff;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+/* Lista de notificaciones */
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Notificación individual */
+.notification-item {
+    background: #000000;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    cursor: pointer;
+}
+
+.notification-item:hover {
+    border-color: #d4af37;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.2);
+}
+
+.notification-item.unread {
+    border-left: 4px solid #d4af37;
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.notification-item.read {
+    opacity: 0.7;
+}
+
+/* Header de la notificación */
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.notification-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ffffff;
+    margin: 0;
+}
+
+.notification-time {
+    font-size: 0.85rem;
+    color: #d4af37;
+    white-space: nowrap;
+}
+
+/* Contenido de la notificación */
+.notification-content {
+    color: #cccccc;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+/* Tipo de notificación */
+.notification-type {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.notification-type.loan_approved {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.notification-type.loan_rejected {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.notification-type.return_reminder {
+    background: rgba(255, 152, 0, 0.2);
+    color: #ff9800;
+    border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+.notification-type.overdue {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.notification-type.rating_update {
+    background: rgba(33, 150, 243, 0.2);
+    color: #2196f3;
+    border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.notification-type.system {
+    background: rgba(156, 39, 176, 0.2);
+    color: #9c27b0;
+    border: 1px solid rgba(156, 39, 176, 0.3);
+}
+
+/* Acciones de la notificación */
+.notification-actions-item {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.notification-actions-item .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+/* Indicador de no leída */
+.notification-unread-indicator {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 8px;
+    height: 8px;
+    background: #d4af37;
+    border-radius: 50%;
+}
+
+/* Mensaje cuando no hay notificaciones */
+.no-notifications {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #888888;
+}
+
+.no-notifications-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.no-notifications h3 {
+    color: #d4af37;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.no-notifications p {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Contenedor de notificaciones en Mis Préstamos */
+.notifications-container {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: rgba(212, 175, 55, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.notifications-container h3 {
+    color: #d4af37;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+/* Responsive para notificaciones */
+@media (max-width: 768px) {
+    .notifications-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .notification-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .notification-header {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .notification-actions-item {
+        flex-direction: column;
+    }
+    
+    .notification-actions-item .btn {
+        width: 100%;
+    }
+}
