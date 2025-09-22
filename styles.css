@@ -2498,26 +2498,29 @@ tr:hover td {
     opacity: 0.8;
 }
 
-/* Títulos específicos por rol */
+/* Títulos específicos por rol - TODOS EN DORADO */
 .welcome-title.user-welcome {
-    background: linear-gradient(135deg, #2196f3 0%, #64b5f6 100%);
+    background: linear-gradient(135deg, #d4af37 0%, #ffe082 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
 }
 
 .welcome-title.librarian-welcome {
-    background: linear-gradient(135deg, #4caf50 0%, #81c784 100%);
+    background: linear-gradient(135deg, #d4af37 0%, #ffe082 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
 }
 
 .welcome-title.admin-welcome {
-    background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);
+    background: linear-gradient(135deg, #d4af37 0%, #ffe082 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
 }
 
 /* Header con información de usuario */
@@ -2590,88 +2593,37 @@ tr:hover td {
 
 /* Clases de indicadores de rol eliminadas */
 
-/* Pestañas con roles específicos - DIFERENCIACIÓN NOTABLE */
-.user-role-tab {
-    position: relative;
-    border-left: 5px solid #d4af37;
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
-    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
-    border-radius: 12px;
-    margin: 0.25rem;
-    transition: all 0.3s ease;
-    color: #ffffff;
-}
-
-.user-role-tab:hover {
-    border-color: #d4af37;
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.25) 0%, rgba(212, 175, 55, 0.1) 100%);
-    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.4);
-    transform: translateY(-2px);
-}
-
-.librarian-role-tab {
-    position: relative;
-    border-left: 5px solid #000000;
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 100%);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-    border-radius: 12px;
-    margin: 0.25rem;
-    transition: all 0.3s ease;
-    color: #d4af37;
-    border: 2px solid #d4af37;
-}
-
-.librarian-role-tab:hover {
-    border-color: #d4af37;
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(212, 175, 55, 0.1) 100%);
-    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.6);
-    transform: translateY(-2px);
-    color: #ffffff;
-}
-
+/* Pestañas con estilo uniforme - CONSISTENCIA VISUAL */
+.user-role-tab,
+.librarian-role-tab,
 .admin-role-tab {
     position: relative;
-    border-left: 5px solid #9c27b0;
-    background: linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(156, 39, 176, 0.05) 100%);
-    box-shadow: 0 2px 8px rgba(156, 39, 176, 0.2);
+    background: #000000;
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    color: #ffffff;
     border-radius: 12px;
     margin: 0.25rem;
     transition: all 0.3s ease;
 }
 
+.user-role-tab:hover,
+.librarian-role-tab:hover,
 .admin-role-tab:hover {
-    border-color: #9c27b0;
-    background: linear-gradient(135deg, rgba(156, 39, 176, 0.2) 0%, rgba(156, 39, 176, 0.1) 100%);
-    box-shadow: 0 4px 16px rgba(156, 39, 176, 0.3);
+    border-color: #d4af37;
+    background: rgba(212, 175, 55, 0.1);
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
     transform: translateY(-2px);
 }
 
-/* Pestañas activas con roles - DIFERENCIACIÓN EXTREMA */
-.user-role-tab.active {
+/* Pestañas activas con estilo uniforme - CONSISTENCIA VISUAL */
+.user-role-tab.active,
+.librarian-role-tab.active,
+.admin-role-tab.active {
     background: linear-gradient(135deg, #d4af37 0%, #ffe082 100%);
     color: #000000;
     border-color: #d4af37;
     box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
     transform: translateY(-3px);
-    border-left: 8px solid #b8860b;
-}
-
-.librarian-role-tab.active {
-    background: linear-gradient(135deg, #000000 0%, #333333 100%);
-    color: #d4af37;
-    border-color: #d4af37;
-    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.8);
-    transform: translateY(-3px);
-    border-left: 8px solid #d4af37;
-}
-
-.admin-role-tab.active {
-    background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);
-    color: white;
-    border-color: #9c27b0;
-    box-shadow: 0 6px 20px rgba(156, 39, 176, 0.4);
-    transform: translateY(-3px);
-    border-left: 8px solid #7b1fa2;
 }
 
 /* Separadores visuales en navegación */
@@ -2707,30 +2659,30 @@ tr:hover td {
     right: 0;
     height: 3px;
     background: linear-gradient(90deg, 
-        #2196f3 0%, 
-        #4caf50 25%, 
-        #9c27b0 50%, 
-        #4caf50 75%, 
-        #2196f3 100%);
+        #d4af37 0%, 
+        #ffe082 25%, 
+        #d4af37 50%, 
+        #ffe082 75%, 
+        #d4af37 100%);
     animation: colorShift 4s ease-in-out infinite;
 }
 
 @keyframes colorShift {
     0%, 100% { 
         background: linear-gradient(90deg, 
-            #2196f3 0%, 
-            #4caf50 25%, 
-            #9c27b0 50%, 
-            #4caf50 75%, 
-            #2196f3 100%);
+            #d4af37 0%, 
+            #ffe082 25%, 
+            #d4af37 50%, 
+            #ffe082 75%, 
+            #d4af37 100%);
     }
     50% { 
         background: linear-gradient(90deg, 
-            #4caf50 0%, 
-            #9c27b0 25%, 
-            #2196f3 50%, 
-            #9c27b0 75%, 
-            #4caf50 100%);
+            #ffe082 0%, 
+            #d4af37 25%, 
+            #ffe082 50%, 
+            #d4af37 75%, 
+            #ffe082 100%);
     }
 }
 
