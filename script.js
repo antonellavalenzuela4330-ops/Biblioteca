@@ -1142,46 +1142,20 @@ function handleUserLoanRequest(e) {
     setupUserLoanForm();
 }
 function loadUserLoans() {
+    // Para usuarios, no mostrar historial de préstamos
+    // Solo mostrar mensaje informativo
     const userLoansList = document.getElementById('userLoansList');
-    const loans = db.getLoans();
-    const userLoans = loans.filter(loan => loan.userId === currentUser.id);
-    
-    if (userLoans.length === 0) {
-        userLoansList.innerHTML = '<p style="text-align: center; color: #ffffff; opacity: 0.8; padding: 2rem; font-size: 1.1rem;">No tienes préstamos registrados</p>';
-        return;
-    }
-    
-    userLoansList.innerHTML = userLoans.map(loan => {
-        const statusClass = `status-${loan.status}`;
-        const statusText = getStatusText(loan.status);
-        const daysRemaining = calculateDaysRemaining(loan.endDate, loan.status);
-        
-        return `
-            <div class="user-loan-card">
-                <div class="loan-status ${statusClass}">${statusText}</div>
-                <div class="loan-info">
-                    <div class="loan-info-item"><strong>Libro:</strong> ${loan.bookTitle}</div>
-                    <div class="loan-info-item"><strong>Cantidad:</strong> ${loan.quantity}</div>
-                    <div class="loan-info-item"><strong>Fecha de inicio:</strong> ${formatDate(loan.startDate)}</div>
-                    <div class="loan-info-item"><strong>Fecha de devolución:</strong> ${formatDate(loan.endDate)}</div>
-                    <div class="loan-info-item"><strong>Solicitado:</strong> ${loan.requestedAt || 'N/A'}</div>
-                    ${loan.approvedAt ? `<div class="loan-info-item"><strong>Aprobado:</strong> ${loan.approvedAt}</div>` : ''}
-                </div>
-                ${daysRemaining ? `<div class="loan-info-item"><strong>Recordatorio:</strong> ${daysRemaining}</div>` : ''}
-                <div class="loan-actions">
-                    ${loan.status === 'pendiente' ? 
-                        '<span style="color: #d4af37; font-style: italic;">Esperando aprobación del bibliotecario</span>' : 
-                        loan.status === 'aprobado' ?
-                            '<span style="color: #28a745; font-style: italic;">Préstamo activo - Contacta al bibliotecario para devolución</span>' :
-                            ''
-                    }
-                </div>
+    if (userLoansList) {
+        userLoansList.innerHTML = `
+            <div style="text-align: center; color: #ffffff; opacity: 0.8; padding: 2rem; font-size: 1.1rem;">
+                <p>El historial de préstamos no está disponible para usuarios.</p>
+                <p>Utiliza las notificaciones para estar informado sobre el estado de tus solicitudes.</p>
             </div>
         `;
-    }).join('');
+    }
     
-    // Mostrar notificaciones
-    showUserNotifications(userLoans);
+    // Cargar notificaciones del usuario
+    loadUserNotifications();
 }
 
 function getStatusText(status) {
@@ -2255,8 +2229,15 @@ function loadUserNotifications() {
     const userNotifications = getUserNotifications(userId).slice(0, 3); // Mostrar solo las 3 más recientes
     const container = document.getElementById('userNotifications');
     
+    if (!container) return;
+    
     if (userNotifications.length === 0) {
-        container.innerHTML = '<h3>Notificaciones</h3><p>No tienes notificaciones nuevas.</p>';
+        container.innerHTML = `
+            <h3>Notificaciones</h3>
+            <p>No tienes notificaciones nuevas.</p>
+            <p>Aquí recibirás notificaciones sobre el estado de tus préstamos, recordatorios de devolución y actualizaciones importantes.</p>
+            <button class="btn btn-secondary" onclick="showSection('notifications')">Ver todas las notificaciones</button>
+        `;
         return;
     }
     
