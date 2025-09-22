@@ -2586,68 +2586,47 @@ tr:hover td {
     font-weight: 600;
 }
 
-/* Indicadores de rol en pestañas */
-.role-indicator {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    padding: 0.2rem 0.5rem;
-    border-radius: 10px;
-    font-size: 0.7rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    z-index: 10;
-}
+/* Indicadores de rol en pestañas - ELIMINADO */
 
-.role-indicator.user-role {
-    background: #2196f3;
-    color: white;
-}
-
-.role-indicator.librarian-role {
-    background: #4caf50;
-    color: white;
-}
-
-.role-indicator.admin-role {
-    background: #9c27b0;
-    color: white;
-}
+/* Clases de indicadores de rol eliminadas */
 
 /* Pestañas con roles específicos - DIFERENCIACIÓN NOTABLE */
 .user-role-tab {
     position: relative;
-    border-left: 5px solid #2196f3;
-    background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%);
-    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+    border-left: 5px solid #d4af37;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
     border-radius: 12px;
     margin: 0.25rem;
     transition: all 0.3s ease;
+    color: #ffffff;
 }
 
 .user-role-tab:hover {
-    border-color: #2196f3;
-    background: linear-gradient(135deg, rgba(33, 150, 243, 0.2) 0%, rgba(33, 150, 243, 0.1) 100%);
-    box-shadow: 0 4px 16px rgba(33, 150, 243, 0.3);
+    border-color: #d4af37;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.25) 0%, rgba(212, 175, 55, 0.1) 100%);
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.4);
     transform: translateY(-2px);
 }
 
 .librarian-role-tab {
     position: relative;
-    border-left: 5px solid #4caf50;
-    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+    border-left: 5px solid #000000;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 100%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     border-radius: 12px;
     margin: 0.25rem;
     transition: all 0.3s ease;
+    color: #d4af37;
+    border: 2px solid #d4af37;
 }
 
 .librarian-role-tab:hover {
-    border-color: #4caf50;
-    background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(76, 175, 80, 0.1) 100%);
-    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+    border-color: #d4af37;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(212, 175, 55, 0.1) 100%);
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.6);
     transform: translateY(-2px);
+    color: #ffffff;
 }
 
 .admin-role-tab {
@@ -2669,21 +2648,21 @@ tr:hover td {
 
 /* Pestañas activas con roles - DIFERENCIACIÓN EXTREMA */
 .user-role-tab.active {
-    background: linear-gradient(135deg, #2196f3 0%, #64b5f6 100%);
-    color: white;
-    border-color: #2196f3;
-    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+    background: linear-gradient(135deg, #d4af37 0%, #ffe082 100%);
+    color: #000000;
+    border-color: #d4af37;
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
     transform: translateY(-3px);
-    border-left: 8px solid #1976d2;
+    border-left: 8px solid #b8860b;
 }
 
 .librarian-role-tab.active {
-    background: linear-gradient(135deg, #4caf50 0%, #81c784 100%);
-    color: white;
-    border-color: #4caf50;
-    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    background: linear-gradient(135deg, #000000 0%, #333333 100%);
+    color: #d4af37;
+    border-color: #d4af37;
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.8);
     transform: translateY(-3px);
-    border-left: 8px solid #388e3c;
+    border-left: 8px solid #d4af37;
 }
 
 .admin-role-tab.active {

@@ -232,10 +232,6 @@ function showDashboard() {
     dashboard.style.display = 'block';
     console.log('Dashboard mostrado:', dashboard.style.display);
 
-    // Actualizar información del usuario
-    document.getElementById('userName').textContent = currentUser.name;
-    document.getElementById('userRole').textContent = currentUser.role;
-    
     // Actualizar indicadores visuales de rol
     updateRoleIndicators(currentUser.role);
 
@@ -2346,49 +2342,29 @@ document.addEventListener = function(event, handler) {
 
 // Actualizar indicadores visuales según el rol del usuario
 function updateRoleIndicators(role) {
-    const userAvatarIcon = document.getElementById('userAvatarIcon');
-    const roleBadge = document.getElementById('roleBadge');
-    const roleIcon = roleBadge.querySelector('.role-icon');
-    const roleText = roleBadge.querySelector('.role-text');
     const welcomeTitle = document.getElementById('welcomeTitle');
     const welcomeSubtitle = document.getElementById('welcomeSubtitle');
     
     // Actualizar título dinámico según el rol
     switch (role) {
         case 'usuario':
-            welcomeTitle.textContent = `Bienvenido ${currentUser.name}`;
+            welcomeTitle.textContent = 'Bienvenido Usuario';
             welcomeTitle.className = 'welcome-title user-welcome';
             welcomeSubtitle.textContent = 'Sistema de Gestión de Biblioteca - Área de Usuario';
-            userAvatarIcon.textContent = '👤';
-            roleBadge.className = 'role-badge user-role';
-            roleIcon.textContent = '📚';
-            roleText.textContent = 'USUARIO';
             break;
         case 'bibliotecario':
-            welcomeTitle.textContent = `Bienvenido ${currentUser.name}`;
+            welcomeTitle.textContent = 'Bienvenido Bibliotecario';
             welcomeTitle.className = 'welcome-title librarian-welcome';
             welcomeSubtitle.textContent = 'Sistema de Gestión de Biblioteca - Área de Bibliotecario';
-            userAvatarIcon.textContent = '👨‍💼';
-            roleBadge.className = 'role-badge librarian-role';
-            roleIcon.textContent = '📋';
-            roleText.textContent = 'BIBLIOTECARIO';
             break;
         case 'admin':
-            welcomeTitle.textContent = `Bienvenido ${currentUser.name}`;
+            welcomeTitle.textContent = 'Bienvenido Administrador';
             welcomeTitle.className = 'welcome-title admin-welcome';
             welcomeSubtitle.textContent = 'Sistema de Gestión de Biblioteca - Área de Administración';
-            userAvatarIcon.textContent = '👑';
-            roleBadge.className = 'role-badge admin-role';
-            roleIcon.textContent = '⚙️';
-            roleText.textContent = 'ADMIN';
             break;
         default:
-            welcomeTitle.textContent = `Bienvenido ${currentUser.name}`;
+            welcomeTitle.textContent = 'Bienvenido Usuario';
             welcomeTitle.className = 'welcome-title user-welcome';
             welcomeSubtitle.textContent = 'Sistema de Gestión de Biblioteca - Área de Usuario';
-            userAvatarIcon.textContent = '👤';
-            roleBadge.className = 'role-badge user-role';
-            roleIcon.textContent = '📚';
-            roleText.textContent = 'USUARIO';
     }
 }
