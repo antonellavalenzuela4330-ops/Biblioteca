@@ -355,28 +355,70 @@
             <!-- Usuarios -->
             <div id="usersSection" class="content-section">
                 <h2>GESTIÓN DE USUARIOS</h2>
+                
+                <!-- Subsección: Agregar Usuarios -->
                 <div class="admin-panel">
-                    <h3>Agregar/Editar Usuario</h3>
+                    <h3>AGREGAR NUEVO USUARIO</h3>
                     <form id="userForm" class="admin-form">
-                        <input type="text" id="userName" placeholder="Nombre completo" required>
-                        <input type="email" id="userEmail" placeholder="Email" required>
-                        <input type="password" id="userPassword" placeholder="Contraseña" required>
-                        <input type="text" id="userDni" placeholder="DNI" required>
-                        <input type="text" id="userPhone" placeholder="Teléfono" required>
-                        <input type="text" id="userAddress" placeholder="Dirección" required>
-                        <select id="userRole" required>
-                            <option value="usuario">Usuario</option>
-                            <option value="bibliotecario">Bibliotecario</option>
-                        </select>
-                        <select id="userStatus" required>
-                            <option value="activo">Activo</option>
-                            <option value="inactivo">Inactivo</option>
-                            <option value="suspendido">Suspendido</option>
-                        </select>
-                        <button type="submit" class="btn">Guardar Usuario</button>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="userName">Nombre completo:</label>
+                                <input type="text" id="userName" placeholder="Nombre completo" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="userEmail">Email:</label>
+                                <input type="email" id="userEmail" placeholder="Email" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="userPassword">Contraseña:</label>
+                                <input type="password" id="userPassword" placeholder="Contraseña" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="userDni">DNI:</label>
+                                <input type="text" id="userDni" placeholder="DNI" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="userPhone">Teléfono:</label>
+                                <input type="text" id="userPhone" placeholder="Teléfono" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="userAddress">Dirección:</label>
+                                <input type="text" id="userAddress" placeholder="Dirección" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="userRole">Rol:</label>
+                                <select id="userRole" required>
+                                    <option value="">Seleccionar rol</option>
+                                    <option value="usuario">Usuario</option>
+                                    <option value="bibliotecario">Bibliotecario</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="userStatus">Estado:</label>
+                                <select id="userStatus" required>
+                                    <option value="">Seleccionar estado</option>
+                                    <option value="activo">Activo</option>
+                                    <option value="inactivo">Inactivo</option>
+                                    <option value="suspendido">Suspendido</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn">AGREGAR USUARIO</button>
                     </form>
                 </div>
-                <div id="usersTable" class="usersTable"></div>
+
+                <!-- Subsección: Editar Usuarios -->
+                <div class="admin-panel">
+                    <h3>EDITAR USUARIOS EXISTENTES</h3>
+                    <p>Selecciona un usuario de la lista para editarlo:</p>
+                    <div id="usersTable" class="usersTable"></div>
+                </div>
             </div>
 
             <!-- Perfiles de Usuarios -->

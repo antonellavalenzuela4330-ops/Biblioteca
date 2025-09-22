@@ -951,7 +951,10 @@ function handleUserEdit(e) {
     e.preventDefault();
     
     const userId = document.getElementById('editUserId').value;
+    console.log('Editando usuario ID:', userId);
+    
     const user = db.getUsers().find(u => u.id === parseInt(userId));
+    console.log('Usuario encontrado:', user);
     
     if (!user) {
         showAlert('Usuario no encontrado', 'warning');
@@ -960,7 +963,6 @@ function handleUserEdit(e) {
     
     // Obtener los datos del formulario
     const updatedUser = {
-        id: parseInt(userId),
         name: document.getElementById('editUserName').value.trim(),
         email: document.getElementById('editUserEmail').value.trim(),
         password: document.getElementById('editUserPassword').value || user.password, // Mantener contraseña actual si no se especifica nueva
@@ -973,9 +975,12 @@ function handleUserEdit(e) {
         reliabilityScore: user.reliabilityScore // Mantener puntuación de confiabilidad
     };
     
+    console.log('Datos actualizados:', updatedUser);
+    
     try {
         // Actualizar el usuario en la base de datos
         const result = db.updateUser(parseInt(userId), updatedUser);
+        console.log('Resultado de actualización:', result);
         
         if (result) {
             // Actualizar la tabla de usuarios

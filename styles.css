@@ -526,6 +526,19 @@ body {
     text-shadow: 0 2px 4px rgba(212, 175, 55, 0.3);
 }
 
+/* Separación visual entre subsecciones de usuarios */
+#usersSection .admin-panel + .admin-panel {
+    margin-top: 3rem;
+    border-top: 2px solid rgba(212, 175, 55, 0.2);
+    padding-top: 2.5rem;
+}
+
+#usersSection .admin-panel p {
+    color: #cccccc;
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
 .admin-form {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
