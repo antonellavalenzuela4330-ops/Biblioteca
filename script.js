@@ -742,7 +742,10 @@ function loadLoans() {
                                     <button class=\"btn btn-secondary\" onclick=\"rejectLoan(${loan.id})\">Rechazar</button>
                                 </div>` :
                             loan.status === 'aprobado' && currentUser.role === 'bibliotecario' ? 
-                                `<div class=\"loan-actions\"><button class=\"btn\" onclick=\"returnBook(${loan.id})\">Finalizar préstamo</button></div>` : 
+                                `<div class=\"loan-actions\">
+                                    <button class=\"btn\" onclick=\"returnBook(${loan.id})\" style=\"margin-right: 0.5rem;\">Finalizar préstamo</button>
+                                    <button class=\"btn btn-warning\" onclick=\"notReturnedBook(${loan.id})\">Devolución no realizada</button>
+                                </div>` : 
                                 loan.status === 'devuelto' ? 
                                     '<span style="color: #ffffff; opacity: 0.8; font-style: italic;">Préstamo finalizado</span>' :
                                     loan.status === 'rechazado' ?
@@ -782,24 +785,47 @@ function rejectLoan(loanId) {
 }
 
 function returnBook(loanId) {
-    // Crear fecha y hora actual para la devolución
-    const now = new Date();
-    const currentDateTime = now.toLocaleString('es-ES', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-    });
+    // Guardar el ID del préstamo para usar en la sección de devoluciones
+    window.currentLoanId = loanId;
+    
+    // Cambiar a la sección de devoluciones
+    showSection('returns');
+    
+    // Pre-llenar el formulario de devolución con los datos del préstamo
+    const loan = db.getLoans().find(l => l.id === loanId);
+    if (loan) {
+        const book = db.getBooks().find(b => b.id === loan.bookId);
+        if (book) {
+            // Pre-llenar el formulario de devolución
+            document.getElementById('returnUser').value = loan.userId;
+            document.getElementById('returnIsbn').value = book.isbn;
+            document.getElementById('returnDate').value = new Date().toISOString().split('T')[0];
+        }
+    }
+    
+    showAlert('Complete el formulario de devolución para finalizar el préstamo', 'info');
+}
 
-    db.updateLoan(loanId, { 
-        status: 'devuelto',
-        returnDate: currentDateTime
-    });
-    loadBooks();
-    loadLoans();
-    showAlert('Préstamo finalizado exitosamente', 'success');
+function notReturnedBook(loanId) {
+    // Guardar el ID del préstamo para usar en la sección de devoluciones
+    window.currentLoanId = loanId;
+    
+    // Cambiar a la sección de devoluciones
+    showSection('returns');
+    
+    // Pre-llenar el formulario de "Libro No Devuelto" con los datos del préstamo
+    const loan = db.getLoans().find(l => l.id === loanId);
+    if (loan) {
+        const book = db.getBooks().find(b => b.id === loan.bookId);
+        if (book) {
+            // Pre-llenar el formulario de no devuelto
+            document.getElementById('notReturnedUser').value = loan.userId;
+            document.getElementById('notReturnedIsbn').value = book.isbn;
+            document.getElementById('notReturnedDate').value = new Date().toISOString().split('T')[0];
+        }
+    }
+    
+    showAlert('Complete el formulario de "Libro No Devuelto" para registrar la no devolución', 'warning');
 }
 
 function handleUserSubmit(e) {
