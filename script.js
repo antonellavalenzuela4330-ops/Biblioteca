@@ -854,10 +854,26 @@ function loadLoans() {
 
 function acceptLoan(loanId) {
     const now = new Date().toLocaleString('es-ES');
+    const loan = db.getLoans().find(l => l.id === loanId);
+    
+    if (!loan) {
+        showAlert('Préstamo no encontrado', 'error');
+        return;
+    }
+    
     db.updateLoan(loanId, { 
         status: 'aprobado',
         approvedAt: now
     });
+    
+    // Crear notificación para el usuario
+    const book = db.getBooks().find(b => b.id === loan.bookId);
+    if (book && loan.userId) {
+        createNotification('loan_approved', 'Préstamo Aprobado', 
+            `Tu préstamo del libro "${book.title}" ha sido aprobado. Puedes recogerlo en la biblioteca.`, 
+            loan.userId);
+    }
+    
     loadBooks();
     loadLoans();
     showAlert('Préstamo aprobado exitosamente', 'success');
@@ -866,10 +882,26 @@ function acceptLoan(loanId) {
 function rejectLoan(loanId) {
     if (confirm('¿Estás seguro de que quieres rechazar este préstamo?')) {
         const now = new Date().toLocaleString('es-ES');
+        const loan = db.getLoans().find(l => l.id === loanId);
+        
+        if (!loan) {
+            showAlert('Préstamo no encontrado', 'error');
+            return;
+        }
+        
         db.updateLoan(loanId, { 
             status: 'rechazado',
             rejectedAt: now
         });
+        
+        // Crear notificación para el usuario
+        const book = db.getBooks().find(b => b.id === loan.bookId);
+        if (book && loan.userId) {
+            createNotification('loan_rejected', 'Préstamo Rechazado', 
+                `Tu solicitud de préstamo del libro "${book.title}" ha sido rechazada. Contacta con la biblioteca para más información.`, 
+                loan.userId);
+        }
+        
         loadBooks();
         loadLoans();
         showAlert('Préstamo rechazado', 'warning');
@@ -1438,9 +1470,10 @@ function handleReturnSubmit(e) {
     // Limpiar formulario
     document.getElementById('returnForm').reset();
     
-    // Crear notificación de devolución exitosa
-    createNotification('rating_update', 'Devolución Exitosa', 
-        `Has devuelto "${book.title}" exitosamente. Tu calificación de confiabilidad ha sido actualizada.`, userId);
+    // Crear notificación de devolución con estado
+    const conditionText = getConditionText(condition);
+    createNotification('return_completed', 'Devolución Registrada', 
+        `Has devuelto "${book.title}" en ${conditionText}. Tu calificación de confiabilidad ha sido actualizada.`, userId);
     
     // Recargar datos
     loadReturns();
@@ -2043,6 +2076,11 @@ function suspendUserProfile(userId) {
     if (reason) {
         const user = db.suspendUser(userId, reason);
         if (user) {
+            // Crear notificación para el usuario suspendido
+            createNotification('user_suspended', 'Cuenta Suspendida', 
+                `Tu cuenta ha sido suspendida. Motivo: ${reason}. Contacta con la administración para más información.`, 
+                userId);
+            
             showAlert('Usuario suspendido exitosamente', 'warning');
             loadUserProfiles();
             if (document.getElementById('userProfileContainer').dataset.userId == userId) {
@@ -2056,6 +2094,11 @@ function reactivateUserProfile(userId) {
     if (confirm('¿Estás seguro de que quieres reactivar este usuario?')) {
         const user = db.reactivateUser(userId);
         if (user) {
+            // Crear notificación para el usuario reactivado
+            createNotification('user_reactivated', 'Cuenta Reactivada', 
+                `Tu cuenta ha sido reactivada. Ya puedes volver a usar los servicios de la biblioteca.`, 
+                userId);
+            
             showAlert('Usuario reactivado exitosamente', 'success');
             loadUserProfiles();
             if (document.getElementById('userProfileContainer').dataset.userId == userId) {
@@ -2248,9 +2291,12 @@ function getNotificationTypeText(type) {
     const types = {
         'loan_approved': 'Préstamo Aprobado',
         'loan_rejected': 'Préstamo Rechazado',
+        'return_completed': 'Devolución Completada',
         'return_reminder': 'Recordatorio',
         'overdue': 'Vencido',
         'rating_update': 'Calificación',
+        'user_suspended': 'Cuenta Suspendida',
+        'user_reactivated': 'Cuenta Reactivada',
         'system': 'Sistema'
     };
     return types[type] || 'General';
@@ -2525,3 +2571,71 @@ function updateRoleIndicators(role) {
             welcomeSubtitle.textContent = 'Sistema de Gestión de Biblioteca - Área de Usuario';
     }
 }
+
+// ===== SISTEMA DE NOTIFICACIONES AUTOMÁTICAS =====
+
+// Función para verificar préstamos vencidos y generar notificaciones
+function checkOverdueLoans() {
+    const today = new Date();
+    const loans = db.getLoans();
+    
+    loans.forEach(loan => {
+        if (loan.status === 'activo' || loan.status === 'aprobado') {
+            const returnDate = new Date(loan.returnDate);
+            
+            // Si el préstamo está vencido
+            if (returnDate < today) {
+                const daysOverdue = Math.ceil((today - returnDate) / (1000 * 60 * 60 * 24));
+                const book = db.getBooks().find(b => b.id === loan.bookId);
+                
+                if (book) {
+                    // Crear notificación de vencimiento
+                    createNotification('overdue', 'Libro Vencido', 
+                        `El libro "${book.title}" está vencido desde hace ${daysOverdue} día(s). Por favor, devuélvelo lo antes posible.`, 
+                        loan.userId);
+                }
+            }
+        }
+    });
+}
+
+// Función para verificar préstamos próximos a vencer (3 días antes)
+function checkUpcomingDueDates() {
+    const today = new Date();
+    const threeDaysFromNow = new Date(today.getTime() + (3 * 24 * 60 * 60 * 1000));
+    const loans = db.getLoans();
+    
+    loans.forEach(loan => {
+        if (loan.status === 'activo' || loan.status === 'aprobado') {
+            const returnDate = new Date(loan.returnDate);
+            
+            // Si el préstamo vence en 3 días o menos
+            if (returnDate <= threeDaysFromNow && returnDate >= today) {
+                const daysUntilDue = Math.ceil((returnDate - today) / (1000 * 60 * 60 * 24));
+                const book = db.getBooks().find(b => b.id === loan.bookId);
+                
+                if (book) {
+                    // Crear notificación de recordatorio
+                    createNotification('return_reminder', 'Recordatorio de Devolución', 
+                        `El libro "${book.title}" debe ser devuelto en ${daysUntilDue} día(s). Fecha límite: ${returnDate.toLocaleDateString('es-ES')}.`, 
+                        loan.userId);
+                }
+            }
+        }
+    });
+}
+
+// Función para ejecutar verificaciones automáticas
+function runAutomaticNotifications() {
+    checkOverdueLoans();
+    checkUpcomingDueDates();
+}
+
+// Ejecutar verificaciones cada 5 minutos
+setInterval(runAutomaticNotifications, 5 * 60 * 1000);
+
+// Ejecutar verificaciones al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    // Esperar un poco para que la base de datos esté lista
+    setTimeout(runAutomaticNotifications, 2000);
+});
