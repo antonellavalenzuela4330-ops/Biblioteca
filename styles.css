@@ -991,6 +991,95 @@ tr:hover td {
     padding: 1.5rem;
     border: 1px solid #d4af37;
     margin-top: 1.5rem;
+    overflow-x: auto;
+}
+
+/* Estilos específicos para la tabla de usuarios */
+.usersTable table {
+    width: 100%;
+    border-collapse: collapse;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.1);
+    table-layout: fixed;
+}
+
+.usersTable th,
+.usersTable td {
+    padding: 0.75rem 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+/* Columnas específicas con anchos fijos */
+.usersTable th:nth-child(1), /* ID */
+.usersTable td:nth-child(1) {
+    width: 5%;
+    text-align: center;
+}
+
+.usersTable th:nth-child(2), /* NOMBRE */
+.usersTable td:nth-child(2) {
+    width: 15%;
+}
+
+.usersTable th:nth-child(3), /* EMAIL */
+.usersTable td:nth-child(3) {
+    width: 20%;
+}
+
+.usersTable th:nth-child(4), /* DNI */
+.usersTable td:nth-child(4) {
+    width: 10%;
+}
+
+.usersTable th:nth-child(5), /* TELÉFONO */
+.usersTable td:nth-child(5) {
+    width: 12%;
+}
+
+.usersTable th:nth-child(6), /* ROL */
+.usersTable td:nth-child(6) {
+    width: 10%;
+}
+
+.usersTable th:nth-child(7), /* ESTADO */
+.usersTable td:nth-child(7) {
+    width: 8%;
+    text-align: center;
+}
+
+.usersTable th:nth-child(8), /* CONFIABILIDAD */
+.usersTable td:nth-child(8) {
+    width: 10%;
+    text-align: center;
+}
+
+.usersTable th:nth-child(9), /* ACCIONES */
+.usersTable td:nth-child(9) {
+    width: 10%;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Estilos para los botones de acción */
+.usersTable .btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    margin: 0.1rem;
+    min-width: 60px;
+}
+
+.usersTable .btn-secondary {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    margin: 0.1rem;
+    min-width: 60px;
 }
 
 /* Grid para tarjetas de préstamos (2 columnas en desktop, 1 en móvil) */
@@ -2721,6 +2810,34 @@ tr:hover td {
     .nav-icon {
         font-size: 1rem;
         margin-right: 0.25rem;
+    }
+    
+    /* Tabla de usuarios responsiva */
+    .usersTable {
+        padding: 1rem;
+        overflow-x: auto;
+    }
+    
+    .usersTable table {
+        min-width: 800px;
+    }
+    
+    .usersTable th,
+    .usersTable td {
+        padding: 0.5rem 0.3rem;
+        font-size: 0.85rem;
+    }
+    
+    .usersTable .btn {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+        min-width: 50px;
+    }
+    
+    .usersTable .btn-secondary {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+        min-width: 50px;
     }
     
     .role-indicator {
