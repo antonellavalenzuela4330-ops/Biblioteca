@@ -324,10 +324,96 @@ function showSection(sectionName) {
     } else if (sectionName === 'userLoans') {
         setupUserLoanForm();
         loadUserLoans();
+    } else if (sectionName === 'userProfile') {
+        loadUserProfile();
     } else if (sectionName === 'profiles') {
         loadUserProfiles();
         setupProfileUserSelector();
     }
+}
+
+// Función para cargar el perfil del usuario
+function loadUserProfile() {
+    if (!currentUser) {
+        console.error('No hay usuario logueado');
+        return;
+    }
+
+    // Actualizar información personal
+    document.getElementById('profileName').textContent = currentUser.name || '-';
+    document.getElementById('profileEmail').textContent = currentUser.email || '-';
+    document.getElementById('profileDni').textContent = currentUser.dni || '-';
+    document.getElementById('profileAddress').textContent = currentUser.address || '-';
+    document.getElementById('profilePhone').textContent = currentUser.phone || '-';
+    document.getElementById('profileRole').textContent = currentUser.role || '-';
+
+    // Calcular estadísticas de préstamos
+    const userLoans = db.getLoans().filter(loan => loan.userId === currentUser.id);
+    const returnedLoans = userLoans.filter(loan => loan.status === 'returned');
+    
+    const booksGoodState = returnedLoans.filter(loan => loan.returnCondition === 'buen_estado').length;
+    const booksRegularState = returnedLoans.filter(loan => loan.returnCondition === 'regular').length;
+    const booksBadState = returnedLoans.filter(loan => loan.returnCondition === 'mal_estado').length;
+    const totalLoans = userLoans.length;
+
+    // Actualizar estadísticas
+    document.getElementById('totalLoans').textContent = totalLoans;
+    document.getElementById('booksGoodState').textContent = booksGoodState;
+    document.getElementById('booksRegularState').textContent = booksRegularState;
+    document.getElementById('booksBadState').textContent = booksBadState;
+
+    // Calcular sistema de puntos
+    const pointsGoodState = booksGoodState * 10; // 10 puntos por libro en buen estado
+    const pointsRegularState = booksRegularState * 5; // 5 puntos por libro en estado regular
+    const pointsBadState = booksBadState * -5; // -5 puntos por libro en mal estado
+    const totalPoints = pointsGoodState + pointsRegularState + pointsBadState;
+
+    // Actualizar puntos
+    document.getElementById('userPoints').textContent = Math.max(0, totalPoints);
+    document.getElementById('pointsGoodState').textContent = `${pointsGoodState} pts`;
+    document.getElementById('pointsRegularState').textContent = `${pointsRegularState} pts`;
+    document.getElementById('pointsBadState').textContent = `${pointsBadState} pts`;
+
+    // Calcular nivel de confiabilidad
+    let reliabilityScore = 100; // Puntuación base
+    
+    if (totalLoans > 0) {
+        const goodPercentage = (booksGoodState / totalLoans) * 100;
+        const regularPercentage = (booksRegularState / totalLoans) * 100;
+        const badPercentage = (booksBadState / totalLoans) * 100;
+        
+        // Cálculo de confiabilidad basado en el estado de devolución
+        reliabilityScore = Math.round(
+            (goodPercentage * 1.0) + 
+            (regularPercentage * 0.7) + 
+            (badPercentage * 0.3)
+        );
+    }
+    
+    // Ajustar por puntos negativos
+    if (totalPoints < 0) {
+        reliabilityScore = Math.max(0, reliabilityScore + totalPoints);
+    }
+
+    // Actualizar confiabilidad
+    document.getElementById('userReliabilityScore').textContent = reliabilityScore;
+    document.getElementById('reliabilityBar').style.width = `${reliabilityScore}%`;
+    
+    // Determinar estado de confiabilidad
+    let reliabilityStatus = 'Excelente';
+    if (reliabilityScore >= 90) {
+        reliabilityStatus = 'Excelente';
+    } else if (reliabilityScore >= 75) {
+        reliabilityStatus = 'Bueno';
+    } else if (reliabilityScore >= 60) {
+        reliabilityStatus = 'Regular';
+    } else if (reliabilityScore >= 40) {
+        reliabilityStatus = 'Bajo';
+    } else {
+        reliabilityStatus = 'Crítico';
+    }
+    
+    document.getElementById('reliabilityStatus').textContent = reliabilityStatus;
 }
 
 function loadBooks() {

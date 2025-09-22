@@ -130,6 +130,9 @@
                 <div class="nav-tab user-loans-tab user-role-tab" onclick="showSection('userLoans')">
                     <span class="nav-text">Mis Préstamos</span>
                 </div>
+                <div class="nav-tab user-profile-tab user-role-tab" onclick="showSection('userProfile')">
+                    <span class="nav-text">Mi Perfil</span>
+                </div>
                 <div class="nav-tab user-tab user-role-tab" onclick="showSection('notifications')">
                     <span class="nav-text">Notificaciones</span>
                     <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
@@ -248,6 +251,115 @@
                     <div class="no-notifications-icon"></div>
                     <h3>No tienes notificaciones</h3>
                     <p>Cuando tengas notificaciones sobre tus préstamos, aparecerán aquí.</p>
+                </div>
+            </div>
+
+            <!-- Perfil de Usuario -->
+            <div id="userProfileSection" class="content-section">
+                <h2>MI PERFIL</h2>
+                <div class="profile-container">
+                    <!-- Información Personal -->
+                    <div class="profile-card">
+                        <h3>Información Personal</h3>
+                        <div class="profile-info">
+                            <div class="info-item">
+                                <span class="info-label">Nombre:</span>
+                                <span id="profileName" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Email:</span>
+                                <span id="profileEmail" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">DNI:</span>
+                                <span id="profileDni" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Dirección:</span>
+                                <span id="profileAddress" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Teléfono:</span>
+                                <span id="profilePhone" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Rol:</span>
+                                <span id="profileRole" class="info-value">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas de Préstamos -->
+                    <div class="profile-card">
+                        <h3>Estadísticas de Préstamos</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-icon">📚</div>
+                                <div class="stat-content">
+                                    <div class="stat-number" id="totalLoans">0</div>
+                                    <div class="stat-label">Préstamos Totales</div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">✅</div>
+                                <div class="stat-content">
+                                    <div class="stat-number" id="booksGoodState">0</div>
+                                    <div class="stat-label">Devueltos en Buen Estado</div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">⚠️</div>
+                                <div class="stat-content">
+                                    <div class="stat-number" id="booksRegularState">0</div>
+                                    <div class="stat-label">Devueltos en Estado Regular</div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">❌</div>
+                                <div class="stat-content">
+                                    <div class="stat-number" id="booksBadState">0</div>
+                                    <div class="stat-label">Devueltos en Mal Estado</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sistema de Puntos -->
+                    <div class="profile-card">
+                        <h3>Sistema de Puntos</h3>
+                        <div class="points-container">
+                            <div class="points-display">
+                                <div class="points-number" id="userPoints">0</div>
+                                <div class="points-label">Puntos Acumulados</div>
+                            </div>
+                            <div class="points-breakdown">
+                                <div class="points-item">
+                                    <span class="points-source">Libros en buen estado:</span>
+                                    <span class="points-value" id="pointsGoodState">0 pts</span>
+                                </div>
+                                <div class="points-item">
+                                    <span class="points-source">Libros en estado regular:</span>
+                                    <span class="points-value" id="pointsRegularState">0 pts</span>
+                                </div>
+                                <div class="points-item">
+                                    <span class="points-source">Libros en mal estado:</span>
+                                    <span class="points-value" id="pointsBadState">0 pts</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nivel de Confiabilidad -->
+                    <div class="profile-card">
+                        <h3>Nivel de Confiabilidad</h3>
+                        <div class="reliability-container">
+                            <div class="reliability-score" id="userReliabilityScore">100</div>
+                            <div class="reliability-bar">
+                                <div class="reliability-fill" id="reliabilityBar"></div>
+                            </div>
+                            <div class="reliability-status" id="reliabilityStatus">Excelente</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
