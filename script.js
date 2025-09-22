@@ -27,6 +27,7 @@ function setupEventListeners() {
     document.getElementById('userLoanRequestForm').addEventListener('submit', handleUserLoanRequest);
     document.getElementById('returnForm').addEventListener('submit', handleReturnSubmit);
     document.getElementById('notReturnedForm').addEventListener('submit', handleNotReturnedSubmit);
+    document.getElementById('userEditForm').addEventListener('submit', handleUserEdit);
     // Quitar búsquedas automáticas: solo con el botón
 }
 
@@ -908,19 +909,19 @@ function loadUsers() {
 function editUser(userId) {
     const user = db.getUsers().find(u => u.id === userId);
     if (user) {
-        document.getElementById('userName').value = user.name;
-        document.getElementById('userEmail').value = user.email;
-        document.getElementById('userPassword').value = user.password;
-        document.getElementById('userDni').value = user.dni || '';
-        document.getElementById('userPhone').value = user.phone || '';
-        document.getElementById('userAddress').value = user.address || '';
-        document.getElementById('userRole').value = user.role;
-        document.getElementById('userStatus').value = user.status;
+        // Llenar el modal de edición con los datos del usuario
+        document.getElementById('editUserId').value = user.id;
+        document.getElementById('editUserName').value = user.name;
+        document.getElementById('editUserEmail').value = user.email;
+        document.getElementById('editUserPassword').value = ''; // No mostrar la contraseña actual
+        document.getElementById('editUserDni').value = user.dni || '';
+        document.getElementById('editUserPhone').value = user.phone || '';
+        document.getElementById('editUserAddress').value = user.address || '';
+        document.getElementById('editUserRole').value = user.role;
+        document.getElementById('editUserStatus').value = user.status;
         
-        // Cambiar el formulario para editar
-        const form = document.getElementById('userForm');
-        form.dataset.editId = userId;
-        form.querySelector('button[type="submit"]').textContent = 'Actualizar Usuario';
+        // Mostrar el modal
+        document.getElementById('userEditModal').style.display = 'block';
     }
 }
 
@@ -929,6 +930,67 @@ function deleteUser(userId) {
         db.deleteUser(userId);
         loadUsers();
         showAlert('Usuario eliminado exitosamente', 'success');
+    }
+}
+
+// Funciones para el modal de edición de usuarios
+function closeUserEditModal() {
+    document.getElementById('userEditModal').style.display = 'none';
+    document.getElementById('userEditForm').reset();
+}
+
+// Cerrar modal al hacer clic fuera de él
+window.onclick = function(event) {
+    const userEditModal = document.getElementById('userEditModal');
+    if (event.target === userEditModal) {
+        closeUserEditModal();
+    }
+}
+
+function handleUserEdit(e) {
+    e.preventDefault();
+    
+    const userId = document.getElementById('editUserId').value;
+    const user = db.getUsers().find(u => u.id === parseInt(userId));
+    
+    if (!user) {
+        showAlert('Usuario no encontrado', 'warning');
+        return;
+    }
+    
+    // Obtener los datos del formulario
+    const updatedUser = {
+        id: parseInt(userId),
+        name: document.getElementById('editUserName').value.trim(),
+        email: document.getElementById('editUserEmail').value.trim(),
+        password: document.getElementById('editUserPassword').value || user.password, // Mantener contraseña actual si no se especifica nueva
+        dni: document.getElementById('editUserDni').value.trim(),
+        phone: document.getElementById('editUserPhone').value.trim(),
+        address: document.getElementById('editUserAddress').value.trim(),
+        role: document.getElementById('editUserRole').value,
+        status: document.getElementById('editUserStatus').value,
+        createdAt: user.createdAt, // Mantener fecha de creación
+        reliabilityScore: user.reliabilityScore // Mantener puntuación de confiabilidad
+    };
+    
+    try {
+        // Actualizar el usuario en la base de datos
+        const result = db.updateUser(parseInt(userId), updatedUser);
+        
+        if (result) {
+            // Actualizar la tabla de usuarios
+            loadUsers();
+            
+            // Cerrar el modal
+            closeUserEditModal();
+            
+            showAlert('Usuario actualizado correctamente', 'success');
+        } else {
+            showAlert('Error: Usuario no encontrado', 'warning');
+        }
+    } catch (error) {
+        console.error('Error actualizando usuario:', error);
+        showAlert('Error al actualizar el usuario', 'warning');
     }
 }
 

@@ -610,6 +610,68 @@
         </div>
     </div>
 
+    <!-- Modal para editar usuarios -->
+    <div id="userEditModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeUserEditModal()">&times;</span>
+            <h2 id="userEditModalTitle">Editar Usuario</h2>
+            <form id="userEditForm">
+                <input type="hidden" id="editUserId" value="">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editUserName">Nombre completo:</label>
+                        <input type="text" id="editUserName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editUserEmail">Email:</label>
+                        <input type="email" id="editUserEmail" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editUserPassword">Contraseña:</label>
+                        <input type="password" id="editUserPassword" placeholder="Dejar vacío para mantener la actual">
+                    </div>
+                    <div class="form-group">
+                        <label for="editUserDni">DNI:</label>
+                        <input type="text" id="editUserDni" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editUserPhone">Teléfono:</label>
+                        <input type="text" id="editUserPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editUserAddress">Dirección:</label>
+                        <input type="text" id="editUserAddress" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editUserRole">Rol:</label>
+                        <select id="editUserRole" required>
+                            <option value="usuario">Usuario</option>
+                            <option value="bibliotecario">Bibliotecario</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editUserStatus">Estado:</label>
+                        <select id="editUserStatus" required>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                            <option value="suspendido">Suspendido</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn">Guardar Cambios</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeUserEditModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="data.js"></script>
     <script src="script.js"></script>
 </body>
