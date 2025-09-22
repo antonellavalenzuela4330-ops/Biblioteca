@@ -307,6 +307,10 @@ function showSection(sectionName) {
         loadInventoryTable();
     } else if (sectionName === 'loans') {
         loadLoans();
+        loadReturns();
+        loadNotReturnedBooks();
+        loadStockStatus();
+        setupReturnUserSelectors();
     } else if (sectionName === 'users') {
         loadUsers();
     } else if (sectionName === 'stats') {
@@ -314,11 +318,6 @@ function showSection(sectionName) {
     } else if (sectionName === 'userLoans') {
         setupUserLoanForm();
         loadUserLoans();
-    } else if (sectionName === 'returns') {
-        loadReturns();
-        loadNotReturnedBooks();
-        loadStockStatus();
-        setupReturnUserSelectors();
     } else if (sectionName === 'profiles') {
         loadUserProfiles();
         setupProfileUserSelector();
@@ -788,9 +787,6 @@ function returnBook(loanId) {
     // Guardar el ID del préstamo para usar en la sección de devoluciones
     window.currentLoanId = loanId;
     
-    // Cambiar a la sección de devoluciones
-    showSection('returns');
-    
     // Pre-llenar el formulario de devolución con los datos del préstamo
     const loan = db.getLoans().find(l => l.id === loanId);
     if (loan) {
@@ -803,15 +799,18 @@ function returnBook(loanId) {
         }
     }
     
+    // Hacer scroll hacia el formulario de devolución
+    const returnForm = document.getElementById('returnForm');
+    if (returnForm) {
+        returnForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
     showAlert('Complete el formulario de devolución para finalizar el préstamo', 'info');
 }
 
 function notReturnedBook(loanId) {
     // Guardar el ID del préstamo para usar en la sección de devoluciones
     window.currentLoanId = loanId;
-    
-    // Cambiar a la sección de devoluciones
-    showSection('returns');
     
     // Pre-llenar el formulario de "Libro No Devuelto" con los datos del préstamo
     const loan = db.getLoans().find(l => l.id === loanId);
@@ -823,6 +822,12 @@ function notReturnedBook(loanId) {
             document.getElementById('notReturnedIsbn').value = book.isbn;
             document.getElementById('notReturnedDate').value = new Date().toISOString().split('T')[0];
         }
+    }
+    
+    // Hacer scroll hacia el formulario de no devuelto
+    const notReturnedForm = document.getElementById('notReturnedForm');
+    if (notReturnedForm) {
+        notReturnedForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     
     showAlert('Complete el formulario de "Libro No Devuelto" para registrar la no devolución', 'warning');

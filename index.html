@@ -107,8 +107,7 @@
                 <div class="nav-tab" onclick="showSection('search')">Buscar</div>
                 <div class="nav-tab user-loans-tab" onclick="showSection('userLoans')">Mis Préstamos</div>
                 <div class="nav-tab admin-only" onclick="showSection('admin')">Administración</div>
-                <div class="nav-tab librarian-only" onclick="showSection('loans')">Préstamos</div>
-                <div class="nav-tab librarian-only" onclick="showSection('returns')">Devoluciones</div>
+                <div class="nav-tab librarian-only" onclick="showSection('loans')">Préstamos y Devoluciones</div>
                 <div class="nav-tab admin-only" onclick="showSection('users')">Usuarios</div>
                 <div class="nav-tab admin-only" onclick="showSection('profiles')">Perfiles</div>
                 <div class="nav-tab admin-only" onclick="showSection('stats')">Estadísticas</div>
@@ -197,9 +196,11 @@
                 <div id="inventoryTable"></div>
             </div>
 
-            <!-- Préstamos -->
+            <!-- Gestión de Préstamos y Devoluciones -->
             <div id="loansSection" class="content-section">
-                <h2>GESTIÓN DE PRÉSTAMOS</h2>
+                <h2>GESTIÓN DE PRÉSTAMOS Y DEVOLUCIONES</h2>
+                
+                <!-- Nuevo Préstamo -->
                 <div class="admin-panel">
                     <h3>Nuevo Préstamo</h3>
                     <form id="loanForm" class="admin-form">
@@ -215,13 +216,7 @@
                         <button type="submit" class="btn">CREAR PRÉSTAMO</button>
                     </form>
                 </div>
-                <div id="loansList" class="loansList"></div>
-            </div>
 
-            <!-- Devoluciones -->
-            <div id="returnsSection" class="content-section">
-                <h2>GESTIÓN DE DEVOLUCIONES</h2>
-                
                 <!-- Devolución Normal -->
                 <div class="admin-panel">
                     <h3>Registrar Devolución</h3>
@@ -261,6 +256,12 @@
                         <textarea id="notReturnedNotes" placeholder="Observaciones" rows="2" required></textarea>
                         <button type="submit" class="btn btn-warning">REGISTRAR NO DEVUELTO</button>
                     </form>
+                </div>
+
+                <!-- Lista de Préstamos Activos -->
+                <div class="admin-panel">
+                    <h3>Préstamos Activos</h3>
+                    <div id="loansList" class="loansList"></div>
                 </div>
 
                 <!-- Control de Stock por Estado -->
