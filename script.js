@@ -178,10 +178,10 @@ function handleRegister(e) {
     const phone = document.getElementById('registerPhone').value.trim();
     const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value;
-    const role = document.getElementById('registerRole').value;
+    const role = 'usuario'; // Rol por defecto para usuarios que se registran
 
     // Validar que todos los campos estén completos
-    if (!name || !dni || !address || !phone || !email || !password || !role) {
+    if (!name || !dni || !address || !phone || !email || !password) {
         showAlert('Por favor, completa todos los campos', 'warning');
         return;
     }
