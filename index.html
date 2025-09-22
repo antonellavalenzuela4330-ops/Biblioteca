@@ -108,7 +108,6 @@
                         <span id="userName">Usuario</span>
                         <span id="userRole" class="user-role">Usuario</span>
                         <div class="role-badge" id="roleBadge">
-                            <span class="role-icon">📚</span>
                             <span class="role-text">USUARIO</span>
                         </div>
                     </div>
@@ -120,54 +119,39 @@
             <div class="nav-tabs">
                 <!-- Pestañas Comunes -->
                 <div id="tabCatalog" class="nav-tab active" onclick="showSection('catalog')">
-                    <span class="nav-icon">📚</span>
+                    <span class="nav-icon"></span>
                     <span class="nav-text">Catálogo</span>
                 </div>
-                <div class="nav-tab" onclick="showSection('search')">
-                    <span class="nav-icon">🔍</span>
+                <div class="nav-tab" onclick="showSection('search')">                    <span class="nav-icon">🔍</span>
                     <span class="nav-text">Buscar</span>
                 </div>
                 
                 <!-- Pestañas de Usuario -->
                 <div class="nav-tab user-loans-tab user-role-tab" onclick="showSection('userLoans')">
-                    <span class="nav-icon">📖</span>
                     <span class="nav-text">Mis Préstamos</span>
-                    <span class="role-indicator user-role">USUARIO</span>
                 </div>
                 <div class="nav-tab user-tab user-role-tab" onclick="showSection('notifications')">
-                    <span class="nav-icon">🔔</span>
                     <span class="nav-text">Notificaciones</span>
-                    <span class="role-indicator user-role">USUARIO</span>
                     <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
                 </div>
                 
                 <!-- Pestañas de Bibliotecario -->
                 <div class="nav-tab librarian-only librarian-role-tab" onclick="showSection('loans')">
-                    <span class="nav-icon">📋</span>
                     <span class="nav-text">Préstamos y Devoluciones</span>
-                    <span class="role-indicator librarian-role">BIBLIOTECARIO</span>
                 </div>
                 
                 <!-- Pestañas de Administrador -->
                 <div class="nav-tab admin-only admin-role-tab" onclick="showSection('admin')">
-                    <span class="nav-icon">⚙️</span>
                     <span class="nav-text">Administración</span>
-                    <span class="role-indicator admin-role">ADMIN</span>
                 </div>
                 <div class="nav-tab admin-only admin-role-tab" onclick="showSection('users')">
-                    <span class="nav-icon">👥</span>
                     <span class="nav-text">Usuarios</span>
-                    <span class="role-indicator admin-role">ADMIN</span>
                 </div>
                 <div class="nav-tab admin-only admin-role-tab" onclick="showSection('profiles')">
-                    <span class="nav-icon">👤</span>
                     <span class="nav-text">Perfiles</span>
-                    <span class="role-indicator admin-role">ADMIN</span>
                 </div>
                 <div class="nav-tab admin-only admin-role-tab" onclick="showSection('stats')">
-                    <span class="nav-icon">📊</span>
                     <span class="nav-text">Estadísticas</span>
-                    <span class="role-indicator admin-role">ADMIN</span>
                 </div>
             </div>
 
