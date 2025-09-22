@@ -406,21 +406,21 @@ class Database {
     // Métodos para gestión de confiabilidad de usuarios
     calculateReliabilityScore(userId) {
         const user = this.getUsers().find(u => u.id === userId);
-        if (!user) return 0;
+        if (!user) return 100;
 
         const totalReturns = user.goodReturns + user.regularReturns + user.badReturns + user.notReturned;
         if (totalReturns === 0) return 100;
 
-        // Sistema de puntuación:
-        // Buen estado: +10 puntos
-        // Estado regular: +5 puntos  
-        // Mal estado: -5 puntos
-        // No devuelto: -20 puntos
+        // Sistema de puntuación mejorado:
+        // Buen estado: +5 puntos (recompensa por buen cuidado)
+        // Estado regular: -10 puntos (penalización por descuido)
+        // Mal estado: -25 puntos (penalización severa por mal cuidado)
+        // No devuelto: -50 puntos (penalización máxima)
         let score = 100;
-        score += (user.goodReturns * 10);
-        score += (user.regularReturns * 5);
-        score += (user.badReturns * -5);
-        score += (user.notReturned * -20);
+        score += (user.goodReturns * 5);
+        score += (user.regularReturns * -10);
+        score += (user.badReturns * -25);
+        score += (user.notReturned * -50);
 
         // Asegurar que el score esté entre 0 y 100
         return Math.max(0, Math.min(100, score));
@@ -494,10 +494,8 @@ class Database {
 
     getReliabilityLevel(score) {
         if (score >= 80) return 'Excelente';
-        if (score >= 60) return 'Buena';
-        if (score >= 40) return 'Regular';
-        if (score >= 20) return 'Baja';
-        return 'Muy Baja';
+        if (score >= 50) return 'Intermedio';
+        return 'Bajo';
     }
 
     getUserRecentActivity(userId) {

@@ -1981,8 +1981,6 @@ function getStatusClass(status) {
 
 function getReliabilityClass(score) {
     if (score >= 80) return 'reliability-excellent';
-    if (score >= 60) return 'reliability-good';
-    if (score >= 40) return 'reliability-regular';
-    if (score >= 20) return 'reliability-low';
-    return 'reliability-very-low';
+    if (score >= 50) return 'reliability-intermediate';
+    return 'reliability-low';
 }
