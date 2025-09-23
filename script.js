@@ -375,6 +375,7 @@ function loadUserProfile() {
     const booksGoodState = userToDisplay.goodReturns || 0;
     const booksRegularState = userToDisplay.regularReturns || 0;
     const booksBadState = userToDisplay.badReturns || 0;
+    const booksLateReturns = userToDisplay.lateReturns || 0;
     const booksNotReturned = userToDisplay.notReturned || 0;
     const totalLoans = userToDisplay.totalLoans || 0;
     const reliabilityScore = userToDisplay.reliabilityScore || 100;
@@ -384,19 +385,24 @@ function loadUserProfile() {
     document.getElementById('booksGoodState').textContent = booksGoodState;
     document.getElementById('booksRegularState').textContent = booksRegularState;
     document.getElementById('booksBadState').textContent = booksBadState;
+    document.getElementById('booksLateReturns').textContent = booksLateReturns;
+    document.getElementById('booksNotReturned').textContent = booksNotReturned;
 
     // Calcular sistema de puntos (usando la misma lógica que en data.js)
     const pointsGoodState = booksGoodState * 5; // 5 puntos por libro en buen estado
     const pointsRegularState = booksRegularState * -10; // -10 puntos por libro en estado regular
     const pointsBadState = booksBadState * -25; // -25 puntos por libro en mal estado
+    const pointsLateReturns = booksLateReturns * -15; // -15 puntos por entrega tardía
     const pointsNotReturned = booksNotReturned * -50; // -50 puntos por libro no devuelto
-    const totalPoints = pointsGoodState + pointsRegularState + pointsBadState + pointsNotReturned;
+    const totalPoints = pointsGoodState + pointsRegularState + pointsBadState + pointsLateReturns + pointsNotReturned;
 
     // Actualizar puntos
     document.getElementById('userPoints').textContent = Math.max(0, totalPoints);
     document.getElementById('pointsGoodState').textContent = `${pointsGoodState} pts`;
     document.getElementById('pointsRegularState').textContent = `${pointsRegularState} pts`;
     document.getElementById('pointsBadState').textContent = `${pointsBadState} pts`;
+    document.getElementById('pointsLateReturns').textContent = `${pointsLateReturns} pts`;
+    document.getElementById('pointsNotReturned').textContent = `${pointsNotReturned} pts`;
 
     // Actualizar confiabilidad (usar el score calculado por la base de datos)
     console.log('Actualizando confiabilidad:', reliabilityScore);
@@ -1627,8 +1633,8 @@ function handleRemoveNotReturnedSubmit(e) {
         // Revertir la penalización por no devuelto
         user.notReturned = Math.max(0, user.notReturned - 1);
         
-        // Aplicar penalización por devuelto tarde
-        user.notReturned = user.notReturned + 1; // Mantener como no devuelto pero con estado diferente
+        // Aplicar penalización por devuelto tarde (categoría separada)
+        user.lateReturns = user.lateReturns + 1;
         
         // Recalcular score de confiabilidad
         user.reliabilityScore = db.calculateReliabilityScore(userId);
@@ -2065,6 +2071,10 @@ function loadUserProfiles() {
                                 <span class="stat-label">Malas</span>
                             </div>
                             <div class="stat-item">
+                                <span class="stat-number">${user.lateReturns || 0}</span>
+                                <span class="stat-label">Tardías</span>
+                            </div>
+                            <div class="stat-item">
                                 <span class="stat-number">${user.notReturned || 0}</span>
                                 <span class="stat-label">No Devueltos</span>
                             </div>
@@ -2123,6 +2133,7 @@ function loadSelectedUserProfile() {
     document.getElementById('goodReturns').textContent = profile.goodReturns || 0;
     document.getElementById('regularReturns').textContent = profile.regularReturns || 0;
     document.getElementById('badReturns').textContent = profile.badReturns || 0;
+    document.getElementById('lateReturns').textContent = profile.lateReturns || 0;
     document.getElementById('notReturned').textContent = profile.notReturned || 0;
     
     // Estadísticas de préstamos

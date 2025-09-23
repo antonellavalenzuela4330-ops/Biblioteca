@@ -28,6 +28,7 @@ class Database {
                     regularReturns: 0,
                     badReturns: 0,
                     notReturned: 0,
+                    lateReturns: 0,
                     createdAt: new Date().toISOString()
                 },
                 { 
@@ -46,6 +47,7 @@ class Database {
                     regularReturns: 0,
                     badReturns: 0,
                     notReturned: 0,
+                    lateReturns: 0,
                     createdAt: new Date().toISOString()
                 }
             ];
@@ -155,6 +157,7 @@ class Database {
         user.regularReturns = user.regularReturns || 0;
         user.badReturns = user.badReturns || 0;
         user.notReturned = user.notReturned || 0;
+        user.lateReturns = user.lateReturns || 0;
         user.createdAt = user.createdAt || new Date().toISOString();
         users.push(user);
         this.saveUsers(users);
@@ -408,18 +411,20 @@ class Database {
         const user = this.getUsers().find(u => u.id === userId);
         if (!user) return 100;
 
-        const totalReturns = user.goodReturns + user.regularReturns + user.badReturns + user.notReturned;
+        const totalReturns = user.goodReturns + user.regularReturns + user.badReturns + user.notReturned + user.lateReturns;
         if (totalReturns === 0) return 100;
 
         // Sistema de puntuación mejorado:
         // Buen estado: +5 puntos (recompensa por buen cuidado)
         // Estado regular: -10 puntos (penalización por descuido)
         // Mal estado: -25 puntos (penalización severa por mal cuidado)
+        // Entregas tardías: -15 puntos (penalización moderada por retraso)
         // No devuelto: -50 puntos (penalización máxima)
         let score = 100;
         score += (user.goodReturns * 5);
         score += (user.regularReturns * -10);
         score += (user.badReturns * -25);
+        score += (user.lateReturns * -15);
         score += (user.notReturned * -50);
 
         // Asegurar que el score esté entre 0 y 100
@@ -442,8 +447,10 @@ class Database {
             case 'mal_estado':
                 user.badReturns++;
                 break;
-            case 'no_devuelto':
             case 'devuelto_tarde':
+                user.lateReturns++;
+                break;
+            case 'no_devuelto':
             case 'perdido':
             case 'dañado_irreparable':
                 user.notReturned++;
