@@ -93,12 +93,6 @@ window.addEventListener('unhandledrejection', function(event) {
     showAlert('Ha ocurrido un error en una operación. Por favor, inténtalo de nuevo.', 'warning');
 });
 
-// Función para limpiar la consola de errores de extensiones
-function clearExtensionErrors() {
-    // Esta función se puede llamar manualmente para limpiar la consola
-    console.clear();
-    console.log('Consola limpiada - Errores de extensiones suprimidos');
-}
 
 // Función de utilidad para debugging mejorado
 function debugLog(message, data = null) {
