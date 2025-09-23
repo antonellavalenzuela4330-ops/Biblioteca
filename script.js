@@ -348,12 +348,16 @@ function showDashboard() {
     updateRoleIndicators(currentUser.role);
 
     // Mostrar/ocultar elementos según el rol
-    const bibliotecarioElements = document.querySelectorAll('.admin-only');
+    const adminElements = document.querySelectorAll('.admin-only');
     const librarianElements = document.querySelectorAll('.librarian-only');
     const userLoansElements = document.querySelectorAll('.user-loans-tab');
+    
+    // Elementos del header que solo deben aparecer para usuarios regulares
+    const userProfileBtn = document.querySelector('.header-actions .header-btn[onclick*="userProfile"]');
+    const notificationsMenu = document.querySelector('.notifications-menu');
 
-    // Solo mostrar admin-only si es bibliotecario
-    bibliotecarioElements.forEach(el => {
+    // Solo mostrar admin-only si es bibliotecario (bibliotecario tiene acceso a administración)
+    adminElements.forEach(el => {
         el.style.display = currentUser.role === 'bibliotecario' ? 'block' : 'none';
     });
 
@@ -366,6 +370,14 @@ function showDashboard() {
     userLoansElements.forEach(el => {
         el.style.display = currentUser.role === 'usuario' ? 'block' : 'none';
     });
+    
+    // Ocultar botones del header para bibliotecarios (solo deben ver sus pestañas de administración)
+    if (userProfileBtn) {
+        userProfileBtn.style.display = currentUser.role === 'usuario' ? 'block' : 'none';
+    }
+    if (notificationsMenu) {
+        notificationsMenu.style.display = currentUser.role === 'usuario' ? 'block' : 'none';
+    }
 
     // Cargar datos del dashboard
     try {
@@ -2879,29 +2891,30 @@ document.addEventListener = function(event, handler) {
 // Actualizar indicadores visuales según el rol del usuario
 function updateRoleIndicators(role) {
     const welcomeTitle = document.getElementById('welcomeTitle');
-    const welcomeSubtitle = document.getElementById('welcomeSubtitle');
+    
+    // Verificar que el elemento existe antes de acceder a él
+    if (!welcomeTitle) {
+        console.error('Elemento welcomeTitle no encontrado');
+        return;
+    }
     
     // Actualizar título dinámico según el rol
     switch (role) {
         case 'usuario':
             welcomeTitle.textContent = 'Bienvenido Usuario';
             welcomeTitle.className = 'welcome-title user-welcome';
-            welcomeSubtitle.textContent = 'Sistema de Gestión de Biblioteca - Área de Usuario';
             break;
         case 'bibliotecario':
             welcomeTitle.textContent = 'Bienvenido Bibliotecario';
             welcomeTitle.className = 'welcome-title librarian-welcome';
-            welcomeSubtitle.textContent = 'Sistema de Gestión de Biblioteca - Área de Bibliotecario';
             break;
         case 'admin':
             welcomeTitle.textContent = 'Bienvenido Administrador';
             welcomeTitle.className = 'welcome-title admin-welcome';
-            welcomeSubtitle.textContent = 'Sistema de Gestión de Biblioteca - Área de Administración';
             break;
         default:
             welcomeTitle.textContent = 'Bienvenido Usuario';
             welcomeTitle.className = 'welcome-title user-welcome';
-            welcomeSubtitle.textContent = 'Sistema de Gestión de Biblioteca - Área de Usuario';
     }
 }
 
