@@ -454,16 +454,18 @@ function toggleHeaderNotifications(e) {
     e.stopPropagation();
     const dropdown = document.getElementById('headerNotificationsDropdown');
     if (!dropdown) return;
-    const isOpen = dropdown.style.display === 'block';
-    dropdown.style.display = isOpen ? 'none' : 'block';
-    if (!isOpen) {
+    const isOpen = dropdown.classList.contains('show');
+    if (isOpen) {
+        dropdown.classList.remove('show');
+    } else {
+        dropdown.classList.add('show');
         renderHeaderNotifications();
     }
 }
 
 function closeHeaderNotifications() {
     const dropdown = document.getElementById('headerNotificationsDropdown');
-    if (dropdown) dropdown.style.display = 'none';
+    if (dropdown) dropdown.classList.remove('show');
 }
 
 // Cerrar al hacer click fuera
@@ -473,7 +475,7 @@ document.addEventListener('click', function(ev) {
     if (!dropdown || !toggle) return;
     const clickedInside = dropdown.contains(ev.target) || toggle.contains(ev.target);
     if (!clickedInside) {
-        dropdown.style.display = 'none';
+        dropdown.classList.remove('show');
     }
 });
 
