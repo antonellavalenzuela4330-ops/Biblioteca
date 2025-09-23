@@ -399,6 +399,7 @@ function loadUserProfile() {
     document.getElementById('pointsBadState').textContent = `${pointsBadState} pts`;
 
     // Actualizar confiabilidad (usar el score calculado por la base de datos)
+    console.log('Actualizando confiabilidad:', reliabilityScore);
     document.getElementById('userReliabilityScore').textContent = reliabilityScore;
     document.getElementById('reliabilityBar').style.width = `${reliabilityScore}%`;
     
@@ -413,6 +414,7 @@ function loadUserProfile() {
     }
     
     document.getElementById('reliabilityStatus').textContent = reliabilityStatus;
+    console.log('Confiabilidad actualizada:', reliabilityScore, reliabilityStatus);
 }
 
 function loadBooks() {
@@ -2083,12 +2085,17 @@ function loadUserProfiles() {
 
 function loadSelectedUserProfile() {
     const userId = parseInt(document.getElementById('profileUserSelect').value);
+    console.log('=== CARGANDO PERFIL SELECCIONADO ===');
+    console.log('User ID seleccionado:', userId);
+    
     if (!userId) {
         showAlert('Por favor, selecciona un usuario', 'warning');
         return;
     }
     
     const profile = db.getUserProfile(userId);
+    console.log('Perfil obtenido:', profile);
+    
     if (!profile) {
         showAlert('No se pudo cargar el perfil del usuario', 'error');
         return;
@@ -2099,10 +2106,10 @@ function loadSelectedUserProfile() {
     
     // Llenar información básica
     document.getElementById('profileUserName').textContent = profile.name;
-    document.getElementById('profileDni').textContent = profile.dni || '-';
-    document.getElementById('profileEmail').textContent = profile.email;
-    document.getElementById('profilePhone').textContent = profile.phone || '-';
-    document.getElementById('profileAddress').textContent = profile.address || '-';
+    document.getElementById('selectedProfileDni').textContent = profile.dni || '-';
+    document.getElementById('selectedProfileEmail').textContent = profile.email;
+    document.getElementById('selectedProfilePhone').textContent = profile.phone || '-';
+    document.getElementById('selectedProfileAddress').textContent = profile.address || '-';
     document.getElementById('profileCreatedAt').textContent = new Date(profile.createdAt).toLocaleDateString('es-ES');
     
     // Estado del usuario
