@@ -107,6 +107,28 @@
         <div id="dashboard" class="dashboard">
             <div class="dashboard-header">
                 <h1 id="welcomeTitle" class="welcome-title">Bienvenido Usuario</h1>
+                <div class="header-actions">
+                    <button class="header-btn" onclick="showSection('userProfile')">Mi Perfil</button>
+                    <div class="notifications-menu">
+                        <button id="notificationsToggle" class="header-btn" onclick="toggleHeaderNotifications(event)">
+                            Notificaciones
+                            <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
+                        </button>
+                        <div id="headerNotificationsDropdown" class="notifications-dropdown" style="display: none;">
+                            <div class="notifications-dropdown-header">
+                                <span>Notificaciones</span>
+                                <div class="notifications-dropdown-actions">
+                                    <button class="btn btn-secondary" onclick="event.stopPropagation(); markAllAsRead()">Marcar todas</button>
+                                    <button class="btn btn-secondary" onclick="event.stopPropagation(); clearAllNotifications()">Limpiar</button>
+                                </div>
+                            </div>
+                            <div id="headerNotificationsList" class="notifications-dropdown-list"></div>
+                            <div class="notifications-dropdown-footer">
+                                <button class="btn btn-secondary" onclick="event.stopPropagation(); showSection('notifications'); closeHeaderNotifications()">Ver todas</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
             </div>
 
@@ -125,13 +147,7 @@
                 <div class="nav-tab user-loans-tab user-role-tab" onclick="showSection('userLoans')">
                     <span class="nav-text">Mis Préstamos</span>
                 </div>
-                <div class="nav-tab user-profile-tab user-role-tab" onclick="showSection('userProfile')">
-                    <span class="nav-text">Mi Perfil</span>
-                </div>
-                <div class="nav-tab user-tab user-role-tab" onclick="showSection('notifications')">
-                    <span class="nav-text">Notificaciones</span>
-                    <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
-                </div>
+                <!-- Mi Perfil y Notificaciones movidos al header -->
                 
                 <!-- Pestañas de Bibliotecario -->
                 <div class="nav-tab librarian-only librarian-role-tab" onclick="showSection('loans')">

@@ -437,6 +437,50 @@ function showSection(sectionName) {
     }
 }
 
+// ===== Header Notificaciones (Dropdown) =====
+function toggleHeaderNotifications(e) {
+    e.stopPropagation();
+    const dropdown = document.getElementById('headerNotificationsDropdown');
+    if (!dropdown) return;
+    const isOpen = dropdown.style.display === 'block';
+    dropdown.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen) {
+        renderHeaderNotifications();
+    }
+}
+
+function closeHeaderNotifications() {
+    const dropdown = document.getElementById('headerNotificationsDropdown');
+    if (dropdown) dropdown.style.display = 'none';
+}
+
+// Cerrar al hacer click fuera
+document.addEventListener('click', function(ev) {
+    const dropdown = document.getElementById('headerNotificationsDropdown');
+    const toggle = document.getElementById('notificationsToggle');
+    if (!dropdown || !toggle) return;
+    const clickedInside = dropdown.contains(ev.target) || toggle.contains(ev.target);
+    if (!clickedInside) {
+        dropdown.style.display = 'none';
+    }
+});
+
+function renderHeaderNotifications() {
+    const list = document.getElementById('headerNotificationsList');
+    if (!list) return;
+    const userId = getCurrentUserId();
+    if (!userId) {
+        list.innerHTML = '';
+        return;
+    }
+    const userNotifications = getUserNotifications(userId).slice(0, 10);
+    if (userNotifications.length === 0) {
+        list.innerHTML = '<div class="no-notifications">Sin notificaciones</div>';
+        return;
+    }
+    list.innerHTML = userNotifications.map(n => createNotificationHTML(n)).join('');
+}
+
 // Función para cargar el perfil del usuario
 function loadUserProfile() {
     if (!currentUser) {
