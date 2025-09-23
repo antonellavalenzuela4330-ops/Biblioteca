@@ -471,6 +471,27 @@
                     <h3>Libros No Devueltos</h3>
                     <div id="notReturnedList" class="not-returned-list"></div>
                 </div>
+
+                <!-- Quitar Marca de Libro No Devuelto -->
+                <div class="admin-panel">
+                    <h3>Quitar Marca de Libro No Devuelto</h3>
+                    <p>Utiliza esta sección cuando un usuario haya entregado un libro que previamente fue marcado como no devuelto.</p>
+                    <form id="removeNotReturnedForm" class="admin-form">
+                        <select id="removeNotReturnedUser" required>
+                            <option value="">SELECCIONAR USUARIO</option>
+                        </select>
+                        <input type="text" id="removeNotReturnedIsbn" placeholder="CÓDIGO ISBN" required>
+                        <select id="removeNotReturnedCondition" required>
+                            <option value="">ESTADO DEL LIBRO AL DEVOLVER</option>
+                            <option value="buen_estado">Buen Estado</option>
+                            <option value="estado_regular">Estado Regular</option>
+                            <option value="mal_estado">Mal Estado</option>
+                        </select>
+                        <input type="date" id="removeNotReturnedDate" required>
+                        <textarea id="removeNotReturnedNotes" placeholder="Observaciones sobre la devolución tardía" rows="2"></textarea>
+                        <button type="submit" class="btn btn-success">QUITAR MARCA DE NO DEVUELTO</button>
+                    </form>
+                </div>
             </div>
 
             <!-- Usuarios -->
@@ -553,7 +574,7 @@
                         <select id="profileUserSelect">
                             <option value="">Seleccionar usuario para ver perfil</option>
                         </select>
-                        <button class="btn" onclick="loadUserProfile()">VER PERFIL</button>
+                        <button class="btn" onclick="loadSelectedUserProfile()">VER PERFIL</button>
                     </div>
                 </div>
 

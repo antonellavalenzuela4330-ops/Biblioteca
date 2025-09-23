@@ -27,6 +27,7 @@ function setupEventListeners() {
     document.getElementById('userLoanRequestForm').addEventListener('submit', handleUserLoanRequest);
     document.getElementById('returnForm').addEventListener('submit', handleReturnSubmit);
     document.getElementById('notReturnedForm').addEventListener('submit', handleNotReturnedSubmit);
+    document.getElementById('removeNotReturnedForm').addEventListener('submit', handleRemoveNotReturnedSubmit);
     document.getElementById('userEditForm').addEventListener('submit', handleUserEdit);
     // Quitar búsquedas automáticas: solo con el botón
 }
@@ -1573,6 +1574,104 @@ function handleNotReturnedSubmit(e) {
     showAlert('Libro no devuelto registrado exitosamente', 'warning');
 }
 
+function handleRemoveNotReturnedSubmit(e) {
+    e.preventDefault();
+    
+    const userId = parseInt(document.getElementById('removeNotReturnedUser').value);
+    const isbn = document.getElementById('removeNotReturnedIsbn').value.trim();
+    const condition = document.getElementById('removeNotReturnedCondition').value;
+    const returnDate = document.getElementById('removeNotReturnedDate').value;
+    const notes = document.getElementById('removeNotReturnedNotes').value.trim();
+    
+    // Validar que todos los campos estén completos
+    if (!userId || !isbn || !condition || !returnDate) {
+        showAlert('Por favor, completa todos los campos obligatorios', 'warning');
+        return;
+    }
+    
+    // Buscar el libro por ISBN
+    const book = db.getBooks().find(b => b.isbn === isbn);
+    if (!book) {
+        showAlert('No se encontró un libro con ese ISBN', 'warning');
+        return;
+    }
+    
+    // Buscar el registro de libro no devuelto
+    const notReturnedRecords = db.getNotReturned().filter(record => 
+        record.userId === userId && 
+        record.isbn === isbn && 
+        record.status === 'no_devuelto'
+    );
+    
+    if (notReturnedRecords.length === 0) {
+        showAlert('No se encontró un registro de libro no devuelto para este usuario e ISBN', 'warning');
+        return;
+    }
+    
+    // Actualizar el registro como devuelto
+    const record = notReturnedRecords[0];
+    db.updateNotReturned(record.id, {
+        status: 'devuelto_tarde',
+        actualReturnDate: returnDate,
+        actualReturnCondition: condition,
+        actualReturnNotes: notes,
+        processedBy: currentUser.name,
+        processedAt: new Date().toLocaleString('es-ES')
+    });
+    
+    // Actualizar la confiabilidad del usuario (revertir penalización por no devuelto y aplicar penalización por devuelto tarde)
+    const user = db.getUsers().find(u => u.id === userId);
+    if (user) {
+        // Revertir la penalización por no devuelto
+        user.notReturned = Math.max(0, user.notReturned - 1);
+        
+        // Aplicar penalización por devuelto tarde
+        user.notReturned = user.notReturned + 1; // Mantener como no devuelto pero con estado diferente
+        
+        // Recalcular score de confiabilidad
+        user.reliabilityScore = db.calculateReliabilityScore(userId);
+        db.saveUsers(db.getUsers());
+    }
+    
+    // Buscar préstamos relacionados y marcarlos como devueltos
+    const relatedLoans = db.getLoans().filter(loan => 
+        loan.bookId === book.id && 
+        loan.userId === userId &&
+        loan.status === 'no_devuelto'
+    );
+    
+    relatedLoans.forEach(loan => {
+        db.updateLoan(loan.id, { 
+            status: 'devuelto',
+            returnedAt: returnDate,
+            returnCondition: condition,
+            returnNotes: notes
+        });
+    });
+    
+    // Restaurar stock del libro
+    book.stock += 1;
+    if (book.stock > 0) {
+        book.status = 'disponible';
+    }
+    db.saveBooks(db.getBooks());
+    
+    // Crear notificación de devolución tardía
+    createNotification('return_completed', 'Devolución Tardía Registrada', 
+        `Se ha registrado la devolución tardía de "${book.title}". Tu calificación de confiabilidad ha sido actualizada.`, userId);
+    
+    // Limpiar formulario
+    document.getElementById('removeNotReturnedForm').reset();
+    
+    // Recargar datos
+    loadNotReturnedBooks();
+    loadBooks();
+    loadLoans();
+    loadStockStatus();
+    
+    showAlert('Marca de libro no devuelto quitada exitosamente. Se registró como devolución tardía.', 'success');
+}
+
 function updateBookCondition(bookId, condition) {
     const books = db.getBooks();
     const book = books.find(b => b.id === bookId);
@@ -1871,11 +1970,13 @@ function getReasonText(reason) {
 function setupReturnUserSelectors() {
     const returnUserSelect = document.getElementById('returnUser');
     const notReturnedUserSelect = document.getElementById('notReturnedUser');
+    const removeNotReturnedUserSelect = document.getElementById('removeNotReturnedUser');
     const users = db.getUsers().filter(u => u.status === 'activo' || u.status === 'advertencia');
     
     // Limpiar opciones existentes
     returnUserSelect.innerHTML = '<option value="">SELECCIONAR USUARIO</option>';
     notReturnedUserSelect.innerHTML = '<option value="">SELECCIONAR USUARIO</option>';
+    removeNotReturnedUserSelect.innerHTML = '<option value="">SELECCIONAR USUARIO</option>';
     
     users.forEach(user => {
         const option1 = document.createElement('option');
@@ -1887,6 +1988,11 @@ function setupReturnUserSelectors() {
         option2.value = user.id;
         option2.textContent = `${user.name} (${user.dni}) - Score: ${user.reliabilityScore}`;
         notReturnedUserSelect.appendChild(option2);
+        
+        const option3 = document.createElement('option');
+        option3.value = user.id;
+        option3.textContent = `${user.name} (${user.dni}) - Score: ${user.reliabilityScore}`;
+        removeNotReturnedUserSelect.appendChild(option3);
     });
 }
 
@@ -1899,7 +2005,8 @@ function setupProfileUserSelector() {
     users.forEach(user => {
         const option = document.createElement('option');
         option.value = user.id;
-        option.textContent = `${user.name} (${user.dni}) - ${user.reliabilityLevel || 'N/A'} - Score: ${user.reliabilityScore}`;
+        const reliabilityLevel = db.getReliabilityLevel(user.reliabilityScore);
+        option.textContent = `${user.name} (${user.dni}) - ${reliabilityLevel} - Score: ${user.reliabilityScore}`;
         profileUserSelect.appendChild(option);
     });
 }
