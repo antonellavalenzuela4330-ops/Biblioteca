@@ -1,20 +1,128 @@
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM cargado, inicializando sistema...');
+    // Suprimir errores de extensiones del navegador
+    suppressExtensionErrors();
+    
+    debugLog('DOM cargado, inicializando sistema...');
+    
+    // Verificar salud del sistema
+    const systemHealth = checkSystemHealth();
     
     // Asegurar que la base de datos esté lista
     if (typeof db !== 'undefined') {
-        console.log('Base de datos encontrada:', db);
-        console.log('Datos globales actualizados:', { users: users.length, books: books.length, loans: loans.length });
+        debugLog('Base de datos encontrada:', db);
+        debugLog('Datos globales actualizados:', { users: users.length, books: books.length, loans: loans.length });
         
         setupEventListeners();
         showLoginPage(); // Mostrar la página de login por defecto
         setupSearchFilters();
+        
+        // Mostrar mensaje de éxito
+        debugLog('Sistema inicializado correctamente');
     } else {
         console.error('Error: Base de datos no encontrada');
-        alert('Error: Base de datos no encontrada. Recarga la página.');
+        showAlert('Error: Base de datos no encontrada. Recarga la página.', 'error');
     }
 });
+
+// Función para suprimir errores de extensiones del navegador
+function suppressExtensionErrors() {
+    const originalError = console.error;
+    const originalWarn = console.warn;
+    
+    console.error = function(...args) {
+        const message = args.join(' ');
+        // Filtrar errores de extensiones del navegador
+        if (message.includes('Extension context invalidated') || 
+            message.includes('content.js') ||
+            message.includes('wrappedSendMessage') ||
+            message.includes('notifyActive')) {
+            return; // No mostrar estos errores
+        }
+        originalError.apply(console, args);
+    };
+    
+    console.warn = function(...args) {
+        const message = args.join(' ');
+        // Filtrar advertencias de extensiones del navegador
+        if (message.includes('Extension context invalidated') || 
+            message.includes('content.js') ||
+            message.includes('wrappedSendMessage') ||
+            message.includes('notifyActive')) {
+            return; // No mostrar estas advertencias
+        }
+        originalWarn.apply(console, args);
+    };
+}
+
+// Manejo global de errores no capturados
+window.addEventListener('error', function(event) {
+    // Filtrar errores de extensiones del navegador
+    if (event.error && event.error.message) {
+        const errorMessage = event.error.message;
+        if (errorMessage.includes('Extension context invalidated') || 
+            errorMessage.includes('content.js') ||
+            errorMessage.includes('wrappedSendMessage') ||
+            errorMessage.includes('notifyActive')) {
+            event.preventDefault(); // Prevenir que se muestre en consola
+            return false;
+        }
+    }
+    
+    // Para otros errores, mostrar información útil
+    console.error('Error no capturado:', event.error);
+    showAlert('Ha ocurrido un error inesperado. Por favor, recarga la página.', 'error');
+});
+
+// Manejo de promesas rechazadas no capturadas
+window.addEventListener('unhandledrejection', function(event) {
+    // Filtrar errores de extensiones del navegador
+    if (event.reason && event.reason.message) {
+        const errorMessage = event.reason.message;
+        if (errorMessage.includes('Extension context invalidated') || 
+            errorMessage.includes('content.js') ||
+            errorMessage.includes('wrappedSendMessage') ||
+            errorMessage.includes('notifyActive')) {
+            event.preventDefault(); // Prevenir que se muestre en consola
+            return false;
+        }
+    }
+    
+    // Para otros errores de promesas, mostrar información útil
+    console.error('Promesa rechazada no capturada:', event.reason);
+    showAlert('Ha ocurrido un error en una operación. Por favor, inténtalo de nuevo.', 'warning');
+});
+
+// Función para limpiar la consola de errores de extensiones
+function clearExtensionErrors() {
+    // Esta función se puede llamar manualmente para limpiar la consola
+    console.clear();
+    console.log('Consola limpiada - Errores de extensiones suprimidos');
+}
+
+// Función de utilidad para debugging mejorado
+function debugLog(message, data = null) {
+    const timestamp = new Date().toLocaleTimeString();
+    console.log(`[${timestamp}] ${message}`, data || '');
+}
+
+// Función para verificar el estado del sistema
+function checkSystemHealth() {
+    try {
+        const health = {
+            database: typeof db !== 'undefined',
+            currentUser: currentUser !== null,
+            localStorage: typeof localStorage !== 'undefined',
+            domReady: document.readyState === 'complete'
+        };
+        
+        debugLog('Estado del sistema:', health);
+        return health;
+    } catch (error) {
+        console.error('Error verificando salud del sistema:', error);
+        return { error: error.message };
+    }
+}
 
 function setupEventListeners() {
     document.getElementById('loginForm').addEventListener('submit', handleLogin);
@@ -1236,16 +1344,72 @@ function checkLowStock() {
     }
 }
 
-function showAlert(message, type) {
-    const alert = document.createElement('div');
-    alert.className = `alert alert-${type}`;
-    alert.textContent = message;
-    
-    document.body.appendChild(alert);
-    
-    setTimeout(() => {
-        alert.remove();
-    }, 3000);
+function showAlert(message, type = 'info') {
+    try {
+        // Crear el elemento de alerta
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        
+        // Agregar estilos básicos si no existen
+        if (!document.querySelector('#alert-styles')) {
+            const style = document.createElement('style');
+            style.id = 'alert-styles';
+            style.textContent = `
+                .alert {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px 20px;
+                    border-radius: 5px;
+                    color: white;
+                    font-weight: bold;
+                    z-index: 10000;
+                    max-width: 400px;
+                    word-wrap: break-word;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    animation: slideIn 0.3s ease-out;
+                }
+                .alert-success { background-color: #28a745; }
+                .alert-warning { background-color: #ffc107; color: #212529; }
+                .alert-error { background-color: #dc3545; }
+                .alert-info { background-color: #17a2b8; }
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Remover alertas existentes para evitar acumulación
+        const existingAlerts = document.querySelectorAll('.alert');
+        existingAlerts.forEach(existingAlert => existingAlert.remove());
+        
+        document.body.appendChild(alert);
+        
+        // Auto-remover después de 4 segundos
+        setTimeout(() => {
+            if (alert && alert.parentNode) {
+                alert.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => {
+                    if (alert && alert.parentNode) {
+                        alert.remove();
+                    }
+                }, 300);
+            }
+        }, 4000);
+        
+        // Log para debugging (solo si no es un error de extensión)
+        if (!message.includes('Extension context invalidated')) {
+            console.log(`[ALERT ${type.toUpperCase()}] ${message}`);
+        }
+        
+    } catch (error) {
+        // Fallback: usar console si hay error con el DOM
+        console.error('Error mostrando alerta:', error);
+        console.log(`[ALERT ${type.toUpperCase()}] ${message}`);
+    }
 }
 
 // Función debounce para optimizar búsquedas
