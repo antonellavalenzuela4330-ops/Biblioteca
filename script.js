@@ -673,7 +673,7 @@ function handleLoanSubmit(e) {
     const bookId = parseInt(document.getElementById('loanBookId').value);
     const quantity = parseInt(document.getElementById('loanQuantity').value) || 1;
     const loanDate = document.getElementById('loanDate').value;
-    const returnDate = document.getElementById('returnDate').value;
+    const returnDate = document.getElementById('loanReturnDate').value;
 
     // Validar que se haya seleccionado un libro
     if (!bookId) {
@@ -1143,7 +1143,7 @@ function loadStats() {
     
     document.getElementById('totalBooks').textContent = stats.totalBooks;
     document.getElementById('availableBooks').textContent = stats.availableBooks;
-    document.getElementById('totalLoans').textContent = stats.totalLoans;
+    document.getElementById('statsTotalLoans').textContent = stats.totalLoans;
     document.getElementById('activeLoans').textContent = stats.activeLoans;
     document.getElementById('totalUsers').textContent = stats.totalUsers;
     document.getElementById('activeUsers').textContent = stats.activeUsers;
