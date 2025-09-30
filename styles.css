@@ -295,6 +295,87 @@ body {
     border-top: 1px solid rgba(212, 175, 55, 0.2);
 }
 
+/* Botones de acciones dentro del panel de notificaciones (más pequeños, oscuros y redondeados) */
+.notifications-dropdown-actions .btn,
+.notification-actions .btn {
+    width: auto; /* evitar ancho completo */
+    padding: 0.35rem 0.8rem;
+    font-size: 0.82rem;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #0d0d0d 0%, #1a1a1a 100%);
+    color: #f7f3e6;
+    border: 1px solid rgba(212, 175, 55, 0.18);
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.35);
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.notifications-dropdown-actions .btn:hover,
+.notification-actions .btn:hover {
+    transform: translateY(-2px);
+    border-color: rgba(212, 175, 55, 0.35);
+    box-shadow: 0 4px 12px rgba(212,175,55,0.06);
+}
+
+/* Enfoque accesible para navegación por teclado */
+.notifications-dropdown-actions .btn:focus,
+.notification-actions .btn:focus {
+    outline: 3px solid rgba(212,175,55,0.12);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(212,175,55,0.06);
+}
+
+/* Ajuste visual para botones secundarios que aún usan .btn-secondary dentro de notificaciones */
+.notifications-dropdown-actions .btn.btn-secondary,
+.notification-actions .btn.btn-secondary {
+    background: #0b0b0b;
+    color: #fffbe8;
+    border: 1px solid rgba(212,175,55,0.15);
+}
+
+/* Scrollbar personalizado para los contenedores de notificaciones */
+.notifications-dropdown,
+.notifications-dropdown-list,
+#notificationsList {
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: #d4af37 #0a0a0a;
+}
+
+/* WebKit browsers */
+.notifications-dropdown::-webkit-scrollbar,
+.notifications-dropdown-list::-webkit-scrollbar,
+#notificationsList::-webkit-scrollbar {
+    width: 8px;
+}
+
+.notifications-dropdown::-webkit-scrollbar-track,
+.notifications-dropdown-list::-webkit-scrollbar-track,
+#notificationsList::-webkit-scrollbar-track {
+    background: #070707;
+    border-radius: 8px;
+}
+
+.notifications-dropdown::-webkit-scrollbar-thumb,
+.notifications-dropdown-list::-webkit-scrollbar-thumb,
+#notificationsList::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #e1c56d 0%, #b0892b 100%);
+    border-radius: 8px;
+    border: 2px solid #0a0a0a; /* espacio para darle contraste */
+}
+
+.notifications-dropdown::-webkit-scrollbar-thumb:hover,
+.notifications-dropdown-list::-webkit-scrollbar-thumb:hover,
+#notificationsList::-webkit-scrollbar-thumb:hover {
+    filter: brightness(0.95);
+}
+
+/* Pequeño refinamiento para que el panel mantenga apariencia elegante */
+.notifications-dropdown {
+    padding: 0.25rem;
+}
+
 .logout-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(255, 255, 255, 0.3);
@@ -3146,6 +3227,12 @@ tr:hover td {
     margin-bottom: 0.75rem;
 }
 
+/* Reservar espacio a la derecha para el indicador de no leída y evitar solapamiento con la hora */
+.notification-header {
+    position: relative;
+    padding-right: 2rem; /* espacio para el punto */
+}
+
 .notification-title {
     font-size: 1.1rem;
     font-weight: bold;
@@ -3157,6 +3244,12 @@ tr:hover td {
     font-size: 0.85rem;
     color: #d4af37;
     white-space: nowrap;
+}
+
+/* Asegurar que la hora se muestre por encima si hay alguna superposición mínima */
+.notification-time {
+    position: relative;
+    z-index: 2;
 }
 
 /* Contenido de la notificación */
@@ -3234,6 +3327,16 @@ tr:hover td {
     height: 8px;
     background: #d4af37;
     border-radius: 50%;
+}
+
+/* Ajustes del indicador: tamaño ligeramente mayor y borde de contraste para mejor visibilidad sin cubrir la hora */
+.notification-unread-indicator {
+    width: 9px;
+    height: 9px;
+    right: 0.9rem;
+    top: 1rem;
+    box-shadow: 0 0 0 3px rgba(212,175,55,0.06);
+    z-index: 1; /* detrás de la hora si hay solapamiento mínimo */
 }
 
 /* Mensaje cuando no hay notificaciones */
