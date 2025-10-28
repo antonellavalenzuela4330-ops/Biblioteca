@@ -2769,8 +2769,8 @@ function updateNotificationBadge() {
 
 // Integrar notificaciones con el sistema de préstamos
 function createLoanNotification(loan, action) {
-    const book = db.getBookById(loan.bookId);
-    const user = db.getUserById(loan.userId);
+    const book = loan.bookId ? db.getBookById(loan.bookId) : null;
+    const user = db.getUsers().find(u => u.id === loan.userId);
     
     if (!book || !user) return;
     
