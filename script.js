@@ -1452,11 +1452,6 @@ function showAlert(message, type = 'info') {
             }
         }, 4000);
         
-        // Log para debugging (solo si no es un error de extensión)
-        if (!message.includes('Extension context invalidated')) {
-            console.log(`[ALERT ${type.toUpperCase()}] ${message}`);
-        }
-        
     } catch (error) {
         // Fallback: usar console si hay error con el DOM
         console.error('Error mostrando alerta:', error);
