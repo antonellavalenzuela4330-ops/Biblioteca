@@ -193,8 +193,15 @@ class Database {
 
     // Métodos para libros
     getBooks() {
-        return JSON.parse(localStorage.getItem('biblioteca_books') || '[]');
+    return JSON.parse(localStorage.getItem('biblioteca_books') || '[]');
     }
+
+    // ✅ Agregar este método nuevo
+    getBookById(bookId) {
+    const books = this.getBooks();
+    return books.find(book => book.id === bookId);
+    }
+
 
     saveBooks(books) {
         localStorage.setItem('biblioteca_books', JSON.stringify(books));
