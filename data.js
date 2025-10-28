@@ -293,26 +293,36 @@ class Database {
         if (index !== -1) {
             const oldStatus = loans[index].status;
             loans[index] = { ...loans[index], ...updatedLoan };
-            
-            // Si el préstamo se marca como devuelto, restaurar stock por cantidad
-            if (updatedLoan.status === 'devuelto' && oldStatus !== 'devuelto') {
+            const updatedStatus = updatedLoan.status;
+            const userId = loans[index].userId;
+            const book = this.getBookById(loans[index].bookId);
+            const bookTitle = book ? book.title : "Libro desconocido";
+    
+            // ✅ Restaurar stock si se marca como devuelto
+            if (updatedStatus === 'devuelto' && oldStatus !== 'devuelto') {
                 const books = this.getBooks();
-                const book = books.find(b => b.id === loans[index].bookId);
-                if (book) {
+                const foundBook = books.find(b => b.id === loans[index].bookId);
+                if (foundBook) {
                     const quantity = Math.max(1, parseInt(loans[index].quantity) || 1);
-                    book.stock += quantity;
-                    if (book.stock > 0) {
-                        book.status = 'disponible';
+                    foundBook.stock += quantity;
+                    if (foundBook.stock > 0) {
+                        foundBook.status = 'disponible';
                     }
                     this.saveBooks(books);
                 }
             }
-            
+    
+            // ✅ Guardar cambios en los préstamos
             this.saveLoans(loans);
+    
+            // ✅ Enviar notificación al usuario según el nuevo estado
+            this.notifyUserLoanStatus(userId, bookTitle, updatedStatus);
+    
             return loans[index];
         }
         return null;
     }
+    
 
     deleteLoan(loanId) {
         const loans = this.getLoans();
@@ -589,4 +599,78 @@ function setCurrentUser(user) {
 // Función para limpiar el usuario current (logout)
 function clearCurrentUser() {
     currentUser = null;
+}
+// ...otras funciones existentes...
+
+// === Mostrar préstamos del usuario ===
+function renderUserLoans() {
+    const currentUser = getCurrentUser();
+    if (!currentUser) return;
+
+    const loans = db.getLoans().filter(loan => loan.userId === currentUser.id);
+    const section = document.getElementById("userLoansSection");
+    if (!section) return;
+
+    // 🔹 Buscar (o crear si no existe) el contenedor de la lista
+    let listContainer = document.getElementById("userLoansList");
+    if (!listContainer) {
+        listContainer = document.createElement("div");
+        listContainer.id = "userLoansList";
+        listContainer.classList.add("user-loans-list");
+        // se agrega DESPUÉS del formulario
+        section.appendChild(listContainer);
+    }
+
+    // 🔹 Generar HTML de los préstamos sin borrar el formulario
+    if (loans.length === 0) {
+        listContainer.innerHTML = `
+            <div class="no-loans">
+                <p>No tienes préstamos registrados aún.</p>
+            </div>`;
+        return;
+    }
+
+    listContainer.innerHTML = loans.map(loan => {
+        const book = db.getBookById(loan.bookId);
+        const title = book ? book.title : "Libro desconocido";
+        const statusLabel = getLoanStatusLabel(loan.status);
+        const statusClass = getLoanStatusClass(loan.status);
+        const startDate = loan.startDate ? new Date(loan.startDate).toLocaleDateString() : "—";
+        const endDate = loan.endDate ? new Date(loan.endDate).toLocaleDateString() : "—";
+
+        return `
+            <div class="loan-card">
+                <div class="loan-header">
+                    <h4>${title}</h4>
+                    <span class="loan-status ${statusClass}">${statusLabel}</span>
+                </div>
+                <p><strong>Fecha inicio:</strong> ${startDate}</p>
+                <p><strong>Fecha devolución:</strong> ${endDate}</p>
+                <p><strong>Cantidad:</strong> ${loan.quantity || 1}</p>
+            </div>
+        `;
+    }).join("");
+}
+
+
+function getLoanStatusClass(status) {
+    switch (status) {
+        case "aprobado": return "status-aprobado";
+        case "pendiente": return "status-pendiente";
+        case "rechazado":
+        case "cancelado": return "status-rechazado";
+        case "devuelto": return "status-devuelto";
+        default: return "status-pendiente";
+    }
+}
+
+function getLoanStatusLabel(status) {
+    switch (status) {
+        case "aprobado": return "Aprobado";
+        case "pendiente": return "Pendiente";
+        case "rechazado": return "Rechazado";
+        case "cancelado": return "Cancelado";
+        case "devuelto": return "Devuelto";
+        default: return "Pendiente";
+    }
 }

@@ -447,6 +447,10 @@ function showSection(sectionName) {
         loadUserProfiles();
         setupProfileUserSelector();
     }
+    if (sectionName === "userLoans") {
+    renderUserLoans();
+}
+
 }
 
 // ===== Header Notificaciones (Dropdown) =====
@@ -460,6 +464,16 @@ function toggleHeaderNotifications(e) {
     } else {
         dropdown.classList.add('show');
         renderHeaderNotifications();
+        // Mostrar punto dorado si hay notificaciones sin leer
+        const hasNewNotifications = userNotifications.some(n => !n.read);
+        const dot = document.getElementById('notificationDot');
+        if (dot) {
+         if (hasNewNotifications) {
+            dot.classList.add('active');
+            } else {
+            dot.classList.remove('active');}
+        }
+
     }
 }
 
@@ -2769,8 +2783,8 @@ function updateNotificationBadge() {
 
 // Integrar notificaciones con el sistema de préstamos
 function createLoanNotification(loan, action) {
-    const book = loan.bookId ? db.getBookById(loan.bookId) : null;
-    const user = db.getUsers().find(u => u.id === loan.userId);
+    const book = db.getBookById(loan.bookId);
+    const user = db.getUserById(loan.userId);
     
     if (!book || !user) return;
     
