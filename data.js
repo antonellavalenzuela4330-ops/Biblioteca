@@ -316,7 +316,7 @@ class Database {
             this.saveLoans(loans);
     
             // ✅ Enviar notificación al usuario según el nuevo estado
-            this.notifyUserLoanStatus(userId, bookTitle, updatedStatus);
+            // this.notifyUserLoanStatus(userId, bookTitle, updatedStatus);
     
             return loans[index];
         }

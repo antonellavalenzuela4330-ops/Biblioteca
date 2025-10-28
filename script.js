@@ -465,15 +465,18 @@ function toggleHeaderNotifications(e) {
         dropdown.classList.add('show');
         renderHeaderNotifications();
         // Mostrar punto dorado si hay notificaciones sin leer
+        const currentUser = getCurrentUser();
+        if (!currentUser) return;
+        const userNotifications = getUserNotifications(currentUser.id);
         const hasNewNotifications = userNotifications.some(n => !n.read);
         const dot = document.getElementById('notificationDot');
         if (dot) {
-         if (hasNewNotifications) {
-            dot.classList.add('active');
+            if (hasNewNotifications) {
+                dot.classList.add('active');
             } else {
-            dot.classList.remove('active');}
+                dot.classList.remove('active');
+            }
         }
-
     }
 }
 
@@ -1631,13 +1634,25 @@ function showUserNotification(message, type) {
 function returnUserBook(loanId) {
     if (confirm('¿Estás seguro de que quieres marcar este libro como devuelto?')) {
         const now = new Date().toLocaleString('es-ES');
-        db.updateLoan(loanId, { 
-            status: 'devuelto',
-            returnedAt: now
-        });
+        const loan = db.getLoans().find(l => l.id === loanId);
         
-        loadUserLoans();
-        showUserNotification('Libro marcado como devuelto exitosamente', 'success');
+        if (loan) {
+            db.updateLoan(loanId, { 
+                status: 'devuelto',
+                returnedAt: now
+            });
+
+            const book = db.getBookById(loan.bookId);
+            if (book) {
+                book.stock += 1;
+                db.updateBook(book.id, { stock: book.stock, status: book.stock > 0 ? 'disponible' : 'agotado' });
+            }
+            
+            loadUserLoans();
+            showUserNotification('Libro marcado como devuelto exitosamente', 'success');
+        } else {
+            showUserNotification('Error: No se encontró el préstamo.', 'error');
+        }
     }
 }
 
@@ -2783,8 +2798,8 @@ function updateNotificationBadge() {
 
 // Integrar notificaciones con el sistema de préstamos
 function createLoanNotification(loan, action) {
-    const book = db.getBookById(loan.bookId);
-    const user = db.getUserById(loan.userId);
+    const book = loan.bookId ? db.getBookById(loan.bookId) : null;
+    const user = db.getUsers().find(u => u.id === loan.userId);
     
     if (!book || !user) return;
     
