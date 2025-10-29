@@ -1,4 +1,7 @@
 // Inicialización
+// Flag global para habilitar/deshabilitar logs de depuración
+window.DEBUG_LOGS = false;
+
 document.addEventListener('DOMContentLoaded', function() {
     // Suprimir errores de extensiones del navegador
     suppressExtensionErrors();
@@ -29,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function suppressExtensionErrors() {
     const originalError = console.error;
     const originalWarn = console.warn;
+    const originalLog = console.log;
     
     console.error = function(...args) {
         const message = args.join(' ');
@@ -52,6 +56,13 @@ function suppressExtensionErrors() {
             return; // No mostrar estas advertencias
         }
         originalWarn.apply(console, args);
+    };
+
+    // Silenciar logs de depuración salvo que DEBUG_LOGS esté activo
+    console.log = function(...args) {
+        if (window.DEBUG_LOGS) {
+            originalLog.apply(console, args);
+        }
     };
 }
 
@@ -464,18 +475,10 @@ function toggleHeaderNotifications(e) {
     } else {
         dropdown.classList.add('show');
         renderHeaderNotifications();
-        // Mostrar punto dorado si hay notificaciones sin leer
-        const currentUser = getCurrentUser();
-        if (!currentUser) return;
-        const userNotifications = getUserNotifications(currentUser.id);
-        const hasNewNotifications = userNotifications.some(n => !n.read);
+        // Desactivar el punto dorado siempre
         const dot = document.getElementById('notificationDot');
         if (dot) {
-            if (hasNewNotifications) {
-                dot.classList.add('active');
-            } else {
-                dot.classList.remove('active');
-            }
+            dot.classList.remove('active');
         }
     }
 }
@@ -636,7 +639,9 @@ function createBookCard(book) {
             'Orgullo y prejuicio': 'Orgullo y prejuicio.jpeg',
             'Crimen y castigo': 'Don Quijote.jpg',
             'El gran Gatsby': 'Cien años de soledad.png',
-            'Matar a un ruiseñor': 'El señor de los anillos.jpg'
+            'Matar a un ruiseñor': 'El señor de los anillos.jpg',
+            'El código Da Vinci': 'El codigo da vinci.jpg',
+            'Los juegos del hambre': 'Los juegos del hambre.jpg'
         };
         return coverImages[title] || 'Don Quijote.jpg';
     };
