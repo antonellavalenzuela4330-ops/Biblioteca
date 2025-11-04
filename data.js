@@ -53,8 +53,7 @@ class Database {
             ];
             localStorage.setItem('biblioteca_users', JSON.stringify(defaultUsers));
         }
-
-        if (!localStorage.getItem('biblioteca_books')) {
+        {
             const defaultBooks = [
                 { 
                     id: 1, 
@@ -120,9 +119,59 @@ class Database {
                     isbn: "978-84-206-5160-3",
                     description: "Historia de amor entre Elizabeth Bennet y Mr. Darcy en la Inglaterra del siglo XIX",
                     status: "disponible"
+                },
+                {
+                    id: 6,
+                    title: "El código Da Vinci",
+                    author: "Dan Brown",
+                    genre: "Misterio / Thriller",
+                    editorial: "Doubleday",
+                    tutor: "Dr. Robert Langdon",
+                    year: 2003,
+                    stock: 2,
+                    isbn: "978-84-666-1243-7",
+                    description: "Un simbólogo investiga un asesinato en el Louvre y descubre secretos ocultos sobre el Santo Grial.",
+                    status: "disponible"
+                },
+                {
+                    id: 7,
+                    title: "Los juegos del hambre",
+                    author: "Suzanne Collins",
+                    genre: "Ciencia ficción / Aventura",
+                    editorial: "Scholastic Press",
+                    tutor: "Dr. John Kessel",
+                    year: 2008,
+                    stock: 3,
+                    isbn: "978-84-672-4110-6",
+                    description: "Katniss Everdeen lucha por sobrevivir en una competencia mortal transmitida como espectáculo televisivo.",
+                    status: "disponible"
                 }
             ];
-            localStorage.setItem('biblioteca_books', JSON.stringify(defaultBooks));
+            const existing = JSON.parse(localStorage.getItem('biblioteca_books') || '[]');
+            if (existing.length === 0) {
+                localStorage.setItem('biblioteca_books', JSON.stringify(defaultBooks));
+            } else {
+                const titles = new Set(existing.map(b => b.title));
+                const toAdd = defaultBooks.filter(b => !titles.has(b.title));
+                if (toAdd.length) {
+                    localStorage.setItem('biblioteca_books', JSON.stringify([...existing, ...toAdd]));
+                }
+            }
+        }
+        {
+            const defaultBooks = [
+                // deja aquí tu lista actual (ids 1..7), tal cual la tienes
+            ];
+            const existing = JSON.parse(localStorage.getItem('biblioteca_books') || '[]');
+            if (existing.length === 0) {
+                localStorage.setItem('biblioteca_books', JSON.stringify(defaultBooks));
+            } else {
+                const titles = new Set(existing.map(b => b.title));
+                const toAdd = defaultBooks.filter(b => !titles.has(b.title));
+                if (toAdd.length) {
+                    localStorage.setItem('biblioteca_books', JSON.stringify([...existing, ...toAdd]));
+                }
+            }
         }
 
         if (!localStorage.getItem('biblioteca_loans')) {
@@ -312,11 +361,13 @@ class Database {
                 }
             }
     
-            // ✅ Guardar cambios en los préstamos
+            // Guardar cambios en los préstamos
             this.saveLoans(loans);
-    
-            // ✅ Enviar notificación al usuario según el nuevo estado
-            // this.notifyUserLoanStatus(userId, bookTitle, updatedStatus);
+
+            // Enviar notificación al usuario según el nuevo estado (si existe función global)
+            if (typeof notifyUserLoanStatus === 'function') {
+                notifyUserLoanStatus(userId, bookTitle, updatedStatus);
+            }
     
             return loans[index];
         }
