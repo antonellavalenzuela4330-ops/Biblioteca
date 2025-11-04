@@ -90,7 +90,7 @@
             <div class="auth-form">
                 <h2>Recuperar Contraseña</h2>
                 <p>Ingresa tu email para recibir instrucciones de recuperación:</p>
-                <form id="forgotPasswordForm">
+                <form id="forgotPasswordForm"> 
                     <div class="form-group">
                         <label for="forgotEmail">Email:</label>
                         <input type="email" id="forgotEmail" required>
@@ -409,6 +409,15 @@
                 </div>
                 <div id="adminAlerts"></div>
                 <div id="inventoryTable"></div>
+            </div>
+
+            <div id="databaseActionsSection" class="admin-panel">
+                <h3>Acciones de Base de Datos</h3>
+                <p>
+                    Usa esta opción para limpiar todos los datos de la aplicación y restaurar los valores iniciales.
+                    Esto es útil para pruebas o para empezar de cero.
+                </p>
+                <button id="clearDatabaseBtn" class="btn btn-danger">Limpiar Base de Datos</button>
             </div>
 
             <!-- Gestión de Préstamos y Devoluciones -->

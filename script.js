@@ -142,7 +142,29 @@ function setupEventListeners() {
     document.getElementById('notReturnedForm').addEventListener('submit', handleNotReturnedSubmit);
     document.getElementById('removeNotReturnedForm').addEventListener('submit', handleRemoveNotReturnedSubmit);
     document.getElementById('userEditForm').addEventListener('submit', handleUserEdit);
+    
+    const clearDbBtn = document.getElementById('clearDatabaseBtn');
+    if (clearDbBtn) {
+        clearDbBtn.addEventListener('click', handleClearDatabase);
+    }
     // Quitar búsquedas automáticas: solo con el botón
+}
+
+function handleClearDatabase() {
+    if (confirm('¿Estás seguro de que deseas limpiar toda la base de datos? Esta acción es irreversible.')) {
+        try {
+            db.clearDatabase();
+            showAlert('Base de datos limpiada y reiniciada con éxito.', 'success');
+            // Recargar la página para que se apliquen los cambios
+            setTimeout(() => {
+                logout(); // Desloguear al usuario para evitar inconsistencias
+                window.location.reload();
+            }, 1500);
+        } catch (error) {
+            console.error('Error al limpiar la base de datos:', error);
+            showAlert('Ocurrió un error al limpiar la base de datos.', 'error');
+        }
+    }
 }
 
 function setupSearchFilters() {
