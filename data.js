@@ -432,20 +432,20 @@ class Database {
         if (totalReturns === 0) return 100;
 
         // Sistema de puntuación mejorado:
-        // Buen estado: +5 puntos (recompensa por buen cuidado)
-        // Estado regular: -10 puntos (penalización por descuido)
-        // Mal estado: -25 puntos (penalización severa por mal cuidado)
-        // Entregas tardías: -15 puntos (penalización moderada por retraso)
-        // No devuelto: -50 puntos (penalización máxima)
-        let score = 100;
-        score += (user.goodReturns * 5);
-        score += (user.regularReturns * -10);
-        score += (user.badReturns * -25);
-        score += (user.lateReturns * -15);
-        score += (user.notReturned * -50);
+        const penaltyPoints =
+            (user.regularReturns * 10) +
+            (user.badReturns * 25) +
+            (user.lateReturns * 15) +
+            (user.notReturned * 50);
+
+        const bonusPoints = user.goodReturns * 5;
+
+        let score = 100 - penaltyPoints;
+        score = Math.min(100, score + bonusPoints);
+
 
         // Asegurar que el score esté entre 0 y 100
-        return Math.max(0, Math.min(100, score));
+        return Math.max(0, score);
     }
 
     updateUserReliability(userId, returnType) {
