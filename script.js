@@ -27,7 +27,46 @@ document.addEventListener('DOMContentLoaded', function() {
         showAlert('Error: Base de datos no encontrada. Recarga la página.', 'error');
     }
 });
-
+// Función para validar año (solo números mayores a 1000)
+function setupYearValidation() {
+    const yearInputs = ['bookYear', 'modalBookYear'];
+    
+    yearInputs.forEach(inputId => {
+        const input = document.getElementById(inputId);
+        if (input) {
+            // Validar mientras se escribe
+            input.addEventListener('input', function(e) {
+                let value = this.value.replace(/[^0-9]/g, ''); // Solo números
+                
+                // Si hay valor y es menor a 1000, mostrar advertencia
+                if (value && parseInt(value) < 1000) {
+                    this.setCustomValidity('El año debe ser mayor a 1000');
+                    this.style.borderColor = '#dc3545'; // Rojo para indicar error
+                } else if (value && parseInt(value) > new Date().getFullYear()) {
+                    this.setCustomValidity('El año no puede ser mayor al año actual');
+                    this.style.borderColor = '#dc3545';
+                } else {
+                    this.setCustomValidity('');
+                    this.style.borderColor = ''; // Restaurar color normal
+                }
+                
+                this.value = value;
+            });
+            
+            // Validar al perder el foco
+            input.addEventListener('blur', function(e) {
+                const value = parseInt(this.value);
+                if (this.value && (isNaN(value) || value < 1000)) {
+                    showAlert('El año debe ser un número mayor a 1000', 'warning');
+                    this.focus();
+                } else if (this.value && value > new Date().getFullYear()) {
+                    showAlert('El año no puede ser mayor al año actual', 'warning');
+                    this.focus();
+                }
+            });
+        }
+    });
+}
 // Función para suprimir errores de extensiones del navegador
 function suppressExtensionErrors() {
     const originalError = console.error;
@@ -147,6 +186,7 @@ function setupEventListeners() {
     if (clearDbBtn) {
         clearDbBtn.addEventListener('click', handleClearDatabase);
     }
+    setupYearValidation();
     // Quitar búsquedas automáticas: solo con el botón
 }
 
@@ -232,7 +272,31 @@ function handleForgotPassword(e) {
         showAlert('No se encontró una cuenta con ese email', 'warning');
     }
 }
-
+// Función para mostrar/ocultar contraseña
+function mostrarPassword() {
+    var cambio = document.getElementById("loginPassword");
+    var icon = document.querySelector('#show_password .icon');
+    
+    if (!cambio) {
+        console.error('Campo de contraseña no encontrado');
+        return;
+    }
+    
+    if (!icon) {
+        console.error('Ícono no encontrado');
+        return;
+    }
+    
+    if (cambio.type == "password") {
+        cambio.type = "text";
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    } else {
+        cambio.type = "password";
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    }
+}
 function handleLogin(e) {
     e.preventDefault();
     console.log('=== INICIANDO PROCESO DE LOGIN ===');
@@ -311,32 +375,29 @@ function handleRegister(e) {
     e.preventDefault();
     
     const name = document.getElementById('registerName').value.trim();
-    const dni = document.getElementById('registerDni').value.trim();
-    const address = document.getElementById('registerAddress').value.trim();
-    const phone = document.getElementById('registerPhone').value.trim();
     const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value;
     const role = 'usuario'; // Rol por defecto para usuarios que se registran
-
+    
     // Validar que todos los campos estén completos
-    if (!name || !dni || !address || !phone || !email || !password) {
+    if (!name || !email || !password) {
         showAlert('Por favor, completa todos los campos', 'warning');
         return;
     }
-
+    
     // Validar formato de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         showAlert('Por favor, ingresa un email válido', 'warning');
         return;
     }
-
+    
     // Validar longitud de contraseña
     if (password.length < 6) {
         showAlert('La contraseña debe tener al menos 6 caracteres', 'warning');
         return;
     }
-
+    
     try {
         if (db.findUserByEmail(email)) {
             showAlert('El email ya está registrado', 'warning');
@@ -345,9 +406,6 @@ function handleRegister(e) {
 
         const newUser = {
             name: name,
-            dni: dni,
-            address: address,
-            phone: phone,
             email: email,
             password: password,
             role: role,
@@ -800,6 +858,20 @@ function handleBookSubmit(e) {
     const editorial = document.getElementById('bookEditorial').value;
     const tutor = document.getElementById('bookTutor').value;
     const year = parseInt(document.getElementById('bookYear').value);
+        // Validar que el año sea mayor a 1000
+    if (isNaN(year) || year < 1000) {
+        showAlert('El año debe ser un número mayor a 1000', 'warning');
+        document.getElementById('bookYear').focus();
+        return; // Detener la función aquí
+    }
+    
+    // Validar que el año no sea mayor al año actual
+    const currentYear = new Date().getFullYear();
+    if (year > currentYear) {
+        showAlert('El año no puede ser mayor al año actual (' + currentYear + ')', 'warning');
+        document.getElementById('bookYear').focus();
+        return; // Detener la función aquí
+    }
     const stock = parseInt(document.getElementById('bookStock').value);
     const isbn = document.getElementById('bookIsbn').value;
     const description = document.getElementById('bookDescription').value;
@@ -1033,41 +1105,51 @@ function loadLoans() {
             }
         });
 
-        // Mostrar todos los préstamos (administración) en grid y contenedor angosto
-        loansList.innerHTML = `
-            <h3>Préstamos Activos</h3>
-            <div class="loans-narrow">
-                <div class="loans-grid" style="margin-top: 1rem;">
-                    ${loans.map(loan => `
-                        <div class="user-loan-card">
-                            <div class="loan-info">
-                                <div class="loan-info-item"><strong>Libro:</strong> ${loan.bookTitle}</div>
-                                <div class="loan-info-item"><strong>Usuario:</strong> ${loan.userName}</div>
-                                <div class="loan-info-item"><strong>Fecha de préstamo:</strong> ${loan.loanDate || loan.startDate || 'No especificada'}</div>
-                                <div class="loan-info-item"><strong>Fecha de devolución:</strong> ${loan.returnDate || loan.endDate || 'No especificada'}</div>
-                                <div class="loan-info-item"><strong>Estado:</strong> ${loan.status}</div>
+                // Filtrar solo préstamos activos (excluir devueltos/finalizados)
+                const activeLoans = loans.filter(loan => 
+                    loan.status !== 'devuelto' && 
+                    loan.status !== 'finalizado'
+                );
+                
+                if (activeLoans.length === 0) {
+                    loansList.innerHTML = '<p style="text-align: center; color: #ffffff; opacity: 0.8; padding: 2rem; font-size: 1.1rem;">No hay préstamos activos</p>';
+                } else {
+                    // Mostrar solo préstamos activos (administración) en grid y contenedor angosto
+                    loansList.innerHTML = `
+                        <h3>Préstamos Activos</h3>
+                        <div class="loans-narrow">
+                            <div class="loans-grid" style="margin-top: 1rem;">
+                                ${activeLoans.map(loan => `
+                                    <div class="user-loan-card">
+                                        <div class="loan-info">
+                                            <div class="loan-info-item"><strong>Libro:</strong> ${loan.bookTitle}</div>
+                                            <div class="loan-info-item"><strong>Usuario:</strong> ${loan.userName}</div>
+                                            <div class="loan-info-item"><strong>Fecha de préstamo:</strong> ${loan.loanDate || loan.startDate || 'No especificada'}</div>
+                                            <div class="loan-info-item"><strong>Fecha de devolución:</strong> ${loan.returnDate || loan.endDate || 'No especificada'}</div>
+                                            <div class="loan-info-item"><strong>Estado:</strong> ${loan.status}</div>
+                                        </div>
+                                        ${loan.status === 'pendiente' && currentUser.role === 'bibliotecario' ? 
+                                            `<div class=\"loan-actions\">
+                                                <button class=\"btn\" onclick=\"acceptLoan(${loan.id})\" style=\"margin-right: 0.5rem;\">Aprobar Préstamo</button>
+                                                <button class=\"btn btn-secondary\" onclick=\"rejectLoan(${loan.id})\">Rechazar</button>
+                                            </div>` :
+                                        loan.status === 'aprobado' && currentUser.role === 'bibliotecario' ? 
+                                            `<div class=\"loan-actions\">
+                                                <button class=\"btn\" onclick=\"returnBook(${loan.id})\" style=\"margin-right: 0.5rem;\">Finalizar préstamo</button>
+                                                <button class=\"btn btn-warning\" onclick=\"notReturnedBook(${loan.id})\">Devolución no realizada</button>
+                                            </div>` : 
+                                            loan.status === 'devuelto' ? 
+                                                '<span style="color: #ffffff; opacity: 0.8; font-style: italic;">Préstamo finalizado</span>' :
+                                                loan.status === 'rechazado' ?
+                                                    '<span style="color: #dc3545; font-style: italic;">Préstamo rechazado</span>' :
+                                                    '<span style="color: #d4af37; font-style: italic;">Préstamo pendiente de aprobación</span>'
+                                        }
+                                    </div>
+                                `).join('')}
                             </div>
-                            ${loan.status === 'pendiente' && currentUser.role === 'bibliotecario' ? 
-                                `<div class=\"loan-actions\">
-                                    <button class=\"btn\" onclick=\"acceptLoan(${loan.id})\" style=\"margin-right: 0.5rem;\">Aprobar Préstamo</button>
-                                    <button class=\"btn btn-secondary\" onclick=\"rejectLoan(${loan.id})\">Rechazar</button>
-                                </div>` :
-                            loan.status === 'aprobado' && currentUser.role === 'bibliotecario' ? 
-                                `<div class=\"loan-actions\">
-                                    <button class=\"btn\" onclick=\"returnBook(${loan.id})\" style=\"margin-right: 0.5rem;\">Finalizar préstamo</button>
-                                    <button class=\"btn btn-warning\" onclick=\"notReturnedBook(${loan.id})\">Devolución no realizada</button>
-                                </div>` : 
-                                loan.status === 'devuelto' ? 
-                                    '<span style="color: #ffffff; opacity: 0.8; font-style: italic;">Préstamo finalizado</span>' :
-                                    loan.status === 'rechazado' ?
-                                        '<span style="color: #dc3545; font-style: italic;">Préstamo rechazado</span>' :
-                                        '<span style="color: #d4af37; font-style: italic;">Préstamo pendiente de aprobación</span>'
-                            }
                         </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
+                    `;
+                }
     }
 }
 
@@ -1146,6 +1228,12 @@ function returnBook(loanId) {
     // Hacer scroll hacia el formulario de devolución
     const returnForm = document.getElementById('returnForm');
     if (returnForm) {
+        // Encontrar el panel padre (admin-panel) y agregar clase de resaltado
+        const returnPanel = returnForm.closest('.admin-panel');
+        if (returnPanel) {
+            returnPanel.classList.add('highlight-return');
+        }
+        
         returnForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     
@@ -1719,21 +1807,25 @@ function handleReturnSubmit(e) {
         return;
     }
     
-    // Registrar la devolución
-    const returnRecord = {
-        id: Date.now(),
-        bookId: book.id,
-        bookTitle: book.title,
-        userId: userId,
-        userName: db.getUsers().find(u => u.id === userId).name,
-        isbn: isbn,
-        condition: condition,
-        returnDate: returnDate,
-        notes: notes,
-        processedBy: currentUser.name,
-        processedAt: new Date().toLocaleString('es-ES'),
-        type: 'normal'
-    };
+       // Obtener el usuario completo para acceder a su DNI
+       const user = db.getUsers().find(u => u.id === userId);
+    
+       // Registrar la devolución
+       const returnRecord = {
+           id: Date.now(),
+           bookId: book.id,
+           bookTitle: book.title,
+           userId: userId,
+           userName: user.name,
+           userDni: user.dni || 'No especificado',
+           isbn: isbn,
+           condition: condition,
+           returnDate: returnDate,
+           notes: notes,
+           processedBy: currentUser.name,
+           processedAt: new Date().toLocaleString('es-ES'),
+           type: 'normal'
+       };
     
     // Guardar el registro de devolución
     db.addReturn(returnRecord);
@@ -1768,6 +1860,25 @@ function handleReturnSubmit(e) {
     loadStockStatus();
     
     showAlert('Devolución registrada exitosamente', 'success');
+    
+    showAlert('Devolución registrada exitosamente', 'success');
+    
+    // Remover el resaltado del panel de devolución
+    const returnForm = document.getElementById('returnForm');
+    if (returnForm) {
+        const returnPanel = returnForm.closest('.admin-panel');
+        if (returnPanel) {
+            returnPanel.classList.remove('highlight-return');
+        }
+    }
+    
+    // Hacer scroll automático hasta la sección de Historial de Devoluciones
+    setTimeout(() => {
+        const returnsList = document.getElementById('returnsList');
+        if (returnsList) {
+            returnsList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, 300);
 }
 
 function handleNotReturnedSubmit(e) {
@@ -2016,6 +2127,12 @@ function loadReturns() {
                         <span class="return-date">${returnRecord.returnDate}</span>
                     </div>
                     <div class="return-details">
+                        <div class="return-detail">
+                            <strong>Usuario:</strong> ${returnRecord.userName || 'No especificado'}
+                        </div>
+                        <div class="return-detail">
+                            <strong>DNI:</strong> ${returnRecord.userDni || 'No especificado'}
+                        </div>
                         <div class="return-detail">
                             <strong>ISBN:</strong> ${returnRecord.isbn}
                         </div>

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Gestión de Biblioteca</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
     <div class="container">
@@ -26,7 +27,12 @@
                             </div>
                             <div class="form-group">
                                 <label for="loginPassword" class="label-hero">CONTRASEÑA</label>
-                                <input type="password" id="loginPassword" class="input-hero" required>
+                                <div class="password-input-wrapper">
+                                    <input type="password" id="loginPassword" class="input-hero" required>
+                                    <button type="button" id="show_password" class="password-toggle-btn" onclick="mostrarPassword()">
+                                        <span class="fa fa-eye-slash icon"></span>
+                                    </button>
+                                </div>
                             </div>
                             <button type="submit" class="btn btn-hero">INICIAR SESIÓN</button>
                         </form>
@@ -49,22 +55,10 @@
                     </div>
                     <div class="auth-form auth-form-hero">
                         <h2 class="auth-heading">CREAR CUENTA</h2>
-                        <form id="registerForm">
+                        <form id="registerForm"> 
                             <div class="form-group">
                                 <label for="registerName" class="label-hero">NOMBRE COMPLETO</label>
                                 <input type="text" id="registerName" class="input-hero" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="registerDni" class="label-hero">DNI</label>
-                                <input type="text" id="registerDni" class="input-hero" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="registerAddress" class="label-hero">DIRECCIÓN</label>
-                                <input type="text" id="registerAddress" class="input-hero" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="registerPhone" class="label-hero">TELÉFONO</label>
-                                <input type="tel" id="registerPhone" class="input-hero" required>
                             </div>
                             <div class="form-group">
                                 <label for="registerEmail" class="label-hero">EMAIL.</label>
@@ -400,7 +394,7 @@
                         <input type="text" id="bookGenre" placeholder="Género" required>
                         <input type="text" id="bookEditorial" placeholder="Editorial" required>
                         <input type="text" id="bookTutor" placeholder="Tutor/Académico" required>
-                        <input type="number" id="bookYear" placeholder="Año de publicación" required min="1000" max="2024">
+                        <input type="text" id="bookYear" placeholder="Año de publicación" required>
                         <input type="number" id="bookStock" placeholder="Stock disponible" required min="0">
                         <input type="text" id="bookIsbn" placeholder="ISBN" required>
                         <textarea id="bookDescription" placeholder="Descripción del libro" rows="3"></textarea>
@@ -813,7 +807,7 @@
                     </div>
                     <div class="form-group">
                         <label for="modalBookYear">Año:</label>
-                        <input type="number" id="modalBookYear" required min="1000" max="2024">
+                        <input type="text" id="modalBookYear" required>
                     </div>
                 </div>
                 <div class="form-row">
